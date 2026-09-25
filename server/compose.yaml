@@ -1,0 +1,15 @@
+services:
+  workbook-api:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    container_name: workbook_api
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - workbook_data:/data
+    ports:
+      - "0.0.0.0:8081:8080"
+
+volumes:
+  workbook_data:
