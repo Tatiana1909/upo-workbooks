@@ -40,24 +40,41 @@ jobs:
           SERVER_PORT: "22"
           SERVER_USER: root
           WORKBOOK_ACCESS_CODE: ${{ secrets.WORKBOOK_ACCESS_CODE }}
+          WORKBOOK_ADMIN_LOGIN: ${{ secrets.WORKBOOK_ADMIN_LOGIN }}
+          WORKBOOK_ADMIN_PASSWORD: ${{ secrets.WORKBOOK_ADMIN_PASSWORD }}
         run: |
           ACCESS_B64="$(printf '%s' "$WORKBOOK_ACCESS_CODE" | base64 -w0)"
-          ssh -p "${SERVER_PORT:-22}" "$SERVER_USER@$SERVER_HOST" "ACCESS_B64='$ACCESS_B64' bash -s" <<'REMOTE'
+          ADMIN_LOGIN_B64="$(printf '%s' "$WORKBOOK_ADMIN_LOGIN" | base64 -w0)"
+          ADMIN_PASSWORD_B64="$(printf '%s' "$WORKBOOK_ADMIN_PASSWORD" | base64 -w0)"
+          ssh -p "${SERVER_PORT:-22}" "$SERVER_USER@$SERVER_HOST" "ACCESS_B64='$ACCESS_B64' ADMIN_LOGIN_B64='$ADMIN_LOGIN_B64' ADMIN_PASSWORD_B64='$ADMIN_PASSWORD_B64' bash -s" <<'REMOTE'
           set -euo pipefail
           install -d -m 700 /opt/upo-workbooks
           tar -xzf /tmp/upo-workbooks.tgz -C /opt/upo-workbooks
           cd /opt/upo-workbooks/server
           CODE="$(printf '%s' "$ACCESS_B64" | base64 -d)"
+          ADMIN_LOGIN="$(printf '%s' "$ADMIN_LOGIN_B64" | base64 -d)"
+          ADMIN_PASSWORD="$(printf '%s' "$ADMIN_PASSWORD_B64" | base64 -d)"
           if [ ! -f .env ]; then
             umask 077
             TOKEN_SECRET="$(openssl rand -hex 32)"
             ADMIN_KEY="$(openssl rand -hex 32)"
             printf 'WORKBOOK_TOKEN_SECRET=%s\nWORKBOOK_ADMIN_KEY=%s\n' "$TOKEN_SECRET" "$ADMIN_KEY" > .env
           fi
-          sed -i '/^WORKBOOK_ACCESS_CODE=/d;/^WORKBOOK_ALLOWED_ORIGINS=/d;/^WORKBOOK_DB_PATH=/d;/^WORKBOOK_TOKEN_TTL_HOURS=/d' .env
-          printf 'WORKBOOK_ACCESS_CODE=%s\nWORKBOOK_ALLOWED_ORIGINS=http://194.48.140.70:8081\nWORKBOOK_DB_PATH=/data/workbooks.sqlite3\nWORKBOOK_TOKEN_TTL_HOURS=168\n' "$CODE" >> .env
+          sed -i '/^WORKBOOK_ACCESS_CODE=/d;/^WORKBOOK_ADMIN_LOGIN=/d;/^WORKBOOK_ADMIN_PASSWORD=/d;/^WORKBOOK_ALLOWED_ORIGINS=/d;/^WORKBOOK_DB_PATH=/d;/^WORKBOOK_TOKEN_TTL_HOURS=/d;/^WORKBOOK_ADMIN_TOKEN_TTL_HOURS=/d' .env
+          printf 'WORKBOOK_ACCESS_CODE=%s\nWORKBOOK_ADMIN_LOGIN=%s\nWORKBOOK_ADMIN_PASSWORD=%s\nWORKBOOK_ALLOWED_ORIGINS=http://194.48.140.70:8081\nWORKBOOK_DB_PATH=/data/workbooks.sqlite3\nWORKBOOK_TOKEN_TTL_HOURS=168\nWORKBOOK_ADMIN_TOKEN_TTL_HOURS=12\n' "$CODE" "$ADMIN_LOGIN" "$ADMIN_PASSWORD" >> .env
           docker compose -p upo_workbooks up -d --build --remove-orphans
-          sleep 3
-          curl --fail --silent --show-error http://127.0.0.1:8081/health
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8081/health; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              docker compose -p upo_workbooks logs --tail=100
+              exit 1
+            fi
+            sleep 2
+          done
           rm -f /tmp/upo-workbooks.tgz
           REMOTE
+
+      - name: Verify public endpoint
+        run: curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 http://194.48.140.70:8081/health
