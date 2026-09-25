@@ -1,0 +1,63 @@
+name: Deploy workbooks server
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: workbooks-server-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare SSH
+        env:
+          SERVER_SSH: ${{ secrets.SERVER_SSH }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SERVER_SSH" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${SERVER_PORT:-22}" "$SERVER_HOST" >> ~/.ssh/known_hosts
+
+      - name: Package application
+        run: tar -czf /tmp/upo-workbooks.tgz server v2 assets courses.js
+
+      - name: Upload application
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: scp -P "${SERVER_PORT:-22}" /tmp/upo-workbooks.tgz "$SERVER_USER@$SERVER_HOST:/tmp/upo-workbooks.tgz"
+
+      - name: Deploy separate container
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          WORKBOOK_ACCESS_CODE: ${{ secrets.WORKBOOK_ACCESS_CODE }}
+        run: |
+          ACCESS_B64="$(printf '%s' "$WORKBOOK_ACCESS_CODE" | base64 -w0)"
+          ssh -p "${SERVER_PORT:-22}" "$SERVER_USER@$SERVER_HOST" "ACCESS_B64='$ACCESS_B64' bash -s" <<'REMOTE'
+          set -euo pipefail
+          install -d -m 700 /opt/upo-workbooks
+          tar -xzf /tmp/upo-workbooks.tgz -C /opt/upo-workbooks
+          cd /opt/upo-workbooks/server
+          CODE="$(printf '%s' "$ACCESS_B64" | base64 -d)"
+          if [ ! -f .env ]; then
+            umask 077
+            TOKEN_SECRET="$(openssl rand -hex 32)"
+            ADMIN_KEY="$(openssl rand -hex 32)"
+            printf 'WORKBOOK_TOKEN_SECRET=%s\nWORKBOOK_ADMIN_KEY=%s\n' "$TOKEN_SECRET" "$ADMIN_KEY" > .env
+          fi
+          sed -i '/^WORKBOOK_ACCESS_CODE=/d;/^WORKBOOK_ALLOWED_ORIGINS=/d;/^WORKBOOK_DB_PATH=/d;/^WORKBOOK_TOKEN_TTL_HOURS=/d' .env
+          printf 'WORKBOOK_ACCESS_CODE=%s\nWORKBOOK_ALLOWED_ORIGINS=http://194.48.140.70:8081\nWORKBOOK_DB_PATH=/data/workbooks.sqlite3\nWORKBOOK_TOKEN_TTL_HOURS=168\n' "$CODE" >> .env
+          docker compose -p upo_workbooks up -d --build --remove-orphans
+          sleep 3
+          curl --fail --silent --show-error http://127.0.0.1:8081/health
+          rm -f /tmp/upo-workbooks.tgz
+          REMOTE
