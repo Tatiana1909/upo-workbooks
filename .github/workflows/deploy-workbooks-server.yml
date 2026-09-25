@@ -25,7 +25,7 @@ jobs:
           ssh-keyscan -p "${SERVER_PORT:-22}" "$SERVER_HOST" >> ~/.ssh/known_hosts
 
       - name: Package application
-        run: tar -czf /tmp/upo-workbooks.tgz server v2 assets courses.js
+        run: tar -czf /tmp/upo-workbooks.tgz server v2 v3 assets courses.js
 
       - name: Upload application
         env:
