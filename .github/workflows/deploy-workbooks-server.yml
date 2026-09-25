@@ -15,12 +15,12 @@ jobs:
 
       - name: Prepare SSH
         env:
-          SERVER_SSH: ${{ secrets.SERVER_SSH }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_HOST: 194.48.140.70
+          SERVER_PORT: "22"
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s' "$SERVER_SSH" > ~/.ssh/id_ed25519
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "${SERVER_PORT:-22}" "$SERVER_HOST" >> ~/.ssh/known_hosts
 
@@ -29,16 +29,16 @@ jobs:
 
       - name: Upload application
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: 194.48.140.70
+          SERVER_PORT: "22"
+          SERVER_USER: root
         run: scp -P "${SERVER_PORT:-22}" /tmp/upo-workbooks.tgz "$SERVER_USER@$SERVER_HOST:/tmp/upo-workbooks.tgz"
 
       - name: Deploy separate container
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: 194.48.140.70
+          SERVER_PORT: "22"
+          SERVER_USER: root
           WORKBOOK_ACCESS_CODE: ${{ secrets.WORKBOOK_ACCESS_CODE }}
         run: |
           ACCESS_B64="$(printf '%s' "$WORKBOOK_ACCESS_CODE" | base64 -w0)"
