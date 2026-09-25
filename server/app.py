@@ -13,10 +13,13 @@ from collections import defaultdict, deque
 from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.error import HTTPError as UrlHTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request as UrlRequest, urlopen
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -36,6 +39,82 @@ ALLOWED_ORIGINS = [x.strip() for x in os.environ.get(
 COURSE_TITLES = {
     "accounting": "Складской и производственный учёт в 1С УПО",
     "warehouse": "Работники склада",
+}
+MATERIAL_FOLDERS = {
+    "day1": {
+        "public_key": "https://disk.360.yandex.ru/d/Lf4_V6RcVCNufA",
+        "files": {
+            "1. Знакомство с 1С_УПО и логика_учета.docx",
+            "2. Основные отличия 1С_УР и 1С_УПО.docx",
+            "3. Пользовательские настройки в системе 1С УПО.docx",
+            "4. Ввод и проверка начальных остатков в 1С УПО.docx",
+        },
+    },
+    "day2": {
+        "public_key": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+        "files": {
+            "1.1_Принятие к учету ТМЦ по приходной накладной, через ТСД.docx",
+            "1.2_Приходная накладная на основании заказа поставщику.docx",
+            "1.3_Формирование приходной накладной из Диадок.docx",
+            "1.4_Приемка ТМЦ на склад без заказа поставщику.docx",
+            "1.5_Поступление ТМЦ с расхождениями.docx",
+            "1.6_Корректировка поступления. Формирование УКД, КСФ.docx",
+            "1.7_Сторнирование документов товародвижения.docx",
+            "1.8_Формирование реестра документов по ячейкам склада в 1С УПО.docx",
+            "2.1_Перемещение_запасов_на_основании_заказа.docx",
+            "2.2_Перемещение_запасов.docx",
+            "2.3_Перемещение_номенклатуры_склада_и_производства_на_основании_заказа.docx",
+            "2.4_Перемещение_номенклатуры_склада_и_производства.docx",
+            "2.5_Перемещение ТМЦ между 1С_УР и 1С_УПО.docx",
+            "2.6_Создание перемещений по ячейке со склада Красноярск.docx",
+            "3_Авансовый отчет.docx",
+        },
+    },
+    "day3": {
+        "public_key": "https://disk.360.yandex.ru/d/KDizdoiGARFN8w",
+        "files": {
+            "1. Инструкция Загрузка продаж из кассовых систем IFCM.docx",
+            "2. Альбом отчетов для СУ.docx",
+            "3. Настройка отчетов на примере Движение товаров.docx",
+        },
+    },
+    "day4": {
+        "public_key": "https://disk.360.yandex.ru/d/rd3Rh5VSFdZEeg",
+        "files": {"Инвентаризация.docx"},
+    },
+    "day5": {
+        "public_key": "https://disk.360.yandex.ru/d/6uP7AKpQdPY9bQ",
+        "files": {
+            "1. Списание запасов.docx",
+            "2. Групповое перепроведение.docx",
+            "3. Контрольный лист закрытия месяца.docx",
+        },
+    },
+    "sop": {
+        "public_key": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+        "files": {f"{number:02d}" for number in range(1, 25)},
+        "prefix_only": True,
+    },
+    "warehouse": {
+        "public_key": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+        "files": {
+            "01 Общие правила работы с ТСД.docx",
+            "02 Памятка по работе с ТСД.docx",
+            "03 Приемка от поставщика с ТСД.docx",
+            "04 Приемка перемещения на склад с ТСД.docx",
+            "04 Тест_УПО_ТСД_исправленный.docx",
+            "05 Заказ на перемещение.docx",
+            "06 Сборка и перемещение по заказу с ТСД.docx",
+            "07 Заказ на перемещение в номенклатуру производства.docx",
+            "08 Перемещение запасов без заказа.docx",
+            "09 Инвентаризация запасов с ТСД.docx",
+            "10 Сбор информации с ТСД.docx",
+            "11 Печать штрихкодов для склада.docx",
+            "12 Списание запасов с ТСД.docx",
+            "13 Контроль складских операций и отчеты.docx",
+            "СОП Складская логистика.pptx",
+        },
+    },
 }
 
 if not all((ACCESS_CODE, TOKEN_SECRET, ADMIN_KEY, ADMIN_LOGIN, ADMIN_PASSWORD)):
@@ -271,6 +350,33 @@ def ensure_course_progress(con, user_id: str, course_id: str, timestamp: str):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/api/v1/materials/{folder_key}/download")
+def download_material(folder_key: str, filename: str):
+    folder = MATERIAL_FOLDERS.get(folder_key)
+    if not folder:
+        raise HTTPException(404, "Папка материалов не найдена")
+    if folder.get("prefix_only"):
+        allowed = any(filename.startswith(f"{prefix} ") for prefix in folder["files"])
+    else:
+        allowed = filename in folder["files"]
+    if not allowed or "/" in filename or "\\" in filename:
+        raise HTTPException(404, "Файл не найден")
+    query = urlencode({"public_key": folder["public_key"], "path": f"/{filename}"})
+    request = UrlRequest(
+        f"https://cloud-api.yandex.net/v1/disk/public/resources/download?{query}",
+        headers={"User-Agent": "IFCM-Workbooks/1.0"},
+    )
+    try:
+        with urlopen(request, timeout=12) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        href = payload.get("href")
+        if not href:
+            raise ValueError("download URL is missing")
+    except (UrlHTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError):
+        raise HTTPException(502, "Яндекс Диск временно не вернул ссылку на скачивание")
+    return RedirectResponse(href, status_code=302)
 
 
 @app.post("/api/v1/session")
