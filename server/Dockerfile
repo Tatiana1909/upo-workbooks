@@ -6,6 +6,7 @@ COPY server/app.py .
 COPY courses.js /app/static/courses.js
 COPY assets /app/static/assets
 COPY v2 /app/static/v2
+COPY v3 /app/static/v3
 RUN mkdir -p /data
 EXPOSE 8080
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers", "--forwarded-allow-ips", "*"]
