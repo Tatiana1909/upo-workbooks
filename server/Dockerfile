@@ -7,6 +7,7 @@ COPY courses.js /app/static/courses.js
 COPY assets /app/static/assets
 COPY v2 /app/static/v2
 COPY v3 /app/static/v3
+COPY v4 /app/static/v4
 COPY builder /app/static/builder
 RUN mkdir -p /data
 EXPOSE 8080
