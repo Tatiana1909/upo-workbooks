@@ -25,7 +25,7 @@ jobs:
           ssh-keyscan -p "${SERVER_PORT:-22}" "$SERVER_HOST" >> ~/.ssh/known_hosts
 
       - name: Package application
-        run: tar -czf /tmp/upo-workbooks.tgz server v2 v3 assets courses.js
+        run: tar -czf /tmp/upo-workbooks.tgz server v2 v3 builder assets courses.js
 
       - name: Upload application
         env:
@@ -49,6 +49,15 @@ jobs:
           ssh -p "${SERVER_PORT:-22}" "$SERVER_USER@$SERVER_HOST" "ACCESS_B64='$ACCESS_B64' ADMIN_LOGIN_B64='$ADMIN_LOGIN_B64' ADMIN_PASSWORD_B64='$ADMIN_PASSWORD_B64' bash -s" <<'REMOTE'
           set -euo pipefail
           install -d -m 700 /opt/upo-workbooks
+          install -d -m 700 /opt/upo-workbooks/backups
+          if [ -f /opt/upo-workbooks/server/app.py ]; then
+            cd /opt/upo-workbooks
+            tar --exclude='server/.env' --exclude='__pycache__' -czf "backups/source-$(date -u +%Y%m%dT%H%M%SZ).tgz" server v3 assets courses.js
+            if [ -d builder ]; then tar -czf "backups/builder-$(date -u +%Y%m%dT%H%M%SZ).tgz" builder; fi
+          fi
+          if docker ps --format '{{.Names}}' | grep -qx workbook_api; then
+            docker exec workbook_api python -c 'import sqlite3, pathlib, datetime; p=pathlib.Path("/data/backups"); p.mkdir(exist_ok=True); src=sqlite3.connect("/data/workbooks.sqlite3"); dst=sqlite3.connect(p/("before-update-"+datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".sqlite3")); src.backup(dst); dst.close(); src.close()'
+          fi
           tar -xzf /tmp/upo-workbooks.tgz -C /opt/upo-workbooks
           cd /opt/upo-workbooks/server
           CODE="$(printf '%s' "$ACCESS_B64" | base64 -d)"
@@ -73,8 +82,13 @@ jobs:
             fi
             sleep 2
           done
+          docker exec workbook_api python -c 'import app, urllib.request, json; token=app.encode_token("admin", app.ADMIN_LOGIN, "admin", 60); req=urllib.request.Request("http://127.0.0.1:8080/api/v1/admin/dashboard", headers={"Authorization":"Bearer "+token}); data=json.load(urllib.request.urlopen(req)); assert "kpi" in data; req=urllib.request.Request("http://127.0.0.1:8080/api/v1/builder/drafts", headers={"Authorization":"Bearer "+token}); assert isinstance(json.load(urllib.request.urlopen(req)), list); print("Administrator and builder APIs: OK")'
           rm -f /tmp/upo-workbooks.tgz
           REMOTE
 
       - name: Verify public endpoint
-        run: curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 http://194.48.140.70:8081/health
+        run: |
+          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 http://194.48.140.70:8081/health
+          for path in v3/index.html v3/sklad-1c-upo.html v3/rabotniki-sklada.html v3/admin.html builder/index.html builder/workbook.html builder/review.html builder/editor.js builder/render.js api/v1/workbooks; do
+            curl --fail --silent --show-error --retry 3 --output /dev/null "http://194.48.140.70:8081/$path"
+          done

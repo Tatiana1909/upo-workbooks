@@ -235,7 +235,7 @@ def clean_name(value: str):
 
 
 def validate_course(course_id: str):
-    if course_id not in COURSE_TITLES:
+    if course_id not in COURSE_TITLES and not builder_edition(course_id):
         raise HTTPException(404, "Курс не найден")
 
 
@@ -448,7 +448,7 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(current_user)
     state_json = json.dumps(data.state, ensure_ascii=False)
     if len(state_json) > 250_000:
         raise HTTPException(413, "Слишком большой объём данных")
-    summary = normalized_summary(data.summary)
+    summary = normalized_summary(builder_score(course_id, data.state) or data.summary)
     summary_json = json.dumps(summary, ensure_ascii=False)
     timestamp = now_iso()
     with closing(db()) as con:
@@ -457,6 +457,32 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(current_user)
             (user["uid"], course_id),
         ).fetchone()
         attempt_no = row["attempt_no"] if row else 1
+        if builder_edition(course_id):
+            if any(not isinstance(data.state.get(k, {}), dict) for k in ("answers", "checks", "evidence", "notes", "done")):
+                raise HTTPException(422, "Неверный формат данных тетради")
+            evidence = data.state.get("evidence", {})
+            content = json.loads(builder_edition(course_id)["content"])
+            limits = {b["id"]: b.get("maxImages", 3) for section in content["sections"] for b in section["blocks"] if b["type"] == "practice"}
+            for bid, ids in evidence.items():
+                if bid not in limits or not isinstance(ids, list) or len(ids) > limits[bid] or any(not isinstance(i, str) for i in ids):
+                    raise HTTPException(422, "Неверные скриншоты задания")
+                for iid in ids:
+                    owned = con.execute("SELECT 1 FROM builder_evidence WHERE id=? AND user_id=? AND course_id=? AND attempt_no=? AND block_id=?", (iid, user["uid"], course_id, attempt_no, bid)).fetchone()
+                    if not owned:
+                        raise HTTPException(422, "Скриншот не относится к этой попытке")
+            # Changing a checked answer requires another teacher review.
+            if row:
+                previous = con.execute("SELECT state_json FROM progress WHERE user_id=? AND course_id=?", (user["uid"], course_id)).fetchone()
+                old_state = json.loads(previous["state_json"])
+                reviews = con.execute("SELECT block_id, review FROM builder_reviews WHERE user_id=? AND course_id=? AND attempt_no=?", (user["uid"], course_id, attempt_no)).fetchall()
+                for review in reviews:
+                    bid = review["block_id"]
+                    if any(old_state.get(k, {}).get(bid) != data.state.get(k, {}).get(bid) for k in ("answers", "checks", "evidence")):
+                        prior_review = json.loads(review["review"])
+                        prior_review.update({"checked": False, "needs_recheck": True, "changed_at": timestamp})
+                        con.execute("UPDATE builder_reviews SET review=?, updated_at=? WHERE user_id=? AND course_id=? AND attempt_no=? AND block_id=?", (json.dumps(prior_review, ensure_ascii=False), timestamp, user["uid"], course_id, attempt_no, bid))
+            summary = normalized_summary(builder_apply_reviews(con, user["uid"], course_id, attempt_no, summary))
+            summary_json = json.dumps(summary, ensure_ascii=False)
         started_at = row["started_at"] if row and row["started_at"] else timestamp
         completed_at = row["completed_at"] if row else None
         if summary["percent"] >= 100 and not completed_at:
@@ -492,7 +518,7 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(current_user)
             started_at, timestamp, completed_at,
         ))
         con.commit()
-    return {"saved": True, "updated_at": timestamp, "attempt_no": attempt_no, "completed_at": completed_at}
+    return {"saved": True, "updated_at": timestamp, "attempt_no": attempt_no, "completed_at": completed_at, "summary": summary}
 
 
 @app.post("/api/v1/progress/{course_id}/restart")
@@ -542,7 +568,7 @@ def parse_json(value: str, fallback: dict):
 def attempt_payload(row):
     return {
         "course_id": row["course_id"],
-        "course_title": COURSE_TITLES.get(row["course_id"], row["course_id"]),
+        "course_title": course_titles().get(row["course_id"], row["course_id"]),
         "attempt_no": row["attempt_no"],
         "state": parse_json(row["state_json"], empty_state()),
         "summary": normalized_summary(parse_json(row["summary_json"], empty_summary())),
@@ -585,10 +611,12 @@ def admin_dashboard(admin=Depends(current_admin)):
             "user_id": row["user_id"],
             "full_name": row["full_name"],
             "course_id": row["course_id"],
-            "course_title": COURSE_TITLES.get(row["course_id"], row["course_id"]),
+            "course_title": course_titles().get(row["course_id"], row["course_id"]),
             "status": status,
             "progress_percent": percent,
             "success_percent": summary["success_percent"],
+            "needs_recheck": summary.get("needsRecheck", 0),
+            "pending_review": summary.get("pendingReview", 0),
             "points": summary["points"],
             "correct": summary["correct"],
             "total_questions": summary["totalQ"],
@@ -606,7 +634,7 @@ def admin_dashboard(admin=Depends(current_admin)):
         by_course[row["course_id"]].append(record)
 
     course_stats = []
-    for course_id, title in COURSE_TITLES.items():
+    for course_id, title in course_titles().items():
         rows = by_course.get(course_id, [])
         course_stats.append({
             "course_id": course_id,
@@ -666,7 +694,7 @@ def admin_user_detail(user_id: str, admin=Depends(current_admin)):
         "courses": [
             {
                 "course_id": course_id,
-                "course_title": COURSE_TITLES.get(course_id, course_id),
+                "course_title": course_titles().get(course_id, course_id),
                 "attempts": attempts,
             }
             for course_id, attempts in courses.items()
@@ -700,7 +728,7 @@ def export_results(
     for row in rows:
         summary = normalized_summary(parse_json(row["summary_json"], empty_summary()))
         writer.writerow([
-            row["full_name"], COURSE_TITLES.get(row["course_id"], row["course_id"]), row["attempt_no"],
+            row["full_name"], course_titles().get(row["course_id"], row["course_id"]), row["attempt_no"],
             summary["percent"], summary["success_percent"], summary["points"],
             summary["correct"], summary["totalQ"], row["updated_at"],
         ])
@@ -710,5 +738,11 @@ def export_results(
         headers={"Content-Disposition": "attachment; filename=workbook-results.csv"},
     )
 
+
+from builder import register
+builder_edition, builder_titles, builder_score, builder_apply_reviews = register(app, db, current_admin, current_user, now_iso, DB_PATH.parent)
+
+def course_titles():
+    return {**COURSE_TITLES, **builder_titles()}
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="workbooks")
