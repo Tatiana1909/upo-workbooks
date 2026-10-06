@@ -41,6 +41,9 @@ def register(app, db, admin, student, now, data_dir):
     def validate(c,publish=False):
         if len(json.dumps(c))>500_000: raise HTTPException(413,'Тетрадь слишком большая')
         if not isinstance(c.get('title'),str) or not c['title'].strip() or len(c['title'])>200: raise HTTPException(422,'Укажите название (до 200 символов)')
+        direction=c.get('courseDirection','1С:УПО')
+        if not isinstance(direction,str) or not direction.strip() or len(direction)>120:raise HTTPException(422,'Укажите направление курса (до 120 символов)')
+        c['courseDirection']=direction.strip()
         if c.get('reviewMode','auto') not in ('auto','manual'):raise HTTPException(422,'Неверный режим проверки')
         sections=c.get('sections',[])
         if not isinstance(sections,list) or len(sections)>100 or (publish and not sections): raise HTTPException(422,'Добавьте разделы (до 100)')
@@ -104,7 +107,15 @@ def register(app, db, admin, student, now, data_dir):
         return {'course_id':cid,'version':v,'url':'/builder/workbook.html?course='+cid}
     @app.get('/api/v1/workbooks')
     def catalog():
-        with closing(db()) as con: return [dict(r) for r in con.execute('SELECT course_id,title,version,published_at FROM builder_editions WHERE archived=0 ORDER BY published_at DESC')]
+        with closing(db()) as con:
+            rows=con.execute('SELECT course_id,title,version,published_at,content FROM builder_editions WHERE archived=0 ORDER BY published_at DESC').fetchall()
+        result=[]
+        for row in rows:
+            item=dict(row);content=json.loads(item.pop('content'))
+            item['course_direction']=content.get('courseDirection') or '1С:УПО'
+            item['description']=content.get('description','')
+            result.append(item)
+        return result
     @app.post('/api/v1/builder/editions/{cid}/archive')
     def archive(cid:str,user=Depends(admin)):
         with closing(db()) as con:

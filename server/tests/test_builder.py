@@ -96,3 +96,16 @@ def test_video_blocks(service):
     assert blocks[-1]['videoMode']=='inline'
     b['sections'][0]['blocks'][-1]['url']='javascript:alert(1)'
     assert c.post('/api/v1/builder/drafts',headers=h,json={'content':b}).status_code==422
+
+def test_catalog_directions_and_safe_metadata(service):
+    c,m,h=service
+    _,default_id=publish(c,h)
+    body=content();body['courseDirection']='Складская логистика';body['description']='Учебные материалы'
+    _,other_id=publish(c,h,body)
+    rows={r['course_id']:r for r in c.get('/api/v1/workbooks').json()}
+    assert rows[default_id]['course_direction']=='1С:УПО'
+    assert rows[other_id]['course_direction']=='Складская логистика'
+    assert rows[other_id]['description']=='Учебные материалы'
+    assert 'content' not in rows[other_id]
+    body['courseDirection']=42
+    assert c.post('/api/v1/builder/drafts',headers=h,json={'content':body}).status_code==422

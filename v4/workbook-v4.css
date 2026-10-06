@@ -11,3 +11,11 @@
 .v4-workbook .nav-link{color:#D1D4EB}.v4-workbook .nav-link:hover{color:#fff}.v4-workbook .nav-link.active{color:#fff}.v4-workbook .sidebar .side-home{color:white}
 
 .v4-catalog .catalog-note{padding:18px 110px 18px 0;background:url("brand/pattern-navy.webp") right center/80px auto no-repeat}
+
+.v4-catalog .course-direction{margin-top:42px}
+.v4-catalog .direction-title{font-size:30px;background:var(--navy);color:white;padding:17px 24px;border-radius:0 30px 30px 0;margin:0}
+.v4-catalog .direction-description{color:var(--muted);font-size:16px;margin:16px 0 0}
+.v4-catalog .course-direction .catalog-grid{margin-top:22px}
+.v4-catalog .course-tile{display:flex;flex-direction:column;align-items:flex-start}
+.v4-catalog .course-tile a{margin-top:auto}
+.v4-catalog .course-tile p{margin-bottom:24px}

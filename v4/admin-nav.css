@@ -1,0 +1,36 @@
+
+.admin-menu{background:var(--navy);color:#d1d4eb;padding:28px 18px 80px;width:260px;min-width:0;position:sticky;top:82px;height:calc(100vh - 82px);overflow-y:auto;align-self:start;line-height:1.45}
+.admin-menu>small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#b7b9d6;margin:0 8px 25px}
+.admin-menu .menu-group{margin:0 0 26px;padding:0; border:0;background:none}
+.admin-menu h2{font-size:23px;line-height:1.15;color:#b7b9d6;margin:0 8px 14px;font-weight:700}
+.admin-menu .current-group h2{color:white}
+.admin-menu .menu-link{display:block;text-decoration:none;color:#d1d4eb;font-size:15px;font-weight:700;line-height:1.35;padding:13px 16px;margin:5px -2px 5px -18px;padding-left:26px;border-radius:0 26px 26px 0;background:#ffffff08;border:0}
+.admin-menu .menu-link:hover{background:#ffffff18;color:white}
+.admin-menu .menu-link.active,.admin-menu .menu-link.active:hover{background:var(--red);color:white}
+.admin-menu .menu-sub{margin-left:20px;padding-left:12px;border-left:1px solid #ffffff26}
+.admin-menu .menu-sub .menu-link{font-size:14px;font-weight:400;margin-left:0;padding:10px 12px;background:transparent}
+.admin-menu .menu-sub .menu-link.active{background:var(--red);color:white}
+.admin-menu .menu-heading{font-size:23px;color:#b7b9d6;background:transparent;padding-left:26px;line-height:1.15}
+.admin-menu .menu-heading.active{color:white}
+.admin-menu .menu-note{font-size:11px;font-weight:400;color:#b7b9d6;margin:40px 8px 0;background:url('brand/pattern-white.webp') bottom center/100% auto no-repeat;padding-bottom:50px}
+.v4-admin .layout,.admin-workspace-body{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0}
+.admin-workspace-content{min-width:0}
+.admin-workspace .teacher-header{height:82px;flex-wrap:nowrap}
+.admin-workspace .teacher-header button{margin-left:auto!important}
+.admin-workspace-content .teacher-hero>div{padding:30px 135px 30px 30px}
+.admin-workspace-content .teacher-hero:after{right:20px;width:90px}
+.admin-workspace-content main{max-width:none;padding:0 28px;margin:28px 0}
+.admin-workspace-content .layout{grid-template-columns:210px minmax(0,1fr);gap:20px}
+.admin-workspace-content .draft-sidebar{padding:22px 14px}
+.admin-catalog .catalog-main{max-width:none;margin:0;padding:40px 32px}
+@media(max-width:1100px){.admin-workspace-content .layout{grid-template-columns:1fr}.admin-workspace-content .draft-sidebar{position:static;max-height:300px}}
+@media(max-width:760px){.v4-admin .layout,.admin-workspace-body{grid-template-columns:1fr}.admin-menu{position:static;width:100%;height:auto;padding:20px 16px;overflow:visible}.admin-menu nav{display:grid;grid-template-columns:1fr 1fr;gap:14px}.admin-menu .menu-group{margin:0}.admin-menu>small{margin-bottom:16px}.admin-menu h2,.admin-menu .menu-heading{font-size:20px}.admin-menu .menu-note{display:none}.admin-menu .menu-link{margin-left:0;padding:10px 12px;font-size:14px}.admin-menu .menu-sub{margin-left:10px;padding-left:8px}.admin-menu .menu-sub .menu-link{font-size:13px}.admin-menu .menu-heading{font-size:20px}.admin-workspace .teacher-header{height:auto;min-height:82px;flex-wrap:wrap}.admin-workspace-content main{padding:0 14px;margin:20px 0}.admin-workspace-content .teacher-hero>div{padding:26px 90px 28px 20px}.admin-workspace-content .teacher-hero:after{width:58px;right:15px}.admin-catalog .catalog-main{padding:28px 18px}}
+@media print{.admin-menu{display:none}.admin-workspace-body{display:block}}
+
+.admin-workspace-content .layout{grid-template-columns:minmax(0,1fr)}
+.admin-menu .menu-tool-sub{position:static;max-height:none;overflow:visible;border:0;border-radius:0;background:transparent;padding:0 0 0 12px;margin:12px 0 16px 20px;border-left:1px solid #ffffff26;box-shadow:none;color:#d1d4eb}
+.admin-menu .menu-tool-sub h3{font-size:14px;color:#b7b9d6;padding:0;margin:14px 0 10px}
+.admin-menu .menu-tool-sub button.secondary,.admin-menu .menu-tool-sub #new{background:transparent;color:#d1d4eb;border:0;border-radius:0 22px 22px 0;padding:9px 10px;font-size:13px;font-weight:400;margin:0 0 4px;text-align:left}
+.admin-menu .menu-tool-sub button:hover{background:#ffffff18;color:white}
+.admin-menu .menu-tool-sub #new{font-weight:700;width:100%}
+.admin-menu .menu-tool-sub #catalog{border-top:1px solid #ffffff26;border-radius:0;margin-top:8px;padding-top:14px}
