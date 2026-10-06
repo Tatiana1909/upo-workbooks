@@ -1,6 +1,11 @@
 name: Deploy workbooks server
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'v4/fire/**'
+      - 'server/fire.py'
   workflow_dispatch:
 
 concurrency:
@@ -90,6 +95,6 @@ jobs:
       - name: Verify public endpoint
         run: |
           curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 http://194.48.140.70:8081/health
-          for path in v3/index.html v3/sklad-1c-upo.html v3/rabotniki-sklada.html v3/admin.html builder/index.html builder/workbook.html builder/review.html builder/editor.js builder/render.js api/v1/workbooks v4/index.html v4/sklad-1c-upo.html v4/rabotniki-sklada.html v4/admin.html v4/admin.js v4/brand.css v4/admin-nav.js v4/admin-nav.css v4/builder/index.html v4/builder/workbook.html v4/builder/review.html v4/builder/editor.js v4/brand/ornament-color.webp v4/brand/ornament-outline.webp; do
+          for path in v3/index.html v3/sklad-1c-upo.html v3/rabotniki-sklada.html v3/admin.html builder/index.html builder/workbook.html builder/review.html builder/editor.js builder/render.js api/v1/workbooks v4/index.html v4/sklad-1c-upo.html v4/rabotniki-sklada.html v4/admin.html v4/admin.js v4/brand.css v4/admin-nav.js v4/admin-nav.css v4/builder/index.html v4/builder/workbook.html v4/builder/review.html v4/builder/editor.js v4/brand/ornament-color.webp v4/brand/ornament-outline.webp v4/fire/index.html v4/fire/teacher.html v4/fire/fire.js v4/fire/fire.css v4/fire/data.json api/v1/fire/settings; do
             curl --fail --silent --show-error --retry 3 --output /dev/null "http://194.48.140.70:8081/$path"
           done

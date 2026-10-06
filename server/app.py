@@ -39,6 +39,7 @@ ALLOWED_ORIGINS = [x.strip() for x in os.environ.get(
 COURSE_TITLES = {
     "accounting": "Складской и производственный учёт в 1С УПО",
     "warehouse": "Работники склада",
+    "fire-safety-v4": "Пожарная безопасность",
 }
 MATERIAL_FOLDERS = {
     "day1": {
@@ -448,7 +449,14 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(current_user)
     state_json = json.dumps(data.state, ensure_ascii=False)
     if len(state_json) > 250_000:
         raise HTTPException(413, "Слишком большой объём данных")
-    summary = normalized_summary(builder_score(course_id, data.state) or data.summary)
+    if course_id == fire.CID:
+        with closing(db()) as con:
+            previous = con.execute("SELECT state_json FROM progress WHERE user_id=? AND course_id=?", (user["uid"], course_id)).fetchone()
+        data.state = fire.prepare_state(data.state, json.loads(previous["state_json"]) if previous else None)
+        state_json = json.dumps(data.state, ensure_ascii=False)
+        summary = normalized_summary(fire.score(data.state, fire_settings()["passPercent"]))
+    else:
+        summary = normalized_summary(builder_score(course_id, data.state) or data.summary)
     summary_json = json.dumps(summary, ensure_ascii=False)
     timestamp = now_iso()
     with closing(db()) as con:
@@ -591,6 +599,7 @@ def admin_dashboard(admin=Depends(current_admin)):
         attempt_rows = con.execute("SELECT * FROM course_attempts ORDER BY attempt_no").fetchall()
         direction_rows = con.execute("SELECT course_id,content FROM builder_editions").fetchall()
     course_directions = {row["course_id"]: parse_json(row["content"], {}).get("courseDirection") or "1С:УПО" for row in direction_rows}
+    course_directions[fire.CID] = "Безопасность"
 
     attempts_map = defaultdict(list)
     for row in attempt_rows:
@@ -748,5 +757,8 @@ builder_edition, builder_titles, builder_score, builder_apply_reviews = register
 
 def course_titles():
     return {**COURSE_TITLES, **builder_titles()}
+
+import fire
+fire_settings = fire.register_fire(app, db, current_user, current_admin, now_iso, STATIC_DIR)
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="workbooks")
