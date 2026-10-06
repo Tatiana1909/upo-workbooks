@@ -22,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from fire_access import FireAccess
 
 
 ACCESS_CODE = os.environ.get("WORKBOOK_ACCESS_CODE", "")
@@ -31,6 +32,8 @@ ADMIN_LOGIN = os.environ.get("WORKBOOK_ADMIN_LOGIN", "")
 ADMIN_PASSWORD = os.environ.get("WORKBOOK_ADMIN_PASSWORD", "")
 DB_PATH = Path(os.environ.get("WORKBOOK_DB_PATH", "/data/workbooks.sqlite3"))
 STATIC_DIR = Path(os.environ.get("WORKBOOK_STATIC_DIR", "/app/static"))
+fire_access = FireAccess(DB_PATH.parent)
+fire_access.install(Path(__file__).with_name('fire-access.enc'))
 TOKEN_TTL = int(os.environ.get("WORKBOOK_TOKEN_TTL_HOURS", "168")) * 3600
 ADMIN_TOKEN_TTL = int(os.environ.get("WORKBOOK_ADMIN_TOKEN_TTL_HOURS", "12")) * 3600
 ALLOWED_ORIGINS = [x.strip() for x in os.environ.get(
@@ -760,5 +763,9 @@ def course_titles():
 
 import fire
 fire_settings = fire.register_fire(app, db, current_user, current_admin, now_iso, STATIC_DIR)
+
+@app.get('/api/v1/fire/access-public-key')
+def fire_access_public_key():
+    return {'public_key': fire_access.public_key()}
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="workbooks")

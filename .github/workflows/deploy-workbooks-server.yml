@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'v4/fire/**'
-      - 'server/fire.py'
+      - 'server/**'
   workflow_dispatch:
 
 concurrency:
