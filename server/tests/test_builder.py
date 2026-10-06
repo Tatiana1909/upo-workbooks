@@ -113,3 +113,35 @@ def test_catalog_directions_and_safe_metadata(service):
     c.post('/api/v1/builder/editions/'+other_id+'/archive',headers=h)
     courses={r['course_id']:r for r in c.get('/api/v1/admin/dashboard',headers=h).json()['courses']}
     assert courses[other_id]['course_direction']=='Складская логистика'
+
+def test_trash_restore_and_history(service):
+    c,m,h=service;d,cid=publish(c,h);student=login(c,cid)
+    assert c.put('/api/v1/progress/'+cid,headers=student,json={'state':{'answers':{'q':[0]}},'summary':{}}).status_code==200
+    uid=m.decode_token(student['Authorization'][7:])['sub']
+    assert c.delete('/api/v1/builder/drafts/'+d['id']+'?revision=1').status_code==401
+    assert c.get('/api/v1/builder/trash',headers=student).status_code==403
+    assert c.delete('/api/v1/builder/drafts/'+d['id']+'?revision=0',headers=h).status_code==409
+    assert c.delete('/api/v1/builder/drafts/'+d['id']+'?revision=1',headers=h).status_code==200
+    assert c.get('/api/v1/builder/drafts',headers=h).json()==[]
+    assert c.get('/api/v1/workbooks/'+cid).status_code==200
+    assert c.put('/api/v1/builder/drafts/'+d['id'],headers=h,json={'content':content(),'revision':2}).status_code==409
+    assert c.post('/api/v1/builder/drafts/'+d['id']+'/publish',headers=h,json={'revision':2}).status_code==409
+    assert c.delete('/api/v1/builder/editions/'+cid,headers=h).status_code==200
+    assert c.get('/api/v1/workbooks/'+cid).status_code==410
+    assert c.get('/api/v1/workbooks').json()==[]
+    trash=c.get('/api/v1/builder/trash',headers=h).json()
+    assert trash['drafts'][0]['id']==d['id'] and trash['editions'][0]['course_id']==cid
+    review=c.get(f'/api/v1/builder/reviews/{uid}/{cid}/1',headers=h)
+    assert review.status_code==200 and review.json()['summary']['points']==10
+    assert c.post('/api/v1/builder/editions/'+cid+'/restore',headers=h).status_code==200
+    assert c.get('/api/v1/workbooks/'+cid).status_code==200
+    assert c.get('/api/v1/admin/users/'+uid,headers=h).json()['courses'][0]['attempts'][0]['summary']['points']==10
+    assert c.post('/api/v1/builder/drafts/'+d['id']+'/restore',headers=h).status_code==200
+    restored=c.get('/api/v1/builder/drafts',headers=h).json()[0]
+    assert restored['revision']==3
+    # Restoring an archived edition keeps it hidden from the student catalog.
+    c.post('/api/v1/builder/editions/'+cid+'/archive',headers=h)
+    c.delete('/api/v1/builder/editions/'+cid,headers=h)
+    c.post('/api/v1/builder/editions/'+cid+'/restore',headers=h)
+    assert c.get('/api/v1/workbooks').json()==[]
+    assert c.get('/api/v1/builder/editions',headers=h).json()[0]['archived']==1

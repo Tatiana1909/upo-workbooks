@@ -29,6 +29,9 @@ def register(app, db, admin, student, now, data_dir):
             CREATE TABLE IF NOT EXISTS builder_evidence(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,course_id TEXT NOT NULL,attempt_no INTEGER NOT NULL,block_id TEXT NOT NULL,extension TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS builder_images(id TEXT PRIMARY KEY,extension TEXT NOT NULL);
             ''')
+            for table in ('builder_drafts','builder_editions'):
+                columns={r['name'] for r in con.execute(f'PRAGMA table_info({table})')}
+                if 'deleted_at' not in columns:con.execute(f'ALTER TABLE {table} ADD COLUMN deleted_at TEXT')
             con.commit()
     app.add_event_handler('startup',init)
     def edition(cid):
@@ -78,18 +81,18 @@ def register(app, db, admin, student, now, data_dir):
     @app.get('/api/v1/builder/drafts')
     def drafts(user=Depends(admin)):
         with closing(db()) as con:
-            return [{'id':r['id'],'revision':r['revision'],'updated_at':r['updated_at'],'content':json.loads(r['content'])} for r in con.execute('SELECT * FROM builder_drafts ORDER BY updated_at DESC')]
+            return [{'id':r['id'],'revision':r['revision'],'updated_at':r['updated_at'],'content':json.loads(r['content'])} for r in con.execute('SELECT * FROM builder_drafts WHERE deleted_at IS NULL ORDER BY updated_at DESC')]
     @app.post('/api/v1/builder/drafts')
     def create(data:DraftInput,user=Depends(admin)):
         validate(data.content); did=secrets.token_hex(12)
         with closing(db()) as con:
-            con.execute('INSERT INTO builder_drafts VALUES(?,?,1,?)',(did,json.dumps(data.content,ensure_ascii=False),now()));con.commit()
+            con.execute('INSERT INTO builder_drafts(id,content,revision,updated_at) VALUES(?,?,1,?)',(did,json.dumps(data.content,ensure_ascii=False),now()));con.commit()
         return {'id':did,'revision':1}
     @app.put('/api/v1/builder/drafts/{did}')
     def save(did:str,data:DraftInput,user=Depends(admin)):
         validate(data.content)
         with closing(db()) as con:
-            r=con.execute('UPDATE builder_drafts SET content=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?',(json.dumps(data.content,ensure_ascii=False),now(),did,data.revision))
+            r=con.execute('UPDATE builder_drafts SET content=?,revision=revision+1,updated_at=? WHERE id=? AND revision=? AND deleted_at IS NULL',(json.dumps(data.content,ensure_ascii=False),now(),did,data.revision))
             if r.rowcount!=1: raise HTTPException(409,'Черновик изменён в другом окне. Откройте актуальный вариант из списка')
             con.commit()
         return {'id':did,'revision':data.revision+1}
@@ -99,7 +102,7 @@ def register(app, db, admin, student, now, data_dir):
             backup_dir=data_dir/'builder-backups';backup_dir.mkdir(parents=True,exist_ok=True)
             with sqlite3.connect(backup_dir/(secrets.token_hex(12)+'.sqlite3')) as backup:
                 con.backup(backup)
-            con.execute('BEGIN IMMEDIATE');r=con.execute('SELECT * FROM builder_drafts WHERE id=?',(did,)).fetchone()
+            con.execute('BEGIN IMMEDIATE');r=con.execute('SELECT * FROM builder_drafts WHERE id=? AND deleted_at IS NULL',(did,)).fetchone()
             if not r or r['revision']!=data.revision: raise HTTPException(409,'Сначала сохраните актуальный черновик')
             c=validate(json.loads(r['content']),True)
             v=con.execute('SELECT COALESCE(MAX(version),0)+1 FROM builder_editions WHERE draft_id=?',(did,)).fetchone()[0];cid=f'cb-{did}-v{v}'
@@ -108,7 +111,7 @@ def register(app, db, admin, student, now, data_dir):
     @app.get('/api/v1/workbooks')
     def catalog():
         with closing(db()) as con:
-            rows=con.execute('SELECT course_id,title,version,published_at,content FROM builder_editions WHERE archived=0 ORDER BY published_at DESC').fetchall()
+            rows=con.execute('SELECT course_id,title,version,published_at,content FROM builder_editions WHERE archived=0 AND deleted_at IS NULL ORDER BY published_at DESC').fetchall()
         result=[]
         for row in rows:
             item=dict(row);content=json.loads(item.pop('content'))
@@ -116,6 +119,44 @@ def register(app, db, admin, student, now, data_dir):
             item['description']=content.get('description','')
             result.append(item)
         return result
+    @app.get('/api/v1/builder/editions')
+    def admin_editions(user=Depends(admin)):
+        with closing(db()) as con:
+            return [dict(r) for r in con.execute('SELECT course_id,title,version,archived FROM builder_editions WHERE deleted_at IS NULL ORDER BY published_at DESC')]
+    @app.delete('/api/v1/builder/drafts/{did}')
+    def delete_draft(did:str,revision:int,user=Depends(admin)):
+        with closing(db()) as con:
+            r=con.execute('UPDATE builder_drafts SET deleted_at=?,revision=revision+1 WHERE id=? AND revision=? AND deleted_at IS NULL',(now(),did,revision))
+            if not r.rowcount:raise HTTPException(409,'Черновик изменён или уже удалён. Обновите список')
+            con.commit()
+        return {'deleted':True}
+    @app.delete('/api/v1/builder/editions/{cid}')
+    def delete_edition(cid:str,user=Depends(admin)):
+        with closing(db()) as con:
+            r=con.execute('UPDATE builder_editions SET deleted_at=? WHERE course_id=? AND deleted_at IS NULL',(now(),cid))
+            if not r.rowcount:raise HTTPException(404,'Версия не найдена или уже удалена')
+            con.commit()
+        return {'deleted':True}
+    @app.get('/api/v1/builder/trash')
+    def trash(user=Depends(admin)):
+        with closing(db()) as con:
+            drafts=[{'id':r['id'],'title':json.loads(r['content'])['title'],'deleted_at':r['deleted_at']} for r in con.execute('SELECT * FROM builder_drafts WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC')]
+            editions=[dict(r) for r in con.execute('SELECT course_id,title,version,deleted_at FROM builder_editions WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC')]
+        return {'drafts':drafts,'editions':editions}
+    @app.post('/api/v1/builder/drafts/{did}/restore')
+    def restore_draft(did:str,user=Depends(admin)):
+        with closing(db()) as con:
+            r=con.execute('UPDATE builder_drafts SET deleted_at=NULL,revision=revision+1,updated_at=? WHERE id=? AND deleted_at IS NOT NULL',(now(),did))
+            if not r.rowcount:raise HTTPException(404,'Черновик не найден в корзине')
+            con.commit()
+        return {'restored':True}
+    @app.post('/api/v1/builder/editions/{cid}/restore')
+    def restore_edition(cid:str,user=Depends(admin)):
+        with closing(db()) as con:
+            r=con.execute('UPDATE builder_editions SET deleted_at=NULL WHERE course_id=? AND deleted_at IS NOT NULL',(cid,))
+            if not r.rowcount:raise HTTPException(404,'Версия не найдена в корзине')
+            con.commit()
+        return {'restored':True}
     @app.post('/api/v1/builder/editions/{cid}/archive')
     def archive(cid:str,user=Depends(admin)):
         with closing(db()) as con:
@@ -127,6 +168,7 @@ def register(app, db, admin, student, now, data_dir):
     def workbook(cid:str):
         r=edition(cid)
         if not r: raise HTTPException(404,'Тетрадь не найдена')
+        if r.get('deleted_at'):raise HTTPException(410,'Тетрадь удалена преподавателем')
         c=json.loads(r['content'])
         for s in c['sections']:
             for b in s['blocks']: b.pop('correct',None);b.pop('explanation',None)
