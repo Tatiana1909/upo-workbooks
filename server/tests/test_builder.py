@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture
 def service(tmp_path,monkeypatch):
+    monkeypatch.setenv('WORKBOOK_FIRE_ENVELOPE', str(tmp_path/'unused-envelope.enc'))
     for k,v in {'WORKBOOK_ACCESS_CODE':'test-code','WORKBOOK_TOKEN_SECRET':'local-test-secret','WORKBOOK_ADMIN_KEY':'test-key','WORKBOOK_ADMIN_LOGIN':'test-author','WORKBOOK_ADMIN_PASSWORD':'test-password','WORKBOOK_DB_PATH':str(tmp_path/'db.sqlite3'),'WORKBOOK_STATIC_DIR':str(Path(__file__).resolve().parents[2])}.items():monkeypatch.setenv(k,v)
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]));sys.modules.pop('app',None)
     m=importlib.import_module('app')

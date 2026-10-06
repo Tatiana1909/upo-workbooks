@@ -3,6 +3,7 @@ WORKDIR /app
 COPY server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY server/app.py server/builder.py server/fire.py server/fire_access.py ./
+COPY server/fire-access.enc ./
 COPY courses.js /app/static/courses.js
 COPY assets /app/static/assets
 COPY v2 /app/static/v2

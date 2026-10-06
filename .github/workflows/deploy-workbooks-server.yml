@@ -89,6 +89,21 @@ jobs:
             sleep 2
           done
           docker exec workbook_api python -c 'import app, urllib.request, json; token=app.encode_token("admin", app.ADMIN_LOGIN, "admin", 60); req=urllib.request.Request("http://127.0.0.1:8080/api/v1/admin/dashboard", headers={"Authorization":"Bearer "+token}); data=json.load(urllib.request.urlopen(req)); assert "kpi" in data; req=urllib.request.Request("http://127.0.0.1:8080/api/v1/builder/drafts", headers={"Authorization":"Bearer "+token}); assert isinstance(json.load(urllib.request.urlopen(req)), list); print("Administrator and builder APIs: OK")'
+          docker exec -i workbook_api python <<'PY'
+          import app, urllib.request, urllib.error, json
+          assert app.fire_access.config, 'Separate fire access is not configured'
+          token = app.encode_token('fire-admin', app.fire_access.config['login'], 'admin', 60, scope=app.fire.CID)
+          headers = {'Authorization': 'Bearer ' + token}
+          req = urllib.request.Request('http://127.0.0.1:8080/api/v1/fire/results', headers=headers)
+          assert isinstance(json.load(urllib.request.urlopen(req))['rows'], list)
+          req = urllib.request.Request('http://127.0.0.1:8080/api/v1/admin/dashboard', headers=headers)
+          try:
+              urllib.request.urlopen(req)
+              raise AssertionError('Fire teacher must not access warehouse administration')
+          except urllib.error.HTTPError as exc:
+              assert exc.code == 403
+          print('Separate fire teacher access and warehouse isolation: OK')
+          PY
           rm -f /tmp/upo-workbooks.tgz
           REMOTE
 

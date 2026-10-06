@@ -33,7 +33,7 @@ ADMIN_PASSWORD = os.environ.get("WORKBOOK_ADMIN_PASSWORD", "")
 DB_PATH = Path(os.environ.get("WORKBOOK_DB_PATH", "/data/workbooks.sqlite3"))
 STATIC_DIR = Path(os.environ.get("WORKBOOK_STATIC_DIR", "/app/static"))
 fire_access = FireAccess(DB_PATH.parent)
-fire_access.install(Path(__file__).with_name('fire-access.enc'))
+fire_access.install(os.environ.get('WORKBOOK_FIRE_ENVELOPE', str(Path(__file__).with_name('fire-access.enc'))))
 TOKEN_TTL = int(os.environ.get("WORKBOOK_TOKEN_TTL_HOURS", "168")) * 3600
 ADMIN_TOKEN_TTL = int(os.environ.get("WORKBOOK_ADMIN_TOKEN_TTL_HOURS", "12")) * 3600
 ALLOWED_ORIGINS = [x.strip() for x in os.environ.get(
@@ -243,8 +243,10 @@ def validate_course(course_id: str):
         raise HTTPException(404, "Курс не найден")
 
 
-def encode_token(subject: str, name: str, role: str, ttl: int = TOKEN_TTL):
+def encode_token(subject: str, name: str, role: str, ttl: int = TOKEN_TTL, scope: str | None = None):
     payload = {"sub": subject, "name": name, "role": role, "exp": int(time.time()) + ttl}
+    if scope:
+        payload.update(scope=scope, credential_revision=fire_access.config['revision'])
     raw = base64.urlsafe_b64encode(json.dumps(payload, ensure_ascii=False).encode()).rstrip(b"=")
     signature = hmac.new(TOKEN_SECRET.encode(), raw, hashlib.sha256).digest()
     return (raw + b"." + base64.urlsafe_b64encode(signature).rstrip(b"=")).decode()
@@ -273,7 +275,7 @@ def bearer_payload(authorization: str | None):
 
 def current_user(authorization: str | None = Header(None)):
     payload = bearer_payload(authorization)
-    if payload.get("role") != "user":
+    if payload.get("role") != "user" or payload.get('scope'):
         raise HTTPException(403, "Недостаточно прав")
     payload["uid"] = payload["sub"]
     return payload
@@ -281,9 +283,36 @@ def current_user(authorization: str | None = Header(None)):
 
 def current_admin(authorization: str | None = Header(None)):
     payload = bearer_payload(authorization)
-    if payload.get("role") != "admin":
+    if payload.get("role") != "admin" or payload.get('scope'):
         raise HTTPException(403, "Недостаточно прав")
     return payload
+
+
+def fire_identity(authorization, role):
+    payload = bearer_payload(authorization)
+    if payload.get('role') != role:
+        raise HTTPException(403, 'Недостаточно прав')
+    if fire_access.config:
+        if payload.get('scope') != fire.CID:
+            raise HTTPException(403, 'Войдите с данными доступа пожарной безопасности')
+        if payload.get('credential_revision') != fire_access.config['revision']:
+            raise HTTPException(401, 'Данные доступа изменены. Войдите повторно')
+    elif payload.get('scope'):
+        raise HTTPException(403, 'Недостаточно прав')
+    payload['uid'] = payload['sub']
+    return payload
+
+
+def fire_current_user(authorization: str | None = Header(None)):
+    return fire_identity(authorization, 'user')
+
+
+def fire_current_admin(authorization: str | None = Header(None)):
+    return fire_identity(authorization, 'admin')
+
+
+def progress_user(course_id: str, authorization: str | None = Header(None)):
+    return fire_current_user(authorization) if course_id == fire.CID else current_user(authorization)
 
 
 def check_rate_limit(ip: str, scope: str):
@@ -385,8 +414,10 @@ def download_material(folder_key: str, filename: str):
 
 @app.post("/api/v1/session")
 def login(data: LoginInput, request: Request):
-    queue = check_rate_limit(request.client.host if request.client else "unknown", "student")
-    if not hmac.compare_digest(data.code.encode("utf-8"), ACCESS_CODE.encode("utf-8")):
+    separate_fire = data.course_id == fire.CID and fire_access.config is not None
+    queue = check_rate_limit(request.client.host if request.client else "unknown", "fire-student" if separate_fire else "student")
+    valid = fire_access.matches('code', data.code) if separate_fire else hmac.compare_digest(data.code.encode("utf-8"), ACCESS_CODE.encode("utf-8"))
+    if not valid:
         queue.append(time.time())
         raise HTTPException(401, "Неверный код доступа")
     queue.clear()
@@ -407,7 +438,12 @@ def login(data: LoginInput, request: Request):
         if data.course_id:
             ensure_course_progress(con, user_id, data.course_id, timestamp)
         con.commit()
-    return {"token": encode_token(user_id, full_name, "user"), "full_name": full_name}
+    return {"token": encode_token(user_id, full_name, "user", scope=fire.CID if separate_fire else None), "full_name": full_name}
+
+
+@app.post('/api/v1/fire/session')
+def fire_login(data: LoginInput, request: Request):
+    return login(data.model_copy(update={'course_id': fire.CID}), request)
 
 
 @app.post("/api/v1/admin/session")
@@ -425,8 +461,22 @@ def admin_login(data: AdminLoginInput, request: Request):
     }
 
 
+@app.post('/api/v1/fire/admin/session')
+def fire_admin_login(data: AdminLoginInput, request: Request):
+    if not fire_access.config:
+        return admin_login(data, request)
+    queue = check_rate_limit(request.client.host if request.client else 'unknown', 'fire-admin')
+    login_ok = hmac.compare_digest(data.login.encode(), fire_access.config['login'].encode())
+    password_ok = fire_access.matches('password', data.password)
+    if not (login_ok and password_ok):
+        queue.append(time.time())
+        raise HTTPException(401, 'Неверный логин или пароль')
+    queue.clear()
+    return {'token': encode_token('fire-admin', data.login, 'admin', ADMIN_TOKEN_TTL, scope=fire.CID), 'login': data.login}
+
+
 @app.get("/api/v1/progress/{course_id}")
-def get_progress(course_id: str, user=Depends(current_user)):
+def get_progress(course_id: str, user=Depends(progress_user)):
     validate_course(course_id)
     with closing(db()) as con:
         row = con.execute(
@@ -447,7 +497,7 @@ def get_progress(course_id: str, user=Depends(current_user)):
 
 
 @app.put("/api/v1/progress/{course_id}")
-def put_progress(course_id: str, data: ProgressInput, user=Depends(current_user)):
+def put_progress(course_id: str, data: ProgressInput, user=Depends(progress_user)):
     validate_course(course_id)
     state_json = json.dumps(data.state, ensure_ascii=False)
     if len(state_json) > 250_000:
@@ -533,7 +583,7 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(current_user)
 
 
 @app.post("/api/v1/progress/{course_id}/restart")
-def restart_progress(course_id: str, user=Depends(current_user)):
+def restart_progress(course_id: str, user=Depends(progress_user)):
     validate_course(course_id)
     timestamp = now_iso()
     state = empty_state()
@@ -722,7 +772,7 @@ def authorize_admin_export(authorization: str | None, x_admin_key: str | None):
     if x_admin_key and hmac.compare_digest(x_admin_key.encode("utf-8"), ADMIN_KEY.encode("utf-8")):
         return
     payload = bearer_payload(authorization)
-    if payload.get("role") != "admin":
+    if payload.get("role") != "admin" or payload.get('scope'):
         raise HTTPException(403, "Недостаточно прав")
 
 
@@ -762,7 +812,7 @@ def course_titles():
     return {**COURSE_TITLES, **builder_titles()}
 
 import fire
-fire_settings = fire.register_fire(app, db, current_user, current_admin, now_iso, STATIC_DIR)
+fire_settings = fire.register_fire(app, db, fire_current_user, fire_current_admin, now_iso, STATIC_DIR)
 
 @app.get('/api/v1/fire/access-public-key')
 def fire_access_public_key():
