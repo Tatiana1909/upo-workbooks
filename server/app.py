@@ -589,6 +589,8 @@ def admin_dashboard(admin=Depends(current_admin)):
           ORDER BY p.updated_at DESC
         """).fetchall()
         attempt_rows = con.execute("SELECT * FROM course_attempts ORDER BY attempt_no").fetchall()
+        direction_rows = con.execute("SELECT course_id,content FROM builder_editions").fetchall()
+    course_directions = {row["course_id"]: parse_json(row["content"], {}).get("courseDirection") or "1С:УПО" for row in direction_rows}
 
     attempts_map = defaultdict(list)
     for row in attempt_rows:
@@ -612,6 +614,7 @@ def admin_dashboard(admin=Depends(current_admin)):
             "full_name": row["full_name"],
             "course_id": row["course_id"],
             "course_title": course_titles().get(row["course_id"], row["course_id"]),
+            "course_direction": course_directions.get(row["course_id"], "1С:УПО"),
             "status": status,
             "progress_percent": percent,
             "success_percent": summary["success_percent"],
@@ -639,6 +642,7 @@ def admin_dashboard(admin=Depends(current_admin)):
         course_stats.append({
             "course_id": course_id,
             "course_title": title,
+            "course_direction": course_directions.get(course_id, "1С:УПО"),
             "users": len(rows),
             "completed": sum(1 for item in rows if item["status"] == "completed"),
             "active": sum(1 for item in rows if item["status"] == "active"),

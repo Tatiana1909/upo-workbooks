@@ -109,3 +109,7 @@ def test_catalog_directions_and_safe_metadata(service):
     assert 'content' not in rows[other_id]
     body['courseDirection']=42
     assert c.post('/api/v1/builder/drafts',headers=h,json={'content':body}).status_code==422
+
+    c.post('/api/v1/builder/editions/'+other_id+'/archive',headers=h)
+    courses={r['course_id']:r for r in c.get('/api/v1/admin/dashboard',headers=h).json()['courses']}
+    assert courses[other_id]['course_direction']=='Складская логистика'
