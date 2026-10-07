@@ -4,7 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'v4/fire/**'
+      - 'v4/**'
+      - 'courses.js'
+      - '.github/workflows/deploy-workbooks-server.yml'
       - 'server/**'
   workflow_dispatch:
 

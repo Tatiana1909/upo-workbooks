@@ -1,0 +1,17 @@
+/* Clipboard and drop screenshots, shared by native and constructed workbooks. */
+window.ScreenshotInput=(()=>{
+ const bindings=new WeakMap(),limit=5000000;
+ function html(id){return `<div class="screenshot-drop" data-screenshot="${id}" tabindex="0" role="group" aria-label="Добавить скриншот к заданию"><span>Вставьте скриншот — Ctrl+V · или перетащите картинку</span><button type="button" data-screenshot-choose>Файл…</button><input type="file" accept="image/png,image/jpeg,image/webp" multiple aria-label="Выбрать скриншот"></div>`}
+ async function encode(file){if(!['image/png','image/jpeg','image/webp'].includes(file.type))throw Error('Вставьте изображение PNG, JPEG или WebP');let blob=file;if(blob.size>limit){const bitmap=await createImageBitmap(file);try{const canvas=document.createElement('canvas');let scale=1;for(let attempt=0;attempt<8;attempt++){canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);for(const quality of [.95,.9,.85,.8]){blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));if(blob&&blob.size<=limit)break}if(blob&&blob.size<=limit)break;scale*=.85}if(!blob||blob.size>limit)throw Error('Не удалось сжать изображение до 5 МБ')}finally{bitmap.close()}}
+ return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=()=>reject(Error('Не удалось прочитать изображение'));reader.readAsDataURL(blob)})}
+ function bind(root,upload,onError){bindings.get(root)?.abort();const controller=new AbortController();bindings.set(root,controller);const opts={signal:controller.signal},busy=new WeakSet();
+ async function add(zone,files){if(!files.length||busy.has(zone))return;busy.add(zone);zone.setAttribute('aria-busy','true');const button=zone.querySelector('button');button.disabled=true;try{await upload(zone.dataset.screenshot,files)}catch(error){onError(error)}finally{zone.removeAttribute('aria-busy');button.disabled=false;busy.delete(zone);zone.querySelector('input').value=''}}
+ root.addEventListener('click',ev=>{const zone=ev.target.closest('[data-screenshot]');if(!zone)return;if(ev.target.closest('[data-screenshot-choose]'))zone.querySelector('input').click();else if(ev.target.tagName!=='INPUT')zone.focus()},opts);
+ root.addEventListener('change',ev=>{const zone=ev.target.closest('[data-screenshot]');if(zone&&ev.target.type==='file')add(zone,[...ev.target.files])},opts);
+ root.addEventListener('paste',ev=>{const zone=ev.target.closest('[data-screenshot]');if(!zone)return;const files=[...ev.clipboardData.items].filter(x=>x.kind==='file').map(x=>x.getAsFile()).filter(Boolean);if(files.length){ev.preventDefault();add(zone,files)}},opts);
+ root.addEventListener('dragover',ev=>{const zone=ev.target.closest('[data-screenshot]');if(zone){ev.preventDefault();zone.classList.add('dragging')}},opts);
+ root.addEventListener('dragleave',ev=>{const zone=ev.target.closest('[data-screenshot]');if(zone&&!zone.contains(ev.relatedTarget))zone.classList.remove('dragging')},opts);
+ root.addEventListener('drop',ev=>{const zone=ev.target.closest('[data-screenshot]');if(zone){ev.preventDefault();zone.classList.remove('dragging');add(zone,[...ev.dataTransfer.files])}},opts);
+ }
+ return {html,encode,bind};
+})();
