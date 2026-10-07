@@ -45,6 +45,9 @@ def validate_state(s):
         raise HTTPException(422, 'Неверные записи участника')
     if not isinstance(s['profile'].get('unit', ''), str) or len(s['profile'].get('unit', '')) > 160:
         raise HTTPException(422, 'Неверное подразделение')
+    location = s['profile'].get('location', {})
+    if not isinstance(location, dict) or any(k not in ('object', 'address', 'assembly', 'responsible', 'dispatcher') or not isinstance(v, str) or len(v) > 300 for k, v in location.items()):
+        raise HTTPException(422, 'Неверные сведения об объекте')
     history = s.setdefault('history', [])
     if not isinstance(history, list) or len(history) > 500 or any(not isinstance(x,dict) or not isinstance(x.get('id'),str) or not isinstance(x.get('at'),str) for x in history):
         raise HTTPException(422, 'Неверная история')
