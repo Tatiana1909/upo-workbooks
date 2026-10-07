@@ -3,6 +3,8 @@ import json
 import re
 import secrets
 import sqlite3
+import games
+from pathlib import Path
 from contextlib import closing
 from urllib.parse import urlsplit
 from fastapi import Depends, HTTPException
@@ -17,9 +19,11 @@ class PublishInput(BaseModel):
 class ImageInput(BaseModel):
     data: str = Field(max_length=7_000_000)
 
-TYPES = {'text','image','link','video','single','multiple','boolean','open','practice','notes'}
+TYPES = {'text','image','link','video','single','multiple','boolean','open','practice','notes'} | games.TYPES
 
-def register(app, db, admin, student, now, data_dir):
+def register(app, db, admin, student, now, data_dir, static_dir=None):
+    builtin_path=Path(static_dir or ".")/"v4/learning-content.json"
+    builtins=json.loads(builtin_path.read_text()) if builtin_path.exists() else {}
     def init():
         with closing(db()) as con:
             con.executescript('''
@@ -35,6 +39,7 @@ def register(app, db, admin, student, now, data_dir):
             con.commit()
     app.add_event_handler('startup',init)
     def edition(cid):
+        if cid in builtins:return {'course_id':cid,'version':1,'content':json.dumps(builtins[cid],ensure_ascii=False),'title':builtins[cid]['title'],'builtin':True}
         with closing(db()) as con:
             r=con.execute('SELECT * FROM builder_editions WHERE course_id=?',(cid,)).fetchone()
         return dict(r) if r else None
@@ -68,10 +73,11 @@ def register(app, db, admin, student, now, data_dir):
                     v=b.get(k,'')
                     if v and (urlsplit(v).scheme not in ('http','https') or not urlsplit(v).hostname or urlsplit(v).username): raise HTTPException(422,'Ссылка должна начинаться с http:// или https://')
                 if b.get('image') and not re.fullmatch(r'/api/v1/builder/images/[a-f0-9]{32}',b['image']): raise HTTPException(422,'Загрузите картинку через конструктор')
-                if publish and b['type']=='image' and not b.get('image'): raise HTTPException(422,'Загрузите картинку')
+                if publish and b['type'] in ('image','hotspots') and not b.get('image'): raise HTTPException(422,'Загрузите картинку')
                 if b['type']=='video' and b.get('videoMode','link') not in ('link','inline'):raise HTTPException(422,'Неверный режим видео')
                 if publish and b['type'] in ('link','video') and not b.get('url'): raise HTTPException(422,'Укажите ссылку инструкции')
                 if publish and b['type']!='image' and not b.get('text','').strip(): raise HTTPException(422,'Заполните текст каждого блока')
+                if b['type'] in games.TYPES:games.validate(b,publish)
                 if b['type'] in ('single','multiple','boolean'):
                     opts=b.get('options',[]); correct=b.get('correct',[])
                     if not isinstance(opts,list) or not 2<=len(opts)<=20 or any(not isinstance(o,str) or len(o)>2000 for o in opts): raise HTTPException(422,'Добавьте от 2 до 20 вариантов')
@@ -107,7 +113,7 @@ def register(app, db, admin, student, now, data_dir):
             c=validate(json.loads(r['content']),True)
             v=con.execute('SELECT COALESCE(MAX(version),0)+1 FROM builder_editions WHERE draft_id=?',(did,)).fetchone()[0];cid=f'cb-{did}-v{v}'
             con.execute('INSERT INTO builder_editions(course_id,draft_id,version,title,content,published_at) VALUES(?,?,?,?,?,?)',(cid,did,v,c['title'],r['content'],now()));con.commit()
-        return {'course_id':cid,'version':v,'url':'/builder/workbook.html?course='+cid}
+        return {'course_id':cid,'version':v,'url':'/v4/builder/workbook.html?course='+cid}
     @app.get('/api/v1/workbooks')
     def catalog():
         with closing(db()) as con:
@@ -171,7 +177,9 @@ def register(app, db, admin, student, now, data_dir):
         if r.get('deleted_at'):raise HTTPException(410,'Тетрадь удалена преподавателем')
         c=json.loads(r['content'])
         for s in c['sections']:
-            for b in s['blocks']: b.pop('correct',None);b.pop('explanation',None)
+            for b in s['blocks']:
+                b.pop('correct',None);b.pop('explanation',None)
+                for step in b.get('steps',[]):step.pop('correct',None)
         return {'course_id':cid,'version':r['version'],'content':c}
     @app.post('/api/v1/builder/images')
     def image(data:ImageInput,user=Depends(admin)):
@@ -192,15 +200,38 @@ def register(app, db, admin, student, now, data_dir):
         with closing(db()) as con: r=con.execute('SELECT extension FROM builder_images WHERE id=?',(iid,)).fetchone()
         if not r or not re.fullmatch(r'[a-f0-9]{32}',iid): raise HTTPException(404,'Картинка не найдена')
         return FileResponse(data_dir/'builder-images'/(iid+'.'+r['extension']),headers={'X-Content-Type-Options':'nosniff'})
+    def normalize_state(cid,state):
+        if cid not in builtins:return state
+        state=json.loads(json.dumps(state));state.setdefault('answers',{});state.setdefault('checks',{})
+        if not isinstance(state['answers'],dict) or not isinstance(state['checks'],dict):raise HTTPException(422,'Неверный формат ответов')
+        for sec in builtins[cid]['sections']:
+            for b in sec['blocks']:
+                if b.get('legacyQuiz') and type(state['answers'].get(b['id'])) is int:state['answers'][b['id']]=[state['answers'][b['id']]]
+                if b.get('legacyPractice'):state['checks'][b['id']]=state['checks'].get(b['legacyKey'],False)
+        return state
+
+    @app.post('/api/v1/workbooks/{cid}/games/{bid}/check')
+    def check_game(cid:str,bid:str,data:dict,user=Depends(student)):
+        r=edition(cid)
+        if not r or r.get('deleted_at'):raise HTTPException(404,'Тетрадь не найдена')
+        c=json.loads(r['content']);b=next((b for sec in c['sections'] for b in sec['blocks'] if b['id']==bid and b['type'] in games.TYPES),None)
+        if not b:raise HTTPException(404,'Игра не найдена')
+        valid,right=games.evaluate(b,data)
+        if not valid:raise HTTPException(422,'Завершите решение игры')
+        manual=b.get('reviewMode','inherit')=='manual' or (b.get('reviewMode','inherit')=='inherit' and c.get('reviewMode')=='manual')
+        return {'correct':right,'points':b.get('points',10) if right and not manual else 0,'manual':manual,'explanation':b.get('explanation','')}
+
     def score(cid,state):
         r=edition(cid)
         if not r:return None
-        c=json.loads(r['content']);answers=state.get('answers',{});checks=state.get('checks',{})
+        c=json.loads(r['content']);state=normalize_state(cid,state);answers=state.get('answers',{});checks=state.get('checks',{})
         if not isinstance(answers,dict) or not isinstance(checks,dict): raise HTTPException(422,'Неверный формат ответов')
-        qs=[b for s in c['sections'] for b in s['blocks'] if b['type'] in ('single','multiple','boolean','open')];tasks=[b for s in c['sections'] for b in s['blocks'] if b['type']=='practice'];answered=correct=0
+        qs=[b for s in c['sections'] for b in s['blocks'] if b['type'] in {'single','multiple','boolean','open'} | games.TYPES];tasks=[b for s in c['sections'] for b in s['blocks'] if b['type']=='practice'];answered=correct=0
         for b in qs:
             a=answers.get(b['id'])
-            if b['type']=='open':answered+=int(isinstance(a,str) and bool(a.strip()))
+            if b['type'] in games.TYPES:
+                valid,right=games.evaluate(b,a);answered+=int(valid);correct+=int(right)
+            elif b['type']=='open':answered+=int(isinstance(a,str) and bool(a.strip()))
             elif isinstance(a,list) and a and all(type(i) is int and 0<=i<len(b['options']) for i in a) and len(set(a))==len(a):
                 answered+=1;correct+=int(sorted(set(a))==sorted(b['correct']))
         evidence=state.get('evidence',{})
@@ -213,10 +244,12 @@ def register(app, db, admin, student, now, data_dir):
         base_points={}
         for b in qs+tasks:
             if b in manual:base_points[b['id']]=0;continue
-            if b['type']=='practice':earned=10 if checks.get(b['id']) is True and (not b.get('evidenceRequired') or bool(evidence.get(b['id']))) else 0
+            if b['type'] in games.TYPES:earned=b.get('points',10) if games.evaluate(b,answers.get(b['id']))[1] else 0
+            elif b['type']=='practice':earned=10 if checks.get(b['id']) is True and (not b.get('evidenceRequired') or bool(evidence.get(b['id']))) else 0
             elif b['type']=='open':earned=0
             else:
                 a=answers.get(b['id']);earned=10 if isinstance(a,list) and all(type(i) is int for i in a) and len(set(a))==len(a) and sorted(a)==sorted(b['correct']) else 0
+            if b.get('legacyPractice'):earned=0
             auto_points+=earned;base_points[b['id']]=earned
         return {'percent':round(completed/total*100) if total else 0,'basePoints':base_points,'manualBlocks':[b['id'] for b in manual],'pendingReview':len(manual),'correct':correct,'totalQ':sum(b['type']!='open' for b in qs),'answered':answered,'checked':checked,'totalChecks':len(tasks),'points':auto_points,'openAnswers':sum(b['type']=='open' for b in qs)}
     def apply_reviews(con, uid, cid, attempt, summary):
@@ -275,7 +308,7 @@ def register(app, db, admin, student, now, data_dir):
             reviews={x['block_id']:json.loads(x['review']) for x in con.execute('SELECT * FROM builder_reviews WHERE user_id=? AND course_id=? AND attempt_no=?',(uid,cid,attempt))}
         edition_row=edition(cid)
         if not edition_row:raise HTTPException(404,'Тетрадь создана вне конструктора')
-        return {'content':json.loads(edition_row['content']),'state':json.loads(r['state_json']),'summary':json.loads(r['summary_json']),'reviews':reviews,'updated_at':r['updated_at']}
+        return {'content':json.loads(edition_row['content']),'state':normalize_state(cid,json.loads(r['state_json'])),'summary':json.loads(r['summary_json']),'reviews':reviews,'updated_at':r['updated_at']}
 
     @app.put('/api/v1/builder/reviews/{uid}/{cid}/{attempt}/{bid}')
     def review(uid:str,cid:str,attempt:int,bid:str,data:dict,user=Depends(admin)):
@@ -283,7 +316,7 @@ def register(app, db, admin, student, now, data_dir):
         if type(points) is not int or not 0<=points<=100 or type(checked) is not bool or not isinstance(comment,str) or len(comment)>10000:raise HTTPException(422,'Баллы: 0–100; комментарий: до 10000 символов')
         row=edition(cid)
         if not row:raise HTTPException(404,'Тетрадь не найдена')
-        c=json.loads(row['content']);block=next((b for s in c['sections'] for b in s['blocks'] if b['id']==bid and b['type'] in ('single','multiple','boolean','open','practice')),None)
+        c=json.loads(row['content']);block=next((b for s in c['sections'] for b in s['blocks'] if b['id']==bid and b['type'] in {'single','multiple','boolean','open','practice'} | games.TYPES),None)
         if not block:raise HTTPException(404,'Задание не найдено')
         with closing(db()) as con:
             con.execute('BEGIN IMMEDIATE')

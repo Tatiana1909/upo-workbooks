@@ -85,7 +85,7 @@ def test_invalid_and_existing_courses(service):
     c,m,h=service;b=content();b['sections'][0]['blocks'].append({'id':'x','type':'link','text':'Инструкция','url':'javascript:alert(1)'})
     assert c.post('/api/v1/builder/drafts',headers=h,json={'content':b}).status_code==422
     student=login(c,'accounting');r=c.put('/api/v1/progress/accounting',headers=student,json={'state':{'answers':{}},'summary':{'percent':50,'points':20}})
-    assert r.status_code==200;assert r.json()['summary']['points']==20
+    assert r.status_code==200;assert r.json()['summary']['points']==0  # built-in scoring now ignores client-provided points
     assert c.get('/v3/index.html').status_code==200
 
 def test_video_blocks(service):

@@ -538,7 +538,10 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(progress_user
                 reviews = con.execute("SELECT block_id, review FROM builder_reviews WHERE user_id=? AND course_id=? AND attempt_no=?", (user["uid"], course_id, attempt_no)).fetchall()
                 for review in reviews:
                     bid = review["block_id"]
-                    if any(old_state.get(k, {}).get(bid) != data.state.get(k, {}).get(bid) for k in ("answers", "checks", "evidence")):
+                    block=next((b for sec in content['sections'] for b in sec['blocks'] if b['id']==bid),{})
+                    changed=any(old_state.get(k, {}).get(bid) != data.state.get(k, {}).get(bid) for k in ("answers", "checks", "evidence"))
+                    if block.get('legacyKey'):changed=changed or old_state.get('checks',{}).get(block['legacyKey'])!=data.state.get('checks',{}).get(block['legacyKey'])
+                    if changed:
                         prior_review = json.loads(review["review"])
                         prior_review.update({"checked": False, "needs_recheck": True, "changed_at": timestamp})
                         con.execute("UPDATE builder_reviews SET review=?, updated_at=? WHERE user_id=? AND course_id=? AND attempt_no=? AND block_id=?", (json.dumps(prior_review, ensure_ascii=False), timestamp, user["uid"], course_id, attempt_no, bid))
@@ -806,7 +809,7 @@ def export_results(
 
 
 from builder import register
-builder_edition, builder_titles, builder_score, builder_apply_reviews = register(app, db, current_admin, current_user, now_iso, DB_PATH.parent)
+builder_edition, builder_titles, builder_score, builder_apply_reviews = register(app, db, current_admin, current_user, now_iso, DB_PATH.parent, STATIC_DIR)
 
 def course_titles():
     return {**COURSE_TITLES, **builder_titles()}
