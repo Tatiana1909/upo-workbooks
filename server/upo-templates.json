@@ -1,0 +1,3582 @@
+{
+  "accounting": {
+    "title": "1С:УПО — Складской и производственный учёт",
+    "description": "Рабочая тетрадь сопровождает весь учебный цикл: от настройки рабочего места и поступления ТМЦ до инвентаризации, списания и контроля месяца. Она помогает фиксировать результат каждой операции, а не только факт её выполнения.",
+    "courseDirection": "1С:УПО",
+    "reviewMode": "auto",
+    "sourceCourse": "accounting",
+    "schemaVersion": 2,
+    "completionLabel": "Материал разобран, практическое задание завершено",
+    "sections": [
+      {
+        "title": "Основы работы интерфейс и начальные остатки",
+        "minutes": "60 минут",
+        "blocks": [
+          {
+            "id": "import-accounting-1",
+            "type": "text",
+            "title": "О курсе",
+            "text": "Рабочая тетрадь сопровождает весь учебный цикл: от настройки рабочего места и поступления ТМЦ до инвентаризации, списания и контроля месяца. Она помогает фиксировать результат каждой операции, а не только факт её выполнения.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-accounting-2",
+            "type": "text",
+            "title": "Для кого",
+            "text": "Бухгалтеры калькуляторы",
+            "textStyle": "normal"
+          },
+          {
+            "id": "import-accounting-3",
+            "type": "text",
+            "title": "Продолжительность",
+            "text": "5 дней · 300 минут",
+            "textStyle": "normal"
+          },
+          {
+            "id": "import-accounting-4",
+            "type": "text",
+            "title": "Как работать",
+            "text": "Изучите материалы по теме, выполните действия в тестовой базе, отметьте чек-лист и ответьте на контрольные вопросы.",
+            "textStyle": "normal"
+          },
+          {
+            "id": "import-accounting-5",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Все задания выполняются только в тестовой базе.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-6",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Каждая операция должна иметь основание и отражаться один раз.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-7",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Документы закрытого периода не изменяются и не перепроводятся без согласования.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-8",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Результат подтверждается документом, движением или контрольным отчётом.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-9",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Ориентироваться в 1С УПО, понимать логику документа и движения, настроить рабочий интерфейс и проверить начальные остатки.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-accounting-10",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-accounting-11",
+            "type": "text",
+            "title": "Логика учёта",
+            "text": "Первичное основание отражается документом 1С. Только проведённый документ формирует движения. Дата, подразделение, склад, МОЛ и последовательность операций определяют результат учёта.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-12",
+            "type": "text",
+            "title": "Отличия от 1С УР",
+            "text": "В 1С УПО меняются расположение разделов, аналитики и способы контроля. Ошибку ищут от отчёта к документу регистратору, а действия в закрытом периоде согласовывают.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-13",
+            "type": "text",
+            "title": "Персональные настройки",
+            "text": "Списки и формы настраиваются под задачу: колонки, отборы, сортировки, избранное. Пользователь должен уметь вернуть стандартный вид.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-14",
+            "type": "text",
+            "title": "Начальные остатки",
+            "text": "Проверяются дата ввода, подразделение цен, склад, ячейки, единицы, количество, стоимость, режим Без НДС и включение НДС в стоимость.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-accounting-0",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Документ, движение и контроль — три разных этапа. Сначала проверьте первичное основание и реквизиты, затем выполните предусмотренное проведение и подтвердите результат отчётом. Запись документа сама по себе не подтверждает изменение остатков.\n\nОстаток проверяют по дате, складу, номенклатуре, характеристике и партии. Разница между отчётами может быть связана с разными отборами: перед выводом об ошибке сравните параметры.\n\nКарточки номенклатуры, единицы и штрихкоды исправляет НСИ. Пользователь не создаёт похожую позицию, чтобы обойти ошибку подбора. Закрытый период не меняют без согласованного сценария.",
+            "source": "Источники: методические материалы «Складской и производственный учёт в 1С УПО»; инструкции «Инвентаризация», «Списание запасов», «Перемещение запасов (вручную)», «Групповое перепроведение».",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-accounting-15",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-accounting-16",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Знакомство с 1С:УПО и логика учёта",
+            "text": "Знакомство с 1С:УПО и логика учёта",
+            "url": "https://disk.360.yandex.ru/d/Lf4_V6RcVCNufA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day1/download?filename=1.%20%D0%97%D0%BD%D0%B0%D0%BA%D0%BE%D0%BC%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%201%D0%A1_%D0%A3%D0%9F%D0%9E%20%D0%B8%20%D0%BB%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0_%D1%83%D1%87%D0%B5%D1%82%D0%B0.docx"
+          },
+          {
+            "id": "material-accounting-17",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Основные отличия 1С:УР и 1С:УПО",
+            "text": "Основные отличия 1С:УР и 1С:УПО",
+            "url": "https://disk.360.yandex.ru/d/Lf4_V6RcVCNufA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day1/download?filename=2.%20%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D1%8B%D0%B5%20%D0%BE%D1%82%D0%BB%D0%B8%D1%87%D0%B8%D1%8F%201%D0%A1_%D0%A3%D0%A0%20%D0%B8%201%D0%A1_%D0%A3%D0%9F%D0%9E.docx"
+          },
+          {
+            "id": "material-accounting-18",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Пользовательские настройки в системе 1С:УПО",
+            "text": "Пользовательские настройки в системе 1С:УПО",
+            "url": "https://disk.360.yandex.ru/d/Lf4_V6RcVCNufA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day1/download?filename=3.%20%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B5%20%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B5%201%D0%A1%20%D0%A3%D0%9F%D0%9E.docx"
+          },
+          {
+            "id": "material-accounting-19",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Ввод и проверка начальных остатков в 1С:УПО",
+            "text": "Ввод и проверка начальных остатков в 1С:УПО",
+            "url": "https://disk.360.yandex.ru/d/Lf4_V6RcVCNufA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day1/download?filename=4.%20%D0%92%D0%B2%D0%BE%D0%B4%20%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0%20%D0%BD%D0%B0%D1%87%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D1%85%20%D0%BE%D1%81%D1%82%D0%B0%D1%82%D0%BA%D0%BE%D0%B2%20%D0%B2%201%D0%A1%20%D0%A3%D0%9F%D0%9E.docx"
+          },
+          {
+            "id": "material-accounting-20",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Пользовательские настройки в 1С:УПО",
+            "text": "СОП: Пользовательские настройки в 1С:УПО",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=01%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B5%20%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8%20%D0%B2%201%D0%A1_%D0%A3%D0%9F%D0%9E.pptx"
+          },
+          {
+            "id": "material-accounting-21",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Ввод и проверка начальных остатков",
+            "text": "СОП: Ввод и проверка начальных остатков",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=02%20%D0%A1%D0%9E%D0%9F%20%D0%92%D0%B2%D0%BE%D0%B4%20%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0%20%D0%BD%D0%B0%D1%87%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D1%85%20%D0%BE%D1%81%D1%82%D0%B0%D1%82%D0%BA%D0%BE%D0%B2.pptx"
+          },
+          {
+            "id": "folder-accounting-0",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Lf4_V6RcVCNufA"
+          },
+          {
+            "id": "game-accounting-sort",
+            "type": "sort",
+            "title": "Кто отвечает за действие?",
+            "text": "Распределите задачи по ролям.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "МОЛ фиксирует факт, бухгалтер проверяет и отражает учётную операцию, НСИ сопровождает справочники.",
+            "items": [
+              "Пересчитать и осмотреть товар",
+              "Проверить аналитики списания",
+              "Исправить карточку номенклатуры",
+              "Провести проверенный документ"
+            ],
+            "correct": [
+              0,
+              1,
+              2,
+              1
+            ],
+            "targets": [
+              "МОЛ / кладовщик",
+              "Бухгалтер",
+              "НСИ"
+            ]
+          },
+          {
+            "id": "import-accounting-22",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-0-0",
+            "type": "practice",
+            "text": "Откройте нужный журнал и настройте колонки, отбор и сортировку по образцу.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-0-1",
+            "type": "practice",
+            "text": "Сохраните пользовательский вариант, затем верните стандартный вид.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-0-2",
+            "type": "practice",
+            "text": "Добавьте объект в Избранное и откройте его из списка избранного.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-0-3",
+            "type": "practice",
+            "text": "Проверьте учебный документ ввода остатков по дате, складу, ячейкам, единицам, количеству и стоимости.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-0-4",
+            "type": "practice",
+            "text": "Сформируйте отчёт и подтвердите введённые остатки.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "note-accounting-0",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Запишите три отличия 1С УПО от 1С УР, которые влияют на вашу ежедневную работу. Укажите, что нельзя делать без согласования со старшим бухгалтером.",
+            "rows": 4
+          },
+          {
+            "id": "import-accounting-23",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "0-0",
+            "type": "single",
+            "text": "Что формирует учётные движения?",
+            "options": [
+              "Сохранённый документ",
+              "Проведённый документ",
+              "Любая строка журнала"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Учётные движения возникают после проведения документа.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "0-1",
+            "type": "single",
+            "text": "Что делать перед изменением документа закрытого периода?",
+            "options": [
+              "Изменить дату самостоятельно",
+              "Согласовать сценарий исправления",
+              "Удалить документ"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Закрытый период защищён. Сценарий исправления должен быть согласован.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "0-2",
+            "type": "single",
+            "text": "Чем подтверждают правильность ввода остатков?",
+            "options": [
+              "Только визуальной проверкой документа",
+              "Контрольным отчётом",
+              "Комментарием пользователя"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Документ проверяют отчётом по правильному складу и дате.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Поступления перемещения и авансовые отчёты",
+        "minutes": "60 минут",
+        "blocks": [
+          {
+            "id": "import-accounting-24",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Отразить движение ТМЦ по первичному основанию один раз и с корректными реквизитами и аналитиками.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-accounting-25",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-accounting-26",
+            "type": "text",
+            "title": "Поступление",
+            "text": "Приходная накладная может создаваться по заказу, из ТСД, из Диадок или вручную. До создания проверяют возможный дубль по поставщику, входящему номеру, дате и сумме.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-27",
+            "type": "text",
+            "title": "Расхождения и корректировки",
+            "text": "УПД отражается по документам поставщика. Фактические расхождения фиксируются ТОРГ 2 и передаются для получения корректирующих документов. УКД и КСФ связываются с исходным поступлением.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-28",
+            "type": "text",
+            "title": "Перемещение",
+            "text": "Проверяются отправитель, получатель, дата, остаток, единицы и партии. Результат должен быть виден на обоих складах. Документы Перемещение из филиала и Перемещение в филиал не применяются для складов одной базы.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-29",
+            "type": "text",
+            "title": "Авансовый отчёт",
+            "text": "Покупка подотчётным лицом отражается один раз. Проверяются чеки, склад, номенклатура, количество, сумма и НДС; повторная приходная накладная недопустима.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-accounting-1",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "До поступления сравните поставщика, входящий номер, дату и сумму с уже отражёнными документами. Совпадение — повод проверить основание, а не автоматически удалить найденный документ.\n\nПри расхождении фактическую приёмку и акт ТОРГ-2 оформляет МОЛ. Бухгалтер сверяет переданные документы и отражает поступление по документам поставщика, сохраняя связь последующих корректировок с исходной операцией.\n\nВ перемещении проверьте отправителя и получателя, партию, единицу и доступный остаток. При этапной схеме «Отправлен» отражает движение через транзитный склад; «Принят» ставят после фактической приёмки. При отличии количества проверяют принятую величину и расхождение. Для складов одной базы документы «из/в филиал» не используются.",
+            "source": "Источники: методические материалы «Складской и производственный учёт в 1С УПО»; инструкции «Инвентаризация», «Списание запасов», «Перемещение запасов (вручную)», «Групповое перепроведение».",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-accounting-30",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-accounting-31",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Принятие к учёту ТМЦ по приходной накладной через ТСД",
+            "text": "Принятие к учёту ТМЦ по приходной накладной через ТСД",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.1_%D0%9F%D1%80%D0%B8%D0%BD%D1%8F%D1%82%D0%B8%D0%B5%20%D0%BA%20%D1%83%D1%87%D0%B5%D1%82%D1%83%20%D0%A2%D0%9C%D0%A6%20%D0%BF%D0%BE%20%D0%BF%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%BE%D0%B9%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%BE%D0%B9%2C%20%D1%87%D0%B5%D1%80%D0%B5%D0%B7%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "material-accounting-32",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Приходная накладная на основании заказа поставщику",
+            "text": "Приходная накладная на основании заказа поставщику",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.2_%D0%9F%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%BD%D0%B0%20%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%20%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D1%89%D0%B8%D0%BA%D1%83.docx"
+          },
+          {
+            "id": "material-accounting-33",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Формирование приходной накладной из Диадок",
+            "text": "Формирование приходной накладной из Диадок",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.3_%D0%A4%D0%BE%D1%80%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%BF%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%BE%D0%B9%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%BE%D0%B9%20%D0%B8%D0%B7%20%D0%94%D0%B8%D0%B0%D0%B4%D0%BE%D0%BA.docx"
+          },
+          {
+            "id": "material-accounting-34",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Приёмка ТМЦ на склад без заказа поставщику",
+            "text": "Приёмка ТМЦ на склад без заказа поставщику",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.4_%D0%9F%D1%80%D0%B8%D0%B5%D0%BC%D0%BA%D0%B0%20%D0%A2%D0%9C%D0%A6%20%D0%BD%D0%B0%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%20%D0%B1%D0%B5%D0%B7%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%20%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D1%89%D0%B8%D0%BA%D1%83.docx"
+          },
+          {
+            "id": "material-accounting-35",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Поступление ТМЦ с расхождениями",
+            "text": "Поступление ТМЦ с расхождениями",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.5_%D0%9F%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%A2%D0%9C%D0%A6%20%D1%81%20%D1%80%D0%B0%D1%81%D1%85%D0%BE%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%D0%BC%D0%B8.docx"
+          },
+          {
+            "id": "material-accounting-36",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Корректировка поступления: УКД и КСФ",
+            "text": "Корректировка поступления: УКД и КСФ",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.6_%D0%9A%D0%BE%D1%80%D1%80%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0%20%D0%BF%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F.%20%D0%A4%D0%BE%D1%80%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%A3%D0%9A%D0%94%2C%20%D0%9A%D0%A1%D0%A4.docx"
+          },
+          {
+            "id": "material-accounting-37",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Сторнирование документов товародвижения",
+            "text": "Сторнирование документов товародвижения",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.7_%D0%A1%D1%82%D0%BE%D1%80%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F.docx"
+          },
+          {
+            "id": "material-accounting-38",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Реестр документов по ячейкам склада",
+            "text": "Реестр документов по ячейкам склада",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=1.8_%D0%A4%D0%BE%D1%80%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%80%D0%B5%D0%B5%D1%81%D1%82%D1%80%D0%B0%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D0%BF%D0%BE%20%D1%8F%D1%87%D0%B5%D0%B9%D0%BA%D0%B0%D0%BC%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0%20%D0%B2%201%D0%A1%20%D0%A3%D0%9F%D0%9E.docx"
+          },
+          {
+            "id": "material-accounting-39",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Перемещение запасов на основании заказа",
+            "text": "Перемещение запасов на основании заказа",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=2.1_%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2_%D0%BD%D0%B0_%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8_%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0.docx"
+          },
+          {
+            "id": "material-accounting-40",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Перемещение запасов",
+            "text": "Перемещение запасов",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=2.2_%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2.docx"
+          },
+          {
+            "id": "material-accounting-41",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Перемещение складской и производственной номенклатуры на основании заказа",
+            "text": "Перемещение складской и производственной номенклатуры на основании заказа",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=2.3_%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BD%D0%BE%D0%BC%D0%B5%D0%BD%D0%BA%D0%BB%D0%B0%D1%82%D1%83%D1%80%D1%8B_%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0_%D0%B8_%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%B0_%D0%BD%D0%B0_%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8_%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0.docx"
+          },
+          {
+            "id": "material-accounting-42",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Перемещение складской и производственной номенклатуры",
+            "text": "Перемещение складской и производственной номенклатуры",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=2.4_%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BD%D0%BE%D0%BC%D0%B5%D0%BD%D0%BA%D0%BB%D0%B0%D1%82%D1%83%D1%80%D1%8B_%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0_%D0%B8_%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%B0.docx"
+          },
+          {
+            "id": "material-accounting-43",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Перемещение ТМЦ между 1С:УР и 1С:УПО",
+            "text": "Перемещение ТМЦ между 1С:УР и 1С:УПО",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=2.5_%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%A2%D0%9C%D0%A6%20%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%201%D0%A1_%D0%A3%D0%A0%20%D0%B8%201%D0%A1_%D0%A3%D0%9F%D0%9E.docx"
+          },
+          {
+            "id": "material-accounting-44",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Создание перемещений по ячейке со склада Красноярск",
+            "text": "Создание перемещений по ячейке со склада Красноярск",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=2.6_%D0%A1%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%20%D0%BF%D0%BE%20%D1%8F%D1%87%D0%B5%D0%B9%D0%BA%D0%B5%20%D1%81%D0%BE%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0%20%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D1%8F%D1%80%D1%81%D0%BA.docx"
+          },
+          {
+            "id": "material-accounting-45",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Авансовый отчёт",
+            "text": "Авансовый отчёт",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day2/download?filename=3_%D0%90%D0%B2%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%BE%D1%82%D1%87%D0%B5%D1%82.docx"
+          },
+          {
+            "id": "material-accounting-46",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Приходная накладная из заказа поставщику",
+            "text": "СОП: Приходная накладная из заказа поставщику",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=03%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%B8%D0%B7%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%20%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D1%89%D0%B8%D0%BA%D1%83.pptx"
+          },
+          {
+            "id": "material-accounting-47",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Приходная накладная без заказа поставщику",
+            "text": "СОП: Приходная накладная без заказа поставщику",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=04%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%B1%D0%B5%D0%B7%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%20%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D1%89%D0%B8%D0%BA%D1%83.pptx"
+          },
+          {
+            "id": "material-accounting-48",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Приходная накладная из Диадок",
+            "text": "СОП: Приходная накладная из Диадок",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=05%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%B8%D0%B7%20%D0%94%D0%B8%D0%B0%D0%B4%D0%BE%D0%BA.pptx"
+          },
+          {
+            "id": "material-accounting-49",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Проверка приходной накладной после приёмки с ТСД",
+            "text": "СОП: Проверка приходной накладной после приёмки с ТСД",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=06%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0%20%D0%BF%D1%80%D0%B8%D1%85%D0%BE%D0%B4%D0%BD%D0%BE%D0%B9%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D0%BD%D0%BE%D0%B9%20%D0%BF%D0%BE%D1%81%D0%BB%D0%B5%20%D0%BF%D1%80%D0%B8%D1%91%D0%BC%D0%BA%D0%B8%20%D1%81%20%D0%A2%D0%A1%D0%94.pptx"
+          },
+          {
+            "id": "material-accounting-50",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Поступление ТМЦ с расхождениями",
+            "text": "СОП: Поступление ТМЦ с расхождениями",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=07%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%A2%D0%9C%D0%A6%20%D1%81%20%D1%80%D0%B0%D1%81%D1%85%D0%BE%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%D0%BC%D0%B8.pptx"
+          },
+          {
+            "id": "material-accounting-51",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Корректировка поступления",
+            "text": "СОП: Корректировка поступления",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=08%20%D0%A1%D0%9E%D0%9F%20%D0%9A%D0%BE%D1%80%D1%80%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0%20%D0%BF%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F.pptx"
+          },
+          {
+            "id": "material-accounting-52",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Авансовый отчёт",
+            "text": "СОП: Авансовый отчёт",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=09%20%D0%A1%D0%9E%D0%9F%20%D0%90%D0%B2%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%BE%D1%82%D1%87%D1%91%D1%82.pptx"
+          },
+          {
+            "id": "material-accounting-53",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Перемещение запасов на основании заказа",
+            "text": "СОП: Перемещение запасов на основании заказа",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=10%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%20%D0%BD%D0%B0%20%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0.pptx"
+          },
+          {
+            "id": "material-accounting-54",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Перемещение запасов без заказа",
+            "text": "СОП: Перемещение запасов без заказа",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=11%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%20%D0%B1%D0%B5%D0%B7%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0.pptx"
+          },
+          {
+            "id": "material-accounting-55",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Перемещение складской и производственной номенклатуры из заказа",
+            "text": "СОП: Перемещение складской и производственной номенклатуры из заказа",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=12%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D1%81%D0%BA%D0%BE%D0%B9%20%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D0%B9%20%D0%BD%D0%BE%D0%BC%D0%B5%D0%BD%D0%BA%D0%BB%D0%B0%D1%82%D1%83%D1%80%D1%8B%20%D0%B8%D0%B7%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0.pptx"
+          },
+          {
+            "id": "material-accounting-56",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Перемещение складской и производственной номенклатуры",
+            "text": "СОП: Перемещение складской и производственной номенклатуры",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=13%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D1%81%D0%BA%D0%BE%D0%B9%20%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D0%B9%20%D0%BD%D0%BE%D0%BC%D0%B5%D0%BD%D0%BA%D0%BB%D0%B0%D1%82%D1%83%D1%80%D1%8B.pptx"
+          },
+          {
+            "id": "material-accounting-57",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Перемещение ТМЦ между 1С:УР и 1С:УПО",
+            "text": "СОП: Перемещение ТМЦ между 1С:УР и 1С:УПО",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=14%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%A2%D0%9C%D0%A6%20%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%201%D0%A1_%D0%A3%D0%A0%20%D0%B8%201%D0%A1_%D0%A3%D0%9F%D0%9E.pptx"
+          },
+          {
+            "id": "material-accounting-58",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Перемещения по ячейке склада",
+            "text": "СОП: Перемещения по ячейке склада",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=15%20%D0%A1%D0%9E%D0%9F%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BF%D0%BE%20%D1%8F%D1%87%D0%B5%D0%B9%D0%BA%D0%B5%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0.pptx"
+          },
+          {
+            "id": "material-accounting-59",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Реестр документов по ячейкам склада",
+            "text": "СОП: Реестр документов по ячейкам склада",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=16%20%D0%A1%D0%9E%D0%9F%20%D0%A0%D0%B5%D0%B5%D1%81%D1%82%D1%80%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D0%BF%D0%BE%20%D1%8F%D1%87%D0%B5%D0%B9%D0%BA%D0%B0%D0%BC%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0.pptx"
+          },
+          {
+            "id": "material-accounting-60",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Сторнирование документов товародвижения",
+            "text": "СОП: Сторнирование документов товародвижения",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=21%20%D0%A1%D0%9E%D0%9F%20%D0%A1%D1%82%D0%BE%D1%80%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F.pptx"
+          },
+          {
+            "id": "folder-accounting-1",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/lmuhIx6UDFhnlA"
+          },
+          {
+            "id": "game-accounting-match",
+            "type": "match",
+            "title": "Ситуация и документ",
+            "text": "Подберите документ для отражения операции.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "items": [
+              "Поступление от поставщика",
+              "Передача между складами одной базы",
+              "Выбытие по акту списания"
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ],
+            "targets": [
+              "Приходная накладная",
+              "Перемещение запасов",
+              "Списание запасов"
+            ]
+          },
+          {
+            "id": "game-accounting-scenario",
+            "type": "scenario",
+            "title": "Расхождение при приёмке",
+            "text": "Выберите действие. Последствие появится под ответом; затем завершите следующий шаг.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "steps": [
+              {
+                "text": "МОЛ передал УПД и акт ТОРГ-2. Что делать?",
+                "correct": 0,
+                "options": [
+                  {
+                    "text": "Сверить документы и отразить операцию по установленному порядку",
+                    "consequence": "Вы сохранили достоверность данных и переходите к проверке результата.",
+                    "next": 1
+                  },
+                  {
+                    "text": "Изменить количество в УПД самостоятельно",
+                    "consequence": "Такое действие может скрыть расхождение или создать дубль. Теперь определите дальнейшую проверку.",
+                    "next": 1
+                  }
+                ]
+              },
+              {
+                "text": "Что подтвердит корректность дальнейшей работы?",
+                "correct": 0,
+                "options": [
+                  {
+                    "text": "Связь корректировки с исходным документом и контрольный отчёт",
+                    "consequence": "Результат подтверждён; сведения переданы ответственному.",
+                    "next": -1
+                  },
+                  {
+                    "text": "Повторное поступление без связи с исходным документом",
+                    "consequence": "Без проверки результата операция может быть отражена повторно или остаться незавершённой.",
+                    "next": -1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "import-accounting-61",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-1-0",
+            "type": "practice",
+            "text": "До создания поступления проверьте журнал или реестр на возможный дубль.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-1-1",
+            "type": "practice",
+            "text": "Оформите учебное поступление по УПД и подтвердите движение отчётом.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-1-2",
+            "type": "practice",
+            "text": "Разберите сценарий расхождения и определите комплект подтверждающих документов.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-1-3",
+            "type": "practice",
+            "text": "Переместите часть товара на другой склад и проверьте движение по отправителю и получателю.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-1-4",
+            "type": "practice",
+            "text": "Оформите учебную закупку подотчётным лицом без повторного отражения поступления.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "note-accounting-1",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Опишите алгоритм проверки возможного дубля поступления. Какие реквизиты сравниваются и какое действие выполняется при совпадении?",
+            "rows": 4
+          },
+          {
+            "id": "import-accounting-62",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "1-0",
+            "type": "single",
+            "text": "Какие реквизиты сопоставляют при поиске возможного дубля?",
+            "options": [
+              "Только сумму",
+              "Поставщика, входящий номер, дату и сумму",
+              "Только склад"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Совпадение комплекса реквизитов требует проверки основания до создания документа.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "1-1",
+            "type": "single",
+            "text": "Чем проверяют перемещение?",
+            "options": [
+              "Движением по обоим складам и отчётом по расхождениям",
+              "Только печатной формой",
+              "Только комментарием"
+            ],
+            "correct": [
+              0
+            ],
+            "explanation": "Важно подтвердить списание у отправителя и поступление у получателя.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "1-2",
+            "type": "single",
+            "text": "Можно ли отражать одну покупку авансовым отчётом и приходной накладной?",
+            "options": [
+              "Да",
+              "Нет",
+              "Только в конце месяца"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Одно основание не должно отражаться двумя документами.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Продажи выпуски блюд ОРП и отчёты",
+        "minutes": "60 минут",
+        "blocks": [
+          {
+            "id": "import-accounting-63",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Загрузить продажи один раз, сверить суммы и завершить производственную цепочку до закрытия месяца.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-accounting-64",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-accounting-65",
+            "type": "text",
+            "title": "Загрузка продаж",
+            "text": "Проверяются период, кассы, подразделение и отсутствие выполненной загрузки. Суммы по кассам и типам оплаты сверяются с отчётами кассовых систем до формирования целевых документов.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-66",
+            "type": "text",
+            "title": "Выпуски блюд",
+            "text": "Выпуск связывает продажи с технологическими картами и списанием сырья. Контролируются нормы, выход, ключевые ингредиенты и остатки.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-67",
+            "type": "text",
+            "title": "ОРП",
+            "text": "Отчёт о розничных продажах выполняется после проверки выпуска. Важно подтвердить правильный склад и вид деятельности.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-68",
+            "type": "text",
+            "title": "Недовложения и отчёты",
+            "text": "Недовложения передаются технологу, отрабатываются по Листу замен и закрываются списанием Обед недовложения. Отчёты настраиваются под конкретный контрольный вопрос.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-accounting-2",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Перед загрузкой продаж проверьте период, кассовые узлы и отсутствие уже выполненной загрузки. После загрузки сопоставьте суммы по кассам и типам оплаты с кассовыми отчётами. Расхождения нужно разобрать до дальнейшего формирования документов.\n\nВыпуски блюд и ОРП связаны с маршрутизацией, технологическими картами, ингредиентами и видом деятельности. Неверная исходная настройка не исправляется повторной загрузкой продаж.\n\nНедовложения выявляют отчётом, передают технологу и отрабатывают по полученному «Листу замен» списанием с видом деятельности «Обед (недовложения)». Повторный отчёт подтверждает результат.\n\nВ контрольном отчёте задайте одинаковые период, склад, группировки и единицы. Расшифруйте отклонение до документа-регистратора: итоговая сумма указывает на проблему, но не заменяет проверку источника.",
+            "source": "Источники: методические материалы «Складской и производственный учёт в 1С УПО»; инструкции «Инвентаризация», «Списание запасов», «Перемещение запасов (вручную)», «Групповое перепроведение».",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-accounting-69",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-accounting-70",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Загрузка продаж из кассовых систем IFCM",
+            "text": "Загрузка продаж из кассовых систем IFCM",
+            "url": "https://disk.360.yandex.ru/d/KDizdoiGARFN8w",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day3/download?filename=1.%20%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D1%8F%20%D0%97%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0%20%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%20%D0%B8%D0%B7%20%D0%BA%D0%B0%D1%81%D1%81%D0%BE%D0%B2%D1%8B%D1%85%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%20IFCM.docx"
+          },
+          {
+            "id": "material-accounting-71",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Альбом отчётов для складского учёта",
+            "text": "Альбом отчётов для складского учёта",
+            "url": "https://disk.360.yandex.ru/d/KDizdoiGARFN8w",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day3/download?filename=2.%20%D0%90%D0%BB%D1%8C%D0%B1%D0%BE%D0%BC%20%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%BE%D0%B2%20%D0%B4%D0%BB%D1%8F%20%D0%A1%D0%A3.docx"
+          },
+          {
+            "id": "material-accounting-72",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Настройка отчётов на примере «Движение товаров»",
+            "text": "Настройка отчётов на примере «Движение товаров»",
+            "url": "https://disk.360.yandex.ru/d/KDizdoiGARFN8w",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day3/download?filename=3.%20%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0%20%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%BE%D0%B2%20%D0%BD%D0%B0%20%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D0%B5%20%D0%94%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B2.docx"
+          },
+          {
+            "id": "material-accounting-73",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Загрузка продаж и формирование целевых документов",
+            "text": "СОП: Загрузка продаж и формирование целевых документов",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=17%20%D0%A1%D0%9E%D0%9F%20%D0%97%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0%20%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%20%D0%B8%20%D1%84%D0%BE%D1%80%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%86%D0%B5%D0%BB%D0%B5%D0%B2%D1%8B%D1%85%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2.pptx"
+          },
+          {
+            "id": "material-accounting-74",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Настройка отчётов на примере «Движение товаров»",
+            "text": "СОП: Настройка отчётов на примере «Движение товаров»",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=22%20%D0%A1%D0%9E%D0%9F%20%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0%20%D0%BE%D1%82%D1%87%D1%91%D1%82%D0%BE%D0%B2%20%D0%BD%D0%B0%20%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D0%B5%20%C2%AB%D0%94%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B2%C2%BB.pptx"
+          },
+          {
+            "id": "material-accounting-75",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Контрольные отчёты складского учёта",
+            "text": "СОП: Контрольные отчёты складского учёта",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=23%20%D0%A1%D0%9E%D0%9F%20%D0%9A%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5%20%D0%BE%D1%82%D1%87%D1%91%D1%82%D1%8B%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D1%83%D1%87%D1%91%D1%82%D0%B0.pptx"
+          },
+          {
+            "id": "folder-accounting-2",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/KDizdoiGARFN8w"
+          },
+          {
+            "id": "game-accounting-hotspots",
+            "type": "hotspots",
+            "title": "Контроль перед проведением",
+            "text": "Выберите ВСЕ области, данные которых нужно проверить перед проведением перемещения.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "",
+            "explanation": "Проверьте оба склада, фактическую партию и количество, а также дату, единицу и остаток. Здесь показана учебная схема, не форма рабочей базы.",
+            "items": [
+              "Склад отправителя",
+              "Склад получателя",
+              "Партия",
+              "Количество"
+            ],
+            "correct": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "image": "/v4/builder/import-assets/676b742c8ebb541c820c7fe986348e9b943a9906b27efb5bebc455d1d54d16f7.svg",
+            "regions": [
+              {
+                "x": 28.3,
+                "y": 27.3,
+                "w": 31.1,
+                "h": 10.9
+              },
+              {
+                "x": 62.8,
+                "y": 27.3,
+                "w": 34.4,
+                "h": 10.9
+              },
+              {
+                "x": 38,
+                "y": 66,
+                "w": 28,
+                "h": 12
+              },
+              {
+                "x": 67,
+                "y": 66,
+                "w": 25,
+                "h": 12
+              }
+            ]
+          },
+          {
+            "id": "import-accounting-76",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-2-0",
+            "type": "practice",
+            "text": "Проверьте, что продажи за учебный период ещё не загружены.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-2-1",
+            "type": "practice",
+            "text": "Загрузите продажи и сверяйте суммы по каждой кассе и типу оплаты.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-2-2",
+            "type": "practice",
+            "text": "Проверьте выпуски блюд, технологические карты и ключевые ингредиенты.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-2-3",
+            "type": "practice",
+            "text": "Сформируйте и проверьте ОРП после выпуска.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-2-4",
+            "type": "practice",
+            "text": "Сформируйте отчёт по недовложениям и опишите действия по Листу замен.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-2-5",
+            "type": "practice",
+            "text": "Настройте отчёт Движение товаров под контроль выбранной позиции и сохраните вариант.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "note-accounting-2",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Опишите порядок действий, если сумма загруженных продаж не совпала с отчётом кассовой системы. На каком этапе работу необходимо остановить?",
+            "rows": 4
+          },
+          {
+            "id": "import-accounting-77",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "2-0",
+            "type": "single",
+            "text": "Когда формируют выпуски и ОРП?",
+            "options": [
+              "До сверки продаж",
+              "После сверки продаж с кассовыми отчётами",
+              "До загрузки продаж"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Расхождение продаж устраняют до формирования зависимых документов.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "2-1",
+            "type": "single",
+            "text": "Что является основанием для отработки недовложения?",
+            "options": [
+              "Устное сообщение",
+              "Подтверждённый Лист замен",
+              "Любой отчёт"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Списание выполняется по подтверждённому Листу замен.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "2-2",
+            "type": "single",
+            "text": "Зачем сохранять пользовательский вариант отчёта?",
+            "options": [
+              "Чтобы повторять контроль с одинаковыми настройками",
+              "Чтобы изменить исходные данные",
+              "Чтобы провести документы"
+            ],
+            "correct": [
+              0
+            ],
+            "explanation": "Сохранённый вариант обеспечивает повторяемый контроль.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Инвентаризация",
+        "minutes": "60 минут",
+        "blocks": [
+          {
+            "id": "import-accounting-78",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Подготовить и провести инвентаризацию, корректно зафиксировать факт и проверить документы результатов.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-accounting-79",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-accounting-80",
+            "type": "text",
+            "title": "Подготовка",
+            "text": "До фиксации учётных остатков завершают все документы товародвижения выбранного склада. В документе указывают склад, дату и время, настройки и комиссию.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-81",
+            "type": "text",
+            "title": "Два способа пересчёта",
+            "text": "Для ингредиентов или работы без ТСД используется пустографка. Для складской номенклатуры применяется инвентаризационная опись ТСД; каждому устройству соответствует отдельная опись.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-82",
+            "type": "text",
+            "title": "Партии и сроки",
+            "text": "Проверяются единицы, партии, даты изготовления, сроки годности и полуфабрикаты. Фактическое количество не подгоняется под учётное.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-83",
+            "type": "text",
+            "title": "Результат",
+            "text": "Факт выше учёта означает излишек, ниже учёта — недостачу. Пересортица допускается только при подтверждённой связи. После проведения проверяются списание, оприходование, ИНВ 3, ИНВ 19 и контрольный отчёт.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-accounting-3",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "До пересчёта завершите предшествующие документы товародвижения и проверьте их последовательность. Дата и время инвентаризации должны соответствовать моменту фактического пересчёта. Проверьте склад, комиссию и приказ-основание.\n\nВ настройках документа используется сохранение фактического количества при обновлении учёта; начальный факт — нулевой. Подготовленный документ записывают, но не проводят до получения фактических данных.\n\nДля ТСД формируют отдельную опись на каждый терминал; зоны пересчёта не должны пересекаться. При загрузке данных из описей на вопрос об очистке табличной части выбирают «Нет», как предусмотрено инструкцией.\n\nПри загрузке пустографки сопоставьте код товара, количество описи, единицу и необходимые даты партии. Не включайте создание новых или обновление сопоставленных элементов: это полномочия НСИ. После проверки факта проведение инвентаризации формирует документы списания и оприходования.",
+            "source": "Источники: методические материалы «Складской и производственный учёт в 1С УПО»; инструкции «Инвентаризация», «Списание запасов», «Перемещение запасов (вручную)», «Групповое перепроведение».",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-accounting-84",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-accounting-85",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Инвентаризация запасов",
+            "text": "Инвентаризация запасов",
+            "url": "https://disk.360.yandex.ru/d/rd3Rh5VSFdZEeg",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day4/download?filename=%D0%98%D0%BD%D0%B2%D0%B5%D0%BD%D1%82%D0%B0%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F.docx"
+          },
+          {
+            "id": "material-accounting-86",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Инвентаризация запасов",
+            "text": "СОП: Инвентаризация запасов",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=18%20%D0%A1%D0%9E%D0%9F%20%D0%98%D0%BD%D0%B2%D0%B5%D0%BD%D1%82%D0%B0%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2.pptx"
+          },
+          {
+            "id": "folder-accounting-3",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/rd3Rh5VSFdZEeg"
+          },
+          {
+            "id": "game-accounting-sequence",
+            "type": "sequence",
+            "title": "Подготовка и результат инвентаризации",
+            "text": "Расположите ключевые этапы по порядку.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Подготовленную инвентаризацию не проводят до получения факта. Результат подтверждают сформированными документами и отчётом.",
+            "items": [
+              "Завершить документы до пересчёта и проверить последовательность",
+              "Подготовить инвентаризацию и описи по складу и дате",
+              "Получить и проверить фактические данные",
+              "Провести проверенный документ и подтвердить результат"
+            ],
+            "correct": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "id": "import-accounting-87",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-3-0",
+            "type": "practice",
+            "text": "Проверьте завершение всех документов, влияющих на остаток учебного склада.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-3-1",
+            "type": "practice",
+            "text": "Создайте инвентаризацию, заполните склад, дату, настройки и комиссию.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-3-2",
+            "type": "practice",
+            "text": "Зафиксируйте учётные остатки до ввода фактических данных.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-3-3",
+            "type": "practice",
+            "text": "Выполните отдельный сценарий пустографки и отдельный сценарий описи ТСД.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-3-4",
+            "type": "practice",
+            "text": "Разберите совпадение, излишек, недостачу и подтверждённую пересортицу.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-3-5",
+            "type": "practice",
+            "text": "Проверьте документы результата, печатные формы и контрольный отчёт.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "note-accounting-3",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Запишите, как вы исключите двойной счёт при работе нескольких ТСД и почему нельзя повторять два одинаковых сценария без восстановления тестовой базы.",
+            "rows": 4
+          },
+          {
+            "id": "import-accounting-88",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "3-0",
+            "type": "single",
+            "text": "Когда фиксируют учётные остатки?",
+            "options": [
+              "После завершения документов товародвижения и до ввода факта",
+              "После проведения результатов",
+              "До проверки склада"
+            ],
+            "correct": [
+              0
+            ],
+            "explanation": "Срез учёта должен соответствовать моменту начала фактического пересчёта.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "3-1",
+            "type": "single",
+            "text": "Что означает факт больше учёта?",
+            "options": [
+              "Недостача",
+              "Излишек",
+              "Перемещение"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Положительное расхождение оформляется как излишек после проверки.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "3-2",
+            "type": "single",
+            "text": "Когда допустима пересортица?",
+            "options": [
+              "При любом расхождении",
+              "Только при подтверждённой связи позиций",
+              "Вместо проверки документов"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Пересортица не используется для сокрытия необъяснённого расхождения.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Списание, перепроведение и контроль месяца",
+        "minutes": "60 минут",
+        "blocks": [
+          {
+            "id": "import-accounting-89",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Корректно списать запасы, восстановить последовательность открытого периода и подтвердить готовность месяца контрольными отчётами.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-accounting-90",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-accounting-91",
+            "type": "text",
+            "title": "Списание",
+            "text": "Проверяются основание, дата, подразделение, склад, корреспонденция, вид деятельности, аналитика, статья, причина, номенклатура, партии и остаток. Черновик ТСД бухгалтер проверяет и дозаполняет перед проведением.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-92",
+            "type": "text",
+            "title": "Групповое перепроведение",
+            "text": "Сначала исправляют первопричину, затем сохраняют отчёты до, запускают обработку в согласованных границах открытого периода и повторяют те же отчёты после.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-93",
+            "type": "text",
+            "title": "Контроль месяца",
+            "text": "Последовательно проверяются продажи, выпуски, ОРП, недовложения, поступления, авансовые отчёты, перемещения, списания, инвентаризации и непроведённые документы.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-accounting-94",
+            "type": "text",
+            "title": "Поиск ошибок",
+            "text": "Отчёт расшифровывают до регистратора. Анализируются отрицательные остатки по партиям, зависшие суммы, возможные дубли, расхождения перемещений и формирование себестоимости.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-accounting-4",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Списание выполняют по подтверждённому основанию. Проверьте дату, склад, ячейку, номенклатуру, характеристику, фактическую партию и достаточность остатка. Запасы из разных партий отражаются отдельными строками.\n\nНа вкладке «Дополнительно» выбирают согласованную комбинацию вида деятельности, аналитики, статьи потерь и причины. Значения из предыдущего документа нельзя переносить без проверки. При списании СИЗ проверьте получателя.\n\nПосле завершения сбора на ТСД в 1С появляется непроведённый черновик. Бухгалтер сверяет его с подтверждающими документами, проверяет партии и дозаполняет аналитики. Сам факт выгрузки не разрешает проведение.\n\nВ групповом перепроведении выбирают «По последовательности», нужное подразделение и расширенные сообщения ошибок. В списке подразделений не должно быть пустой строки. Начало перепроведения определяется программой; закрытый период не меняют самовольно. После устранения ошибок повторяют обработку и контрольные отчёты.\n\nДо закрытия проверьте продажи и недовложения, возможные дубли поступлений, расхождения перемещений, отрицательные остатки и формирование стоимости. Нерешённую проблему фиксируют с причиной, ответственным и сроком.",
+            "source": "Источники: методические материалы «Складской и производственный учёт в 1С УПО»; инструкции «Инвентаризация», «Списание запасов», «Перемещение запасов (вручную)», «Групповое перепроведение».",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-accounting-95",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-accounting-96",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Списание запасов",
+            "text": "Списание запасов",
+            "url": "https://disk.360.yandex.ru/d/6uP7AKpQdPY9bQ",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day5/download?filename=1.%20%D0%A1%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2.docx"
+          },
+          {
+            "id": "material-accounting-97",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Групповое перепроведение",
+            "text": "Групповое перепроведение",
+            "url": "https://disk.360.yandex.ru/d/6uP7AKpQdPY9bQ",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day5/download?filename=2.%20%D0%93%D1%80%D1%83%D0%BF%D0%BF%D0%BE%D0%B2%D0%BE%D0%B5%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5.docx"
+          },
+          {
+            "id": "material-accounting-98",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Контрольный лист закрытия месяца",
+            "text": "Контрольный лист закрытия месяца",
+            "url": "https://disk.360.yandex.ru/d/6uP7AKpQdPY9bQ",
+            "download": "http://194.48.140.70:8081/api/v1/materials/day5/download?filename=3.%20%D0%9A%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%BB%D0%B8%D1%81%D1%82%20%D0%B7%D0%B0%D0%BA%D1%80%D1%8B%D1%82%D0%B8%D1%8F%20%D0%BC%D0%B5%D1%81%D1%8F%D1%86%D0%B0.docx"
+          },
+          {
+            "id": "material-accounting-99",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Списание запасов",
+            "text": "СОП: Списание запасов",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=19%20%D0%A1%D0%9E%D0%9F%20%D0%A1%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2.pptx"
+          },
+          {
+            "id": "material-accounting-100",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Групповое перепроведение документов",
+            "text": "СОП: Групповое перепроведение документов",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=20%20%D0%A1%D0%9E%D0%9F%20%D0%93%D1%80%D1%83%D0%BF%D0%BF%D0%BE%D0%B2%D0%BE%D0%B5%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2.pptx"
+          },
+          {
+            "id": "material-accounting-101",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Контроль перед закрытием месяца",
+            "text": "СОП: Контроль перед закрытием месяца",
+            "url": "https://disk.360.yandex.ru/d/xhsiCZwaVArKQw",
+            "download": "http://194.48.140.70:8081/api/v1/materials/sop/download?filename=24%20%D0%A1%D0%9E%D0%9F%20%D0%9A%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8C%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%20%D0%B7%D0%B0%D0%BA%D1%80%D1%8B%D1%82%D0%B8%D0%B5%D0%BC%20%D0%BC%D0%B5%D1%81%D1%8F%D1%86%D0%B0.pptx"
+          },
+          {
+            "id": "folder-accounting-4",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/6uP7AKpQdPY9bQ"
+          },
+          {
+            "id": "game-accounting-errors",
+            "type": "errors",
+            "title": "Проверьте списание запасов",
+            "text": "Отметьте все ошибки в описании документа.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Разные партии отражают отдельно; аналитики проверяют по причине списания; черновик ТСД сверяют с основанием до проведения.",
+            "items": [
+              "Запасы из разных партий указаны одной строкой",
+              "Аналитика скопирована из прошлого документа без проверки",
+              "Основание списания проверено",
+              "Черновик ТСД проведён без сверки с актом"
+            ],
+            "correct": [
+              0,
+              1,
+              3
+            ]
+          },
+          {
+            "id": "game-accounting-documents",
+            "type": "documents",
+            "title": "Что нужно для проверки списания запасов?",
+            "text": "Выберите сведения и документы, необходимые бухгалтеру для проверки.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Основание, фактический состав и согласованные аналитики относятся к одной операции. Посторонний документ её не подтверждает.",
+            "items": [
+              "Утверждённое основание списания",
+              "Перечень фактических позиций, партий и количества",
+              "Согласованная причина и аналитики операции",
+              "Не связанный с операцией чек другой закупки"
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "id": "import-accounting-102",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-4-0",
+            "type": "practice",
+            "text": "Проверьте основание и оформите учебное списание по правильному складу и партии.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-4-1",
+            "type": "practice",
+            "text": "Найдите черновик списания из ТСД и перечислите реквизиты, которые дозаполняет бухгалтер.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-4-2",
+            "type": "practice",
+            "text": "Исправьте учебную первопричину и сохраните одинаковые отчёты до перепроведения.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-4-3",
+            "type": "practice",
+            "text": "Выполните групповое перепроведение только в открытом периоде и сравните отчёты после.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-4-4",
+            "type": "practice",
+            "text": "Проверьте продажи, недовложения, поступления, возможные дубли и расхождения перемещений.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "practice-4-5",
+            "type": "practice",
+            "text": "Найдите документ регистратор по учебной ошибке и зафиксируйте причину, ответственного и срок.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": true
+          },
+          {
+            "id": "note-accounting-4",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Составьте собственную последовательность контрольных отчётов перед закрытием месяца. Для каждого отклонения укажите, какой документ регистратор необходимо проверить.",
+            "rows": 4
+          },
+          {
+            "id": "import-accounting-103",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "4-0",
+            "type": "single",
+            "text": "Что делают до группового перепроведения?",
+            "options": [
+              "Сохраняют отчёты до и исправляют первопричину",
+              "Меняют закрытый период",
+              "Удаляют исходный документ"
+            ],
+            "correct": [
+              0
+            ],
+            "explanation": "Перепроведение не исправляет неверный исходный документ.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "4-1",
+            "type": "single",
+            "text": "Как находят первопричину ошибки?",
+            "options": [
+              "Исправляют итоговую цифру",
+              "Расшифровывают отчёт до документа регистратора",
+              "Создают новый склад"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Проверяется документ, который сформировал движение.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "4-2",
+            "type": "single",
+            "text": "Что фиксируют по нерешённой проблеме?",
+            "options": [
+              "Только сумму",
+              "Причину, ответственного и срок",
+              "Ничего"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Проблема должна иметь владельца и срок дальнейшей отработки.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "import-accounting-104",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Все задания выполняются только в тестовой базе.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-105",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Каждая операция должна иметь основание и отражаться один раз.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-106",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Документы закрытого периода не изменяются и не перепроводятся без согласования.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-107",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Результат подтверждается документом, движением или контрольным отчётом.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-accounting-108",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "дубль документа или повторная загрузка данных;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-accounting-109",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "неверный склад, подразделение, период или вид деятельности;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-accounting-110",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "изменение закрытого периода без согласованного сценария;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-accounting-111",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "отсутствие контрольного подтверждения результата.",
+            "textStyle": "critical"
+          },
+          {
+            "id": "completion-accounting",
+            "type": "completion",
+            "title": "Итоговая карточка",
+            "text": "Прогресс, темы для повторения и ваши записи по курсу."
+          }
+        ]
+      }
+    ]
+  },
+  "warehouse": {
+    "title": "1С:УПО — Работники склада",
+    "description": "Тетрадь помогает отработать фактические складские операции, проверить результат обмена и правильно передать документы или расхождения ответственному сотруднику. Главная задача работника склада — достоверно зафиксировать факт и не выходить за границы полномочий.",
+    "courseDirection": "1С:УПО",
+    "reviewMode": "auto",
+    "sourceCourse": "warehouse",
+    "schemaVersion": 2,
+    "completionLabel": "Материал разобран, практическое задание завершено",
+    "sections": [
+      {
+        "title": "Приёмка от поставщика",
+        "minutes": "20 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-1",
+            "type": "text",
+            "title": "О курсе",
+            "text": "Тетрадь помогает отработать фактические складские операции, проверить результат обмена и правильно передать документы или расхождения ответственному сотруднику. Главная задача работника склада — достоверно зафиксировать факт и не выходить за границы полномочий.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-2",
+            "type": "text",
+            "title": "Для кого",
+            "text": "Кладовщики МОЛы и операторы ТСД",
+            "textStyle": "normal"
+          },
+          {
+            "id": "import-warehouse-3",
+            "type": "text",
+            "title": "Продолжительность",
+            "text": "7 блоков · 150 минут",
+            "textStyle": "normal"
+          },
+          {
+            "id": "import-warehouse-4",
+            "type": "text",
+            "title": "Как работать",
+            "text": "Изучите материалы по теме, выполните действия в тестовой базе, отметьте чек-лист и ответьте на контрольные вопросы.",
+            "textStyle": "normal"
+          },
+          {
+            "id": "import-warehouse-5",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Работайте только под своей учётной записью и на назначенном складе.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-6",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Количество вводится после фактического пересчёта, а не копируется из документа.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-7",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Партии и сроки годности разделяются по фактической маркировке.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-8",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "Не повторяйте выгрузку, пока не проверен результат первой попытки.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-9",
+            "type": "text",
+            "title": "Правила учебной работы",
+            "text": "НСИ и бухгалтерские аналитики изменяют только уполномоченные сотрудники.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-10",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Принять учебную поставку по факту, корректно разделить партии и передать документы бухгалтеру.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-11",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-12",
+            "type": "text",
+            "title": "Подготовка ТСД",
+            "text": "DataMobile запускается под своей учётной записью. Перед работой обновляют справочники и документы, проверяют сеть, пользователя и назначенный склад.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-13",
+            "type": "text",
+            "title": "Документ основание",
+            "text": "На ТСД выбирается проведённый заказ поставщику. Проверяются поставщик, номер, дата, склад и состав задания.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-14",
+            "type": "text",
+            "title": "Фактическая приёмка",
+            "text": "Товар пересчитывается и осматривается. Единицы, упаковки, партии и сроки вводятся по факту; разные сроки создают отдельные строки.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-15",
+            "type": "text",
+            "title": "Граница ответственности",
+            "text": "Кладовщик фиксирует факт и расхождения. Приходную накладную проверяет и проводит бухгалтер. Данные по отсутствующему штрихкоду передаются в НСИ.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-0",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Перед началом обновите справочники и документы на ТСД, проверьте пользователя, склад, режим работы, связь и готовность устройства. Учебные операции выполняйте только на подготовленных заданиях.\n\nПриёмка отражает фактически полученные запасы: сначала пересчёт и осмотр, затем ввод количества. Единица измерения и коэффициент упаковки должны соответствовать товару. При несоответствии приостановите обработку позиции.\n\nРазные сроки годности отражают отдельными партиями. Неизвестный штрихкод не привязывают к похожей карточке: проверьте качество этикетки и передайте сведения НСИ. Завершение подтверждают статусом обмена и результатом в 1С.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-16",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-17",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Общие правила работы с ТСД",
+            "text": "Общие правила работы с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=01%20%D0%9E%D0%B1%D1%89%D0%B8%D0%B5%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0%20%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%8B%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "material-warehouse-18",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Памятка по работе с ТСД",
+            "text": "Памятка по работе с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=02%20%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BA%D0%B0%20%D0%BF%D0%BE%20%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B5%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "material-warehouse-19",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Приёмка от поставщика с ТСД",
+            "text": "Приёмка от поставщика с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=03%20%D0%9F%D1%80%D0%B8%D0%B5%D0%BC%D0%BA%D0%B0%20%D0%BE%D1%82%20%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D1%89%D0%B8%D0%BA%D0%B0%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "material-warehouse-20",
+            "type": "link",
+            "materialType": "sop",
+            "title": "СОП: Складская логистика",
+            "text": "СОП: Складская логистика",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=%D0%A1%D0%9E%D0%9F%20%D0%A1%D0%BA%D0%BB%D0%B0%D0%B4%D1%81%D0%BA%D0%B0%D1%8F%20%D0%BB%D0%BE%D0%B3%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B0.pptx"
+          },
+          {
+            "id": "folder-warehouse-0",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-sort",
+            "type": "sort",
+            "title": "Границы полномочий",
+            "text": "Распределите действия между участниками.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "items": [
+              "Сканировать фактически принятый товар",
+              "Дозаполнить аналитику черновика списания",
+              "Исправить единицу в карточке",
+              "Передать сведения о повреждении"
+            ],
+            "correct": [
+              0,
+              1,
+              2,
+              0
+            ],
+            "targets": [
+              "Кладовщик / МОЛ",
+              "Бухгалтер",
+              "НСИ"
+            ]
+          },
+          {
+            "id": "import-warehouse-21",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-0-0",
+            "type": "practice",
+            "text": "Полностью перезапустите DataMobile и войдите под своей записью.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-0-1",
+            "type": "practice",
+            "text": "Обновите документы и выберите правильный заказ поставщику.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-0-2",
+            "type": "practice",
+            "text": "Примите две партии одного товара с разными сроками годности.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-0-3",
+            "type": "practice",
+            "text": "Зафиксируйте учебное расхождение по количеству или состоянию.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-0-4",
+            "type": "practice",
+            "text": "Для позиции без штрихкода соберите данные для НСИ, не выбирая похожий товар.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-0-5",
+            "type": "practice",
+            "text": "Выгрузите результат один раз и передайте комплект документов бухгалтеру.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-0",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Какие данные вы передадите бухгалтеру при расхождении? Отдельно запишите, какие сведения потребуются НСИ для товара без штрихкода.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-22",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "0-0",
+            "type": "single",
+            "text": "Кто проводит приходную накладную?",
+            "options": [
+              "Кладовщик",
+              "Бухгалтер",
+              "Любой пользователь ТСД"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Кладовщик фиксирует факт, а бухгалтер проверяет и проводит документ.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "0-1",
+            "type": "single",
+            "text": "Как отражают две партии с разными сроками?",
+            "options": [
+              "Одной строкой",
+              "Отдельными строками",
+              "Только в комментарии"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Каждая партия и срок отражаются отдельно.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "0-2",
+            "type": "single",
+            "text": "Что делать при отсутствии точной позиции?",
+            "options": [
+              "Выбрать похожую",
+              "Собрать данные и передать в НСИ",
+              "Создать карточку самостоятельно"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Карточки и соответствия корректирует НСИ.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Приёмка перемещения",
+        "minutes": "20 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-23",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Принять товар с транзитного или регионального склада либо СОХ по фактическому количеству и зафиксировать отклонения.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-24",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-25",
+            "type": "text",
+            "title": "Выбор задания",
+            "text": "Документ ищут в папке Приёмка. До пересчёта проверяют отправителя, получателя и склад назначения.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-26",
+            "type": "text",
+            "title": "Факт важнее плана",
+            "text": "Количество, единицы, упаковки и партии вводятся по факту. Недостача, излишек, повреждение и товар вне документа фиксируются отдельно.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-27",
+            "type": "text",
+            "title": "Передача отклонений",
+            "text": "После выгрузки расхождение передают ответственному сотруднику. Повторную операцию не создают, пока не проверен обмен.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-1",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Сопоставьте входящее перемещение со складом-получателем и фактическим грузом. Сканирование помогает зафиксировать данные, но не заменяет пересчёт и осмотр.\n\nВводите фактически принятое количество. При недостаче или излишке не подгоняйте факт под документ: сохраните расхождение, партии и сведения о повреждениях и передайте подтверждающие материалы ответственному.\n\nЕсли перемещение не найдено, обновите документы и проверьте склад-получатель; уточните отправку у ответственного. После завершения проверьте передачу результата и отсутствие дубля.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-28",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-29",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Приёмка перемещения на склад с ТСД",
+            "text": "Приёмка перемещения на склад с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=04%20%D0%9F%D1%80%D0%B8%D0%B5%D0%BC%D0%BA%D0%B0%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "folder-warehouse-1",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-match",
+            "type": "match",
+            "title": "Что делать при отклонении?",
+            "text": "Соедините ситуацию с действием.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "items": [
+              "Не найден документ перемещения",
+              "Факт меньше количества в документе",
+              "У товара отличаются сроки годности"
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ],
+            "targets": [
+              "Обновить документы, проверить склад и уточнить отправку",
+              "Зафиксировать факт и передать расхождение",
+              "Разделить фактическое количество по партиям"
+            ]
+          },
+          {
+            "id": "import-warehouse-30",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-1-0",
+            "type": "practice",
+            "text": "Найдите учебное перемещение и проверьте отправителя и получателя.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-1-1",
+            "type": "practice",
+            "text": "Пересчитайте ТМЦ и сопоставьте единицы и упаковки.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-1-2",
+            "type": "practice",
+            "text": "Внесите фактически принятое количество, не подменяя его планом.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-1-3",
+            "type": "practice",
+            "text": "Зафиксируйте недостачу или повреждение и приложите необходимые сведения.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-1-4",
+            "type": "practice",
+            "text": "Выгрузите результат и подтвердите его появление в системе.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-1",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Составьте короткое сообщение ответственному сотруднику о расхождении: документ, склад, товар, партия, план, факт и характер отклонения.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-31",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "1-0",
+            "type": "single",
+            "text": "Что проверяют до начала приёмки перемещения?",
+            "options": [
+              "Только количество",
+              "Отправителя, получателя и склад",
+              "Только автора"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Выбор неверного документа или склада искажает результат операции.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "1-1",
+            "type": "single",
+            "text": "Как вводят принятое количество?",
+            "options": [
+              "По плану",
+              "По фактическому пересчёту",
+              "По прошлой поставке"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Задача кладовщика — достоверно зафиксировать факт.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "1-2",
+            "type": "single",
+            "text": "Когда допустима повторная выгрузка?",
+            "options": [
+              "Сразу после первой",
+              "После проверки результата и только по установленному порядку",
+              "Всегда"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Сначала проверяют, дошла ли первая операция, чтобы не создать дубль.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Сборка и перемещение",
+        "minutes": "20 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-32",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Собрать товар по действующему заказу или согласованному перемещению без заказа и передать фактический результат.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-33",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-34",
+            "type": "text",
+            "title": "Заказ на перемещение",
+            "text": "Проверяются отправитель, получатель, ячейки, дата и остаток. Заказ должен быть действующим; срок отгрузки и приёмки — пять дней после создания.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-35",
+            "type": "text",
+            "title": "Сборка",
+            "text": "На ТСД фиксируется фактически собранное количество. Для FOOD выбирается ближайший пригодный срок годности по FIFO.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-36",
+            "type": "text",
+            "title": "Дополнительный товар",
+            "text": "Нельзя произвольно менять выполняемое задание. Для дополнительной позиции создаётся новый заказ.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-37",
+            "type": "text",
+            "title": "Операции одной базы",
+            "text": "Для складов одной базы не применяются документы Перемещение из филиала и Перемещение в филиал.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-2",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Заказ определяет потребность, а перемещение отражает фактически переданные запасы. Перед сборкой проверьте задание, отправителя и получателя; не заменяйте согласованную номенклатуру самостоятельно.\n\nПри сборке в первую очередь отбирают пригодные запасы с наиболее ранним сроком годности. Сверьте фактическую маркировку, единицы, количество и партию до завершения операции.\n\nПеремещение без заказа допустимо только в предусмотренном процессе. Документы «Перемещение из филиала» и «Перемещение в филиал» для складов одной базы не используют. Результат подтверждают документом и движением запасов.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-38",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-39",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Заказ на перемещение",
+            "text": "Заказ на перемещение",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=05%20%D0%97%D0%B0%D0%BA%D0%B0%D0%B7%20%D0%BD%D0%B0%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5.docx"
+          },
+          {
+            "id": "material-warehouse-40",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Сборка и перемещение по заказу с ТСД",
+            "text": "Сборка и перемещение по заказу с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=06%20%D0%A1%D0%B1%D0%BE%D1%80%D0%BA%D0%B0%20%D0%B8%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%BF%D0%BE%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D1%83%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "material-warehouse-41",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Перемещение запасов без заказа",
+            "text": "Перемещение запасов без заказа",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=08%20%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%20%D0%B1%D0%B5%D0%B7%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0.docx"
+          },
+          {
+            "id": "folder-warehouse-2",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-documents",
+            "type": "documents",
+            "title": "Подготовься к сборке",
+            "text": "Выберите сведения, которые нужны до сборки по заказу.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "items": [
+              "Задание / заказ на перемещение",
+              "Склад отправителя и получателя",
+              "Номенклатура, количество, единицы и партии",
+              "Чужая накладная с похожими названиями"
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "id": "import-warehouse-42",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-2-0",
+            "type": "practice",
+            "text": "Проверьте срок и реквизиты учебного заказа.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-2-1",
+            "type": "practice",
+            "text": "Передайте заказ на ТСД и убедитесь, что он появился у правильного пользователя.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-2-2",
+            "type": "practice",
+            "text": "Соберите FOOD позицию по ближайшему пригодному сроку.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-2-3",
+            "type": "practice",
+            "text": "Отразите недостаточный остаток одной позиции фактическим количеством.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-2-4",
+            "type": "practice",
+            "text": "Выгрузите результат и сообщите инициатору об отклонении.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-2-5",
+            "type": "practice",
+            "text": "Отдельно проверьте согласованное перемещение без заказа.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-2",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Объясните, почему дополнительную позицию нельзя просто добавить в выполняемый заказ и почему документы перемещения из филиала не используются внутри одной базы.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-43",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "2-0",
+            "type": "single",
+            "text": "Какую партию FOOD выбирают при сборке?",
+            "options": [
+              "С самым поздним сроком",
+              "С ближайшим пригодным сроком",
+              "Любую"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Сборка выполняется по FIFO с учётом пригодности товара.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "2-1",
+            "type": "single",
+            "text": "Что делать при недостаточном остатке?",
+            "options": [
+              "Подтвердить план",
+              "Указать фактически собранное количество и сообщить инициатору",
+              "Заменить товар похожим"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Факт не подгоняется под заказ.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "2-2",
+            "type": "single",
+            "text": "Как оформляют дополнительный товар?",
+            "options": [
+              "Изменяют выполняемый заказ",
+              "Создают новый заказ",
+              "Добавляют устно"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Дополнительная потребность оформляется отдельным основанием.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Перемещение на производство",
+        "minutes": "20 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-44",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Проверить связку складской и производственной номенклатуры, коэффициент и фактическую сборку.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-45",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-46",
+            "type": "text",
+            "title": "Производственная потребность",
+            "text": "Заказ связывает потребность производства со складской номенклатурой. Заполнение выполняется по остаткам и резервам либо установленным способом планирования.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-47",
+            "type": "text",
+            "title": "Связка номенклатуры",
+            "text": "Проверяются позиции отправителя и получателя, единицы и коэффициент пересчёта. Нельзя перемещать номенклатуру саму в себя.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-48",
+            "type": "text",
+            "title": "Ошибка связки",
+            "text": "При неверном или отсутствующем соответствии оформление останавливают и передают вопрос в НСИ. Самостоятельная замена запрещена.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-3",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Потребность производства оформляется заказом; склад передаёт фактически собранные запасы. Проверьте нужное производственное подразделение и склад, номенклатуру, единицы и партии.\n\nПри нехватке или расхождении передайте сведения ответственному, не увеличивайте остаток вручную и не подменяйте позицию. Изменения потребности и учётных данных выполняются в пределах установленных полномочий.\n\nПередача завершена после проверки фактического количества и результата обмена. Повторную выгрузку не запускают до выяснения результата первой.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-49",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-50",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Заказ на перемещение в номенклатуру производства",
+            "text": "Заказ на перемещение в номенклатуру производства",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=07%20%D0%97%D0%B0%D0%BA%D0%B0%D0%B7%20%D0%BD%D0%B0%20%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B2%20%D0%BD%D0%BE%D0%BC%D0%B5%D0%BD%D0%BA%D0%BB%D0%B0%D1%82%D1%83%D1%80%D1%83%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%B0.docx"
+          },
+          {
+            "id": "folder-warehouse-3",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-hotspots",
+            "type": "hotspots",
+            "title": "Правильный маршрут запасов",
+            "text": "Отметьте области, по которым определяется маршрут перемещения.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Маршрут задают отправитель и получатель. Партия и количество тоже проверяются, но описывают состав перемещения.",
+            "items": [
+              "Склад отправителя",
+              "Склад получателя",
+              "Партия",
+              "Количество"
+            ],
+            "correct": [
+              0,
+              1
+            ],
+            "image": "/v4/builder/import-assets/676b742c8ebb541c820c7fe986348e9b943a9906b27efb5bebc455d1d54d16f7.svg",
+            "regions": [
+              {
+                "x": 28.3,
+                "y": 27.3,
+                "w": 31.1,
+                "h": 10.9
+              },
+              {
+                "x": 62.8,
+                "y": 27.3,
+                "w": 34.4,
+                "h": 10.9
+              },
+              {
+                "x": 38,
+                "y": 66,
+                "w": 28,
+                "h": 12
+              },
+              {
+                "x": 67,
+                "y": 66,
+                "w": 25,
+                "h": 12
+              }
+            ]
+          },
+          {
+            "id": "import-warehouse-51",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-3-0",
+            "type": "practice",
+            "text": "Проверьте или сформируйте учебный заказ для производства в пределах роли.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-3-1",
+            "type": "practice",
+            "text": "Сопоставьте производственную потребность со складской позицией.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-3-2",
+            "type": "practice",
+            "text": "Проверьте единицы и коэффициент пересчёта.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-3-3",
+            "type": "practice",
+            "text": "Найдите учебную ошибку связки и остановите оформление.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-3-4",
+            "type": "practice",
+            "text": "По корректному заданию выполните сборку и подтвердите результат.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-3",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Запишите признаки некорректной связки номенклатуры и сформулируйте запрос в НСИ с данными, достаточными для исправления.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-52",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "3-0",
+            "type": "single",
+            "text": "Кто исправляет неверную связку номенклатуры?",
+            "options": [
+              "Кладовщик",
+              "НСИ",
+              "Любой пользователь"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Связки и карточки относятся к зоне ответственности НСИ.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "3-1",
+            "type": "single",
+            "text": "Можно ли перемещать позицию саму в себя?",
+            "options": [
+              "Да",
+              "Нет",
+              "Только для ингредиентов"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Такая связка некорректна и должна быть исправлена.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "3-2",
+            "type": "single",
+            "text": "Что проверяют кроме наименования?",
+            "options": [
+              "Коэффициент и единицы измерения",
+              "Только комментарий",
+              "Только дату"
+            ],
+            "correct": [
+              0
+            ],
+            "explanation": "Неверный коэффициент и единицы искажают количество передачи.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Инвентаризация запасов",
+        "minutes": "20 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-53",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Выполнить полный фактический пересчёт с ТСД и передать достоверный результат комиссии.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-54",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-55",
+            "type": "text",
+            "title": "Организация пересчёта",
+            "text": "До начала движения останавливают либо организуют по решению комиссии так, чтобы исключить двойной счёт. Проверяются склад, зона, МОЛ и комиссия.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-56",
+            "type": "text",
+            "title": "Фиксация факта",
+            "text": "Все зоны проходят последовательно. Количество вводится без ориентира на учётный остаток, а каждая партия и срок отражаются отдельной строкой.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-57",
+            "type": "text",
+            "title": "Новая партия",
+            "text": "Новый срок или партия вводятся только по фактической маркировке. Даты нельзя придумывать.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-58",
+            "type": "text",
+            "title": "Результаты",
+            "text": "Кладовщик не решает, что списать, оприходовать или признать пересортицей. Он передаёт факт комиссии и бухгалтеру.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-4",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Перед пересчётом движение запасов остановлено, предшествующие документы переданы бухгалтеру, склад, зона, МОЛ и комиссия определены. На ТСД найдите опись по номеру, складу и дате.\n\nПересчитывайте каждую позицию по факту, отдельно учитывайте партии и сроки. Зоны нескольких ТСД не должны пересекаться: одна и та же позиция не должна попадать в факт дважды.\n\nНе копируйте учётное количество вместо пересчёта. После завершения передайте опись, проверьте выгрузку и сообщите о расхождениях. Оформление учётных результатов выполняет бухгалтер.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-59",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-60",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Инвентаризация запасов с ТСД",
+            "text": "Инвентаризация запасов с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=09%20%D0%98%D0%BD%D0%B2%D0%B5%D0%BD%D1%82%D0%B0%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "folder-warehouse-4",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-sequence",
+            "type": "sequence",
+            "title": "Пересчёт с ТСД",
+            "text": "Соберите порядок работы.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "items": [
+              "Проверить склад, зону, дату и номер описи",
+              "Пересчитать и отсканировать фактические запасы",
+              "Проверить партии, сроки и полноту пересчёта",
+              "Завершить, передать и проверить результат обмена"
+            ],
+            "correct": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "id": "import-warehouse-61",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-4-0",
+            "type": "practice",
+            "text": "Получите задание и проверьте склад, зону и пользователя.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-4-1",
+            "type": "practice",
+            "text": "Пересчитайте учебную ячейку без просмотра учётного остатка.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-4-2",
+            "type": "practice",
+            "text": "Зафиксируйте одну позицию с двумя партиями или сроками.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-4-3",
+            "type": "practice",
+            "text": "Обработайте товар без штрихкода установленным способом.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-4-4",
+            "type": "practice",
+            "text": "Проверьте необработанные зоны и завершите пересчёт.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-4-5",
+            "type": "practice",
+            "text": "Выгрузите опись и передайте результат комиссии.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-4",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Опишите действия, если после начала пересчёта произошло движение товара или после завершения найден неучтённый товар.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-62",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "4-0",
+            "type": "single",
+            "text": "Можно ли подгонять факт под учётный остаток?",
+            "options": [
+              "Да",
+              "Нет",
+              "Только по разрешению кладовщика"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Инвентаризация фиксирует реальное наличие независимо от учёта.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "4-1",
+            "type": "single",
+            "text": "Кто решает, как оформить расхождение?",
+            "options": [
+              "Кладовщик",
+              "Комиссия и бухгалтер",
+              "Оператор ТСД единолично"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Работник склада передаёт достоверный факт.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "4-2",
+            "type": "single",
+            "text": "Как отражают разные сроки годности?",
+            "options": [
+              "Одной строкой",
+              "Отдельными строками",
+              "Не отражают"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Каждый срок соответствует отдельной партии или строке пересчёта.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Списание запасов с ТСД",
+        "minutes": "20 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-63",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Отсканировать фактически списываемые запасы по подтверждённому основанию и передать бухгалтеру непроведённый черновик.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-64",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-65",
+            "type": "text",
+            "title": "Основание",
+            "text": "Списание начинается только при наличии согласованного основания и комплекта подтверждающих документов.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-66",
+            "type": "text",
+            "title": "Действия кладовщика",
+            "text": "На ТСД выбирается склад и дата, сканируются фактические позиции, количество и партии. Состав должен соответствовать основанию.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-67",
+            "type": "text",
+            "title": "Черновик в 1С УПО",
+            "text": "После выгрузки создаётся непроведённый документ Списание запасов. Кладовщик сообщает номер или дату операции и передаёт документы.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-68",
+            "type": "text",
+            "title": "Действия бухгалтера",
+            "text": "Бухгалтер сверяет черновик, заполняет вид деятельности, аналитику, статью потерь, причину и другие реквизиты, затем проводит документ.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-5",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "Сбор для списания начинается только при наличии подтверждённого основания. Проверьте склад, номенклатуру, фактические партии, количество и причину передачи данных.\n\nКладовщик сканирует фактически списываемые позиции и завершает сбор. Бухгалтер сверяет выгруженный черновик с основанием, заполняет аналитики и проводит документ в пределах полномочий.\n\nЧерновик списания не изменяет остаток до проведения. Не формируйте повторный сбор только потому, что остаток ещё не уменьшился: сначала проверьте статус и передайте документ бухгалтеру.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-69",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-70",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Списание запасов с ТСД",
+            "text": "Списание запасов с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=12%20%D0%A1%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "folder-warehouse-5",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-errors",
+            "type": "errors",
+            "title": "Не создавай повторное списание",
+            "text": "Найдите ошибочные действия.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Непроведённый документ не уменьшает остаток. Повторный сбор может создать дубль; аналитики проверяет бухгалтер.",
+            "items": [
+              "Проверить наличие основания",
+              "Повторить сбор, потому что непроведённый черновик не уменьшил остаток",
+              "Самостоятельно выбрать бухгалтерские аналитики без полномочий",
+              "Проверить результат выгрузки и передать бухгалтеру"
+            ],
+            "correct": [
+              1,
+              2
+            ]
+          },
+          {
+            "id": "import-warehouse-71",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-5-0",
+            "type": "practice",
+            "text": "Проверьте согласованное учебное основание и комплект документов.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-5-1",
+            "type": "practice",
+            "text": "Выберите правильные склад и дату операции.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-5-2",
+            "type": "practice",
+            "text": "Отсканируйте фактический перечень, количество и партии.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-5-3",
+            "type": "practice",
+            "text": "Сопоставьте результат ТСД с основанием.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-5-4",
+            "type": "practice",
+            "text": "Завершите операцию и найдите непроведённый черновик в 1С УПО.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-5-5",
+            "type": "practice",
+            "text": "Передайте бухгалтеру номер или дату операции и комплект документов.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-5",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Разделите действия после выгрузки на две колонки: что выполняет кладовщик и что выполняет бухгалтер.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-72",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "5-0",
+            "type": "single",
+            "text": "В каком состоянии документ поступает из ТСД?",
+            "options": [
+              "Проведённым",
+              "Непроведённым черновиком",
+              "Удалённым"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Документ должен проверить и дозаполнить бухгалтер.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "5-1",
+            "type": "single",
+            "text": "Кто заполняет аналитику и проект списания?",
+            "options": [
+              "Кладовщик",
+              "Бухгалтер",
+              "Оператор ТСД"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Бухгалтерские аналитики находятся вне полномочий кладовщика.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "5-2",
+            "type": "single",
+            "text": "Можно ли начинать списание без основания?",
+            "options": [
+              "Да",
+              "Нет",
+              "Только в конце месяца"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Подтверждённое основание обязательно.",
+            "reviewMode": "auto"
+          }
+        ]
+      },
+      {
+        "title": "Контроль операций и отчёты",
+        "minutes": "30 минут",
+        "blocks": [
+          {
+            "id": "import-warehouse-73",
+            "type": "text",
+            "title": "Результат раздела",
+            "text": "Проверить результат складской операции, найти документ и подготовить полное сообщение об ошибке.",
+            "textStyle": "outcome"
+          },
+          {
+            "id": "import-warehouse-74",
+            "type": "text",
+            "title": "О теме",
+            "text": "Изучите основные понятия раздела.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "import-warehouse-75",
+            "type": "text",
+            "title": "Контроль обмена",
+            "text": "После каждой операции проверяют статус выгрузки, отсутствие дубля и появление ожидаемого документа или результата в 1С УПО.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-76",
+            "type": "text",
+            "title": "Отчёты",
+            "text": "Используются Остатки товаров, Остатки товаров по срокам годности и Движение товаров. Отборы задаются по складу, дате или периоду, товару и при необходимости ячейке.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-77",
+            "type": "text",
+            "title": "Непроведённый документ",
+            "text": "Непроведённый документ не изменяет учётный остаток. Это важно при проверке черновика списания.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "import-warehouse-78",
+            "type": "text",
+            "title": "Сообщение об ошибке",
+            "text": "Указываются операция, пользователь, дата и время, склад, документ, позиция, партия, полный текст ошибки и прикладывается снимок экрана.",
+            "textStyle": "concept"
+          },
+          {
+            "id": "theory-warehouse-6",
+            "type": "text",
+            "title": "Кратко по теме",
+            "text": "После каждой операции проверьте статус обмена и появление ожидаемого документа или результата. При ошибке зафиксируйте сообщение и проверьте связь, не повторяйте всю операцию вслепую.\n\nШтрихкод печатают для подтверждённой карточки. После печати проверьте читаемость повторным сканированием. Не присваивайте неизвестный штрихкод произвольной номенклатуре.\n\nДля контроля задайте в отчётах нужные склад, дату, товар, партию и ячейку. В сообщении об ошибке укажите операцию, пользователя, время, склад, документ, позицию, партию и полный текст; приложите снимок экрана.",
+            "source": "Источник: «Учебно-методические материалы для работников склада», разделы соответствующего блока и инструкции 01–13, перечисленные в материалах.",
+            "textStyle": "theory"
+          },
+          {
+            "id": "import-warehouse-79",
+            "type": "text",
+            "title": "Материалы по теме:",
+            "text": "Откройте инструкции и СОПы для изучения темы.",
+            "textStyle": "heading"
+          },
+          {
+            "id": "material-warehouse-80",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Сбор информации с ТСД",
+            "text": "Сбор информации с ТСД",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=10%20%D0%A1%D0%B1%D0%BE%D1%80%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%B8%20%D1%81%20%D0%A2%D0%A1%D0%94.docx"
+          },
+          {
+            "id": "material-warehouse-81",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Печать штрихкодов для склада",
+            "text": "Печать штрихкодов для склада",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=11%20%D0%9F%D0%B5%D1%87%D0%B0%D1%82%D1%8C%20%D1%88%D1%82%D1%80%D0%B8%D1%85%D0%BA%D0%BE%D0%B4%D0%BE%D0%B2%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D0%B0.docx"
+          },
+          {
+            "id": "material-warehouse-82",
+            "type": "link",
+            "materialType": "instruction",
+            "title": "Контроль складских операций и отчёты",
+            "text": "Контроль складских операций и отчёты",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A",
+            "download": "http://194.48.140.70:8081/api/v1/materials/warehouse/download?filename=13%20%D0%9A%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8C%20%D1%81%D0%BA%D0%BB%D0%B0%D0%B4%D1%81%D0%BA%D0%B8%D1%85%20%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B9%20%D0%B8%20%D0%BE%D1%82%D1%87%D0%B5%D1%82%D1%8B.docx"
+          },
+          {
+            "id": "folder-warehouse-6",
+            "type": "link",
+            "materialType": "other",
+            "title": "Открыть все материалы",
+            "text": "Все материалы раздела",
+            "url": "https://disk.360.yandex.ru/d/Qt8tOUOwVb6c6A"
+          },
+          {
+            "id": "game-warehouse-scenario",
+            "type": "scenario",
+            "title": "Обмен завершился с ошибкой",
+            "text": "Выберите действие. Последствие появится под ответом; затем завершите следующий шаг.",
+            "points": 10,
+            "reviewMode": "auto",
+            "hint": "Сначала вспомните контрольные точки из опорного материала.",
+            "explanation": "Проверьте основание, фактические данные, полномочия и результат операции.",
+            "steps": [
+              {
+                "text": "После завершения операции ТСД показал ошибку. Что делать?",
+                "correct": 0,
+                "options": [
+                  {
+                    "text": "Записать ошибку, проверить связь и результат первой передачи",
+                    "consequence": "Вы сохранили достоверность данных и переходите к проверке результата.",
+                    "next": 1
+                  },
+                  {
+                    "text": "Сразу повторить всю операцию",
+                    "consequence": "Такое действие может скрыть расхождение или создать дубль. Теперь определите дальнейшую проверку.",
+                    "next": 1
+                  }
+                ]
+              },
+              {
+                "text": "Как передать проблему специалисту?",
+                "correct": 0,
+                "options": [
+                  {
+                    "text": "Указать операцию, время, склад, документ и полный текст, приложить экран",
+                    "consequence": "Результат подтверждён; сведения переданы ответственному.",
+                    "next": -1
+                  },
+                  {
+                    "text": "Написать только «Не работает»",
+                    "consequence": "Без проверки результата операция может быть отражена повторно или остаться незавершённой.",
+                    "next": -1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "import-warehouse-83",
+            "type": "text",
+            "title": "Выполните по шагам",
+            "text": "Практика · тестовая база",
+            "textStyle": "heading"
+          },
+          {
+            "id": "practice-6-0",
+            "type": "practice",
+            "text": "Соберите сведения по двум учебным товарам на ТСД.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-6-1",
+            "type": "practice",
+            "text": "Напечатайте этикетку для подтверждённой карточки и проверьте её повторным сканированием.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-6-2",
+            "type": "practice",
+            "text": "Сформируйте три контрольных отчёта по учебному складу.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-6-3",
+            "type": "practice",
+            "text": "Найдите партию и документ движения по выполненной операции.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-6-4",
+            "type": "practice",
+            "text": "Объясните, почему непроведённое списание не изменило остаток.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "practice-6-5",
+            "type": "practice",
+            "text": "Составьте сообщение бухгалтеру или сопровождению о расхождении.",
+            "reviewMode": "auto",
+            "maxImages": 3,
+            "evidenceRequired": false,
+            "points": 0,
+            "allowScreenshots": false
+          },
+          {
+            "id": "note-warehouse-6",
+            "type": "notes",
+            "title": "Ваши записи",
+            "text": "Составьте шаблон сообщения об ошибке, который позволит специалисту воспроизвести и разобрать проблему без дополнительных уточнений.",
+            "rows": 4
+          },
+          {
+            "id": "import-warehouse-84",
+            "type": "text",
+            "title": "Контрольные вопросы",
+            "text": "Проверьте себя",
+            "textStyle": "heading"
+          },
+          {
+            "id": "6-0",
+            "type": "single",
+            "text": "Изменяет ли остаток непроведённый документ?",
+            "options": [
+              "Да",
+              "Нет",
+              "Только на ТСД"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Учётные движения появляются только после проведения.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "6-1",
+            "type": "single",
+            "text": "Что проверяют после выгрузки?",
+            "options": [
+              "Только звук ТСД",
+              "Статус обмена и ожидаемый результат в системе",
+              "Только батарею"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Проверка результата защищает от повторной выгрузки и дубля.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "6-2",
+            "type": "single",
+            "text": "Какие данные нужны в сообщении об ошибке?",
+            "options": [
+              "Только слово Ошибка",
+              "Операция, пользователь, время, склад, документ, позиция и полный текст",
+              "Только скриншот"
+            ],
+            "correct": [
+              1
+            ],
+            "explanation": "Полное сообщение позволяет воспроизвести ситуацию и найти документ.",
+            "reviewMode": "auto"
+          },
+          {
+            "id": "import-warehouse-85",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Работайте только под своей учётной записью и на назначенном складе.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-86",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Количество вводится после фактического пересчёта, а не копируется из документа.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-87",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Партии и сроки годности разделяются по фактической маркировке.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-88",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "Не повторяйте выгрузку, пока не проверен результат первой попытки.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-89",
+            "type": "text",
+            "title": "Делайте так",
+            "text": "НСИ и бухгалтерские аналитики изменяют только уполномоченные сотрудники.",
+            "textStyle": "rule"
+          },
+          {
+            "id": "import-warehouse-90",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "подтверждение непересчитанного товара или выбор похожей позиции;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-warehouse-91",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "неверный склад, получатель, единица, партия или срок годности;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-warehouse-92",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "повторная выгрузка без проверки результата;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-warehouse-93",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "самостоятельное изменение НСИ или бухгалтерских реквизитов;",
+            "textStyle": "critical"
+          },
+          {
+            "id": "import-warehouse-94",
+            "type": "text",
+            "title": "Не делайте так",
+            "text": "использование документов Перемещение из филиала или Перемещение в филиал.",
+            "textStyle": "critical"
+          },
+          {
+            "id": "completion-warehouse",
+            "type": "completion",
+            "title": "Итоговая карточка",
+            "text": "Прогресс, темы для повторения и ваши записи по курсу."
+          }
+        ]
+      }
+    ]
+  }
+}

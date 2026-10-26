@@ -1,3 +1,4 @@
+import hashlib
 import base64
 import json
 import re
@@ -19,11 +20,13 @@ class PublishInput(BaseModel):
 class ImageInput(BaseModel):
     data: str = Field(max_length=7_000_000)
 
-TYPES = {'text','image','link','video','single','multiple','boolean','open','practice','notes'} | games.TYPES
+TYPES = {'text','image','link','video','single','multiple','boolean','open','practice','notes','completion'} | games.TYPES
 
 def register(app, db, admin, student, now, data_dir, static_dir=None):
     builtin_path=Path(static_dir or ".")/"v4/learning-content.json"
     builtins=json.loads(builtin_path.read_text()) if builtin_path.exists() else {}
+    templates_path=Path(__file__).with_name('upo-templates.json')
+    templates=json.loads(templates_path.read_text()) if templates_path.exists() else {}
     def init():
         with closing(db()) as con:
             con.executescript('''
@@ -33,6 +36,7 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
             CREATE TABLE IF NOT EXISTS builder_evidence(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,course_id TEXT NOT NULL,attempt_no INTEGER NOT NULL,block_id TEXT NOT NULL,extension TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS builder_images(id TEXT PRIMARY KEY,extension TEXT NOT NULL);
             ''')
+            con.execute('CREATE TABLE IF NOT EXISTS builder_imports(source_course TEXT PRIMARY KEY,draft_id TEXT NOT NULL,source_hash TEXT NOT NULL,created_at TEXT NOT NULL)')
             for table in ('builder_drafts','builder_editions'):
                 columns={r['name'] for r in con.execute(f'PRAGMA table_info({table})')}
                 if 'deleted_at' not in columns:con.execute(f'ALTER TABLE {table} ADD COLUMN deleted_at TEXT')
@@ -66,13 +70,18 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
                 if not isinstance(bid,str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,80}',bid) or bid in ids: raise HTTPException(422,'Идентификаторы блоков должны быть уникальны')
                 ids.add(bid)
                 if b.get('reviewMode','inherit') not in ('inherit','auto','manual'):raise HTTPException(422,'Неверный режим задания')
+                if b.get('materialType','instruction') not in ('instruction','sop','other'):raise HTTPException(422,'Неверный тип материала')
+                if b.get('textStyle','normal') not in ('normal','heading','outcome','concept','theory','rule','critical'):raise HTTPException(422,'Неверный стиль текста')
+                if 'points' in b and (type(b['points']) is not int or not 0<=b['points']<=100):raise HTTPException(422,'Баллы: от 0 до 100')
+                if 'allowScreenshots' in b and type(b['allowScreenshots']) is not bool:raise HTTPException(422,'Неверная настройка скриншотов')
+                if publish and b['type']=='practice' and b.get('evidenceRequired') and b.get('allowScreenshots') is False:raise HTTPException(422,'Включите скриншоты для обязательного подтверждения')
                 if b['type']=='practice' and (type(b.get('maxImages',3)) is not int or not 1<=b.get('maxImages',3)<=10 or type(b.get('evidenceRequired',False)) is not bool): raise HTTPException(422,'Количество скриншотов: от 1 до 10')
                 for k in ('text','title','url','download','image','explanation'):
                     if k in b and (not isinstance(b[k],str) or len(b[k])>20000): raise HTTPException(422,'Неверное или слишком длинное поле')
                 for k in ('url','download'):
                     v=b.get(k,'')
                     if v and (urlsplit(v).scheme not in ('http','https') or not urlsplit(v).hostname or urlsplit(v).username): raise HTTPException(422,'Ссылка должна начинаться с http:// или https://')
-                if b.get('image') and not re.fullmatch(r'/api/v1/builder/images/[a-f0-9]{32}',b['image']): raise HTTPException(422,'Загрузите картинку через конструктор')
+                if b.get('image') and not re.fullmatch(r'/api/v1/builder/images/[a-f0-9]{32}',b['image']) and not trusted_import_image(b['image']): raise HTTPException(422,'Загрузите картинку через конструктор')
                 if publish and b['type'] in ('image','hotspots') and not b.get('image'): raise HTTPException(422,'Загрузите картинку')
                 if b['type']=='video' and b.get('videoMode','link') not in ('link','inline'):raise HTTPException(422,'Неверный режим видео')
                 if publish and b['type'] in ('link','video') and not b.get('url'): raise HTTPException(422,'Укажите ссылку инструкции')
@@ -84,10 +93,40 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
                     if not isinstance(correct,list) or any(type(i) is not int or not 0<=i<len(opts) for i in correct) or len(set(correct))!=len(correct): raise HTTPException(422,'Неверные правильные ответы')
                     if publish and (not correct or any(not o.strip() for o in opts) or (b['type']!='multiple' and len(correct)!=1)): raise HTTPException(422,'Заполните варианты и отметьте правильные ответы')
         return c
+    def trusted_import_image(url):
+        match=re.fullmatch(r'/v4/builder/import-assets/([a-f0-9]{64})\.svg',url)
+        if not match:return False
+        path=Path(static_dir or '.')/url.lstrip('/')
+        return path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==match[1]
+
+    @app.get('/api/v1/builder/templates')
+    def template_list(user=Depends(admin)):
+        return [{'source_course':cid,'title':c['title'],'sections':len(c['sections'])} for cid,c in templates.items()]
+
+    @app.post('/api/v1/builder/templates/{source}/import')
+    def import_template(source:str,user=Depends(admin)):
+        if source not in templates:raise HTTPException(404,'Шаблон не найден')
+        c=json.loads(json.dumps(templates[source]));validate(c,True)
+        packed=json.dumps(c,ensure_ascii=False);digest=hashlib.sha256(packed.encode()).hexdigest()
+        with closing(db()) as con:
+            con.execute('BEGIN IMMEDIATE')
+            old=con.execute('SELECT d.* FROM builder_imports i JOIN builder_drafts d ON d.id=i.draft_id WHERE i.source_course=?',(source,)).fetchone()
+            if old:return {'id':old['id'],'revision':old['revision'],'existing':True,'deleted':bool(old['deleted_at'])}
+            did=secrets.token_hex(12)
+            con.execute('INSERT INTO builder_drafts(id,content,revision,updated_at) VALUES(?,?,1,?)',(did,packed,now()))
+            con.execute('INSERT INTO builder_imports VALUES(?,?,?,?)',(source,did,digest,now()));con.commit()
+        return {'id':did,'revision':1,'existing':False}
+
     @app.get('/api/v1/builder/drafts')
     def drafts(user=Depends(admin)):
         with closing(db()) as con:
             return [{'id':r['id'],'revision':r['revision'],'updated_at':r['updated_at'],'content':json.loads(r['content'])} for r in con.execute('SELECT * FROM builder_drafts WHERE deleted_at IS NULL ORDER BY updated_at DESC')]
+    @app.get('/api/v1/builder/drafts/{did}/preview')
+    def draft_preview(did:str,user=Depends(admin)):
+        with closing(db()) as con:r=con.execute('SELECT content,revision FROM builder_drafts WHERE id=? AND deleted_at IS NULL',(did,)).fetchone()
+        if not r:raise HTTPException(404,'Черновик не найден')
+        return {'content':json.loads(r['content']),'revision':r['revision']}
+
     @app.post('/api/v1/builder/drafts')
     def create(data:DraftInput,user=Depends(admin)):
         validate(data.content); did=secrets.token_hex(12)
@@ -123,12 +162,16 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
             item=dict(row);content=json.loads(item.pop('content'))
             item['course_direction']=content.get('courseDirection') or '1С:УПО'
             item['description']=content.get('description','')
+            with closing(db()) as con:
+                group=con.execute('SELECT draft_id FROM builder_editions WHERE course_id=?',(item['course_id'],)).fetchone()['draft_id']
+                latest=con.execute('SELECT MAX(version) FROM builder_editions WHERE draft_id=? AND archived=0 AND deleted_at IS NULL',(group,)).fetchone()[0]
+            item['draft_id']=group;item['is_latest']=item['version']==latest
             result.append(item)
         return result
     @app.get('/api/v1/builder/editions')
     def admin_editions(user=Depends(admin)):
         with closing(db()) as con:
-            return [dict(r) for r in con.execute('SELECT course_id,title,version,archived FROM builder_editions WHERE deleted_at IS NULL ORDER BY published_at DESC')]
+            return [dict(r) for r in con.execute('SELECT course_id,draft_id,title,version,archived FROM builder_editions WHERE deleted_at IS NULL ORDER BY published_at DESC')]
     @app.delete('/api/v1/builder/drafts/{did}')
     def delete_draft(did:str,revision:int,user=Depends(admin)):
         with closing(db()) as con:
@@ -221,6 +264,16 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
         manual=b.get('reviewMode','inherit')=='manual' or (b.get('reviewMode','inherit')=='inherit' and c.get('reviewMode')=='manual')
         return {'correct':right,'points':b.get('points',10) if right and not manual else 0,'manual':manual,'explanation':b.get('explanation','')}
 
+    @app.post('/api/v1/workbooks/{cid}/questions/{bid}/check')
+    def check_question(cid:str,bid:str,data:dict,user=Depends(student)):
+        r=edition(cid)
+        if not r or r.get('deleted_at'):raise HTTPException(404,'Тетрадь не найдена')
+        c=json.loads(r['content']);b=next((b for s in c['sections'] for b in s['blocks'] if b['id']==bid and b['type'] in ('single','multiple','boolean')),None)
+        if not b:raise HTTPException(404,'Вопрос не найден')
+        answer=data.get('values')
+        if not isinstance(answer,list) or not answer or any(type(v) is not int or not 0<=v<len(b['options']) for v in answer) or len(set(answer))!=len(answer):raise HTTPException(422,'Выберите ответ')
+        return {'correct':sorted(answer)==sorted(b['correct']),'explanation':b.get('explanation','')}
+
     def score(cid,state):
         r=edition(cid)
         if not r:return None
@@ -245,7 +298,7 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
         for b in qs+tasks:
             if b in manual:base_points[b['id']]=0;continue
             if b['type'] in games.TYPES:earned=b.get('points',10) if games.evaluate(b,answers.get(b['id']))[1] else 0
-            elif b['type']=='practice':earned=10 if checks.get(b['id']) is True and (not b.get('evidenceRequired') or bool(evidence.get(b['id']))) else 0
+            elif b['type']=='practice':earned=b.get('points',10) if checks.get(b['id']) is True and (not b.get('evidenceRequired') or bool(evidence.get(b['id']))) else 0
             elif b['type']=='open':earned=0
             else:
                 a=answers.get(b['id']);earned=10 if isinstance(a,list) and all(type(i) is int for i in a) and len(set(a))==len(a) and sorted(a)==sorted(b['correct']) else 0
