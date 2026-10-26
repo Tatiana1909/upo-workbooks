@@ -1,0 +1,61 @@
+name: Fire editable isolated staging
+on:
+  push:
+    branches: [feature/fire-editable-20261026]
+    paths: ['server/**', 'v4/fire/**', 'v4/builder/fire*', 'tools/**', '.github/workflows/fire-editable-staging.yml']
+concurrency:
+  group: fire-editable-isolated-staging
+  cancel-in-progress: true
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: API regression tests
+        run: |
+          pip install -r server/requirements.txt pytest httpx
+          pytest -q server/tests --disable-warnings
+          node --check v4/fire/editable-runner.js
+          node --check v4/builder/fire-editor.js
+      - name: Browser checks on desktop and mobile
+        timeout-minutes: 5
+        run: |
+          npm install --prefix /tmp/pb-browser playwright
+          if command -v google-chrome >/dev/null; then
+            export PB_UI_CHROME="$(command -v google-chrome)"
+          else
+            /tmp/pb-browser/node_modules/.bin/playwright install --with-deps chromium
+          fi
+          mkdir -p /tmp/pb-ui-screenshots
+          PB_UI_DATA=/tmp/pb-ci-ui python server/serve_fire_ui.py > /tmp/pb-ui-server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8123/health; then break; fi
+            sleep 1
+          done
+          timeout 180s env NODE_PATH=/tmp/pb-browser/node_modules PB_UI_SCREENSHOTS=/tmp/pb-ui-screenshots node tools/test-fire-ui.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fire-ui-screenshots
+          path: /tmp/pb-ui-screenshots
+      - name: Prepare connection
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts
+      - name: Full backup, restore check and isolated staging
+        run: |
+          tar -czf /tmp/upo-workbooks-pb-staging.tgz server v2 v3 v4 builder assets courses.js
+          scp /tmp/upo-workbooks-pb-staging.tgz root@194.48.140.70:/tmp/upo-workbooks-pb-staging.tgz
+          ssh root@194.48.140.70 bash -s < tools/stage_fire.sh
+      - name: Verify staging endpoints
+        run: |
+          curl -fsS --retry 3 http://194.48.140.70:8083/health
+          curl -fsS --retry 3 -o /dev/null http://194.48.140.70:8083/v4/builder/fire.html
+          curl -fsS --retry 3 http://194.48.140.70:8083/api/v1/fire/builder/catalog
