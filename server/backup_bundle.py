@@ -22,7 +22,7 @@ def create(data_dir,output,source_dir=None):
             add(snapshot,'data/workbooks.sqlite3')
             for path in sorted(data_dir.rglob('*')):
                 rel=path.relative_to(data_dir)
-                if rel.parts[0] in ('backups','builder-backups') or path.name in ('workbooks.sqlite3','workbooks.sqlite3-wal','workbooks.sqlite3-shm'):continue
+                if rel.parts[0] in ('backups','builder-backups','full-backups') or path.name in ('workbooks.sqlite3','workbooks.sqlite3-wal','workbooks.sqlite3-shm'):continue
                 add(path,'data/'+str(rel))
             if source_dir:
                 source_dir=Path(source_dir)
