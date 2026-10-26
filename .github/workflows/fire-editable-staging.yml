@@ -21,9 +21,14 @@ jobs:
           node --check v4/fire/editable-runner.js
           node --check v4/builder/fire-editor.js
       - name: Browser checks on desktop and mobile
+        timeout-minutes: 5
         run: |
           npm install --prefix /tmp/pb-browser playwright
-          /tmp/pb-browser/node_modules/.bin/playwright install --with-deps chromium
+          if command -v google-chrome >/dev/null; then
+            export PB_UI_CHROME="$(command -v google-chrome)"
+          else
+            /tmp/pb-browser/node_modules/.bin/playwright install --with-deps chromium
+          fi
           mkdir -p /tmp/pb-ui-screenshots
           PB_UI_DATA=/tmp/pb-ci-ui python server/serve_fire_ui.py > /tmp/pb-ui-server.log 2>&1 &
           for attempt in $(seq 1 30); do
