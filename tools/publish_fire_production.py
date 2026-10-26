@@ -1,5 +1,5 @@
 """Idempotent production content publication; never imports staging results."""
-import json,hashlib,urllib.request,urllib.error
+import json,hashlib,urllib.request,urllib.error,sqlite3,tarfile,tempfile
 from pathlib import Path
 import app
 P='/api/v1/fire/builder'
@@ -13,10 +13,18 @@ def call(path,data=None):
 manifest_path=Path('/data/fire-production-restore-manifest')
 if manifest_path.exists():
     manifest=json.loads(Path(manifest_path.read_text().strip()).read_text())
-    with app.db() as con:
-        for table,digest in manifest['tables'].items():
-            actual=hashlib.sha256(repr(con.execute('SELECT * FROM "'+table+'" ORDER BY rowid').fetchall()).encode()).hexdigest()
-            assert actual==digest,'Previous table changed during deployment: '+table
+    # Canonical SQLite tuples; compare previous rows and allow newly published editions.
+    with tempfile.TemporaryDirectory() as temp:
+        restored=Path(temp)/'before.sqlite3'
+        with tarfile.open(manifest['archive']) as archive:restored.write_bytes(archive.extractfile('data/workbooks.sqlite3').read())
+        with sqlite3.connect(restored) as old,sqlite3.connect(app.DB_PATH) as current:
+            assert current.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
+            for (table,) in old.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"):
+                columns=[r[1] for r in old.execute('PRAGMA table_info("'+table+'")')]
+                quoted=','.join('"'+c+'"' for c in columns)
+                for row in old.execute('SELECT rowid,'+quoted+' FROM "'+table+'"'):
+                    actual=current.execute('SELECT '+quoted+' FROM "'+table+'" WHERE rowid=?',(row[0],)).fetchone()
+                    assert actual==row[1:],'Previous row changed during deployment: '+table
     print('Existing production tables unchanged after deployment: OK')
 draft=call(P+'/import',{})
 editions=call(P+'/editions')
