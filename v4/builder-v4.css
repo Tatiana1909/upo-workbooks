@@ -5,3 +5,5 @@
 
 .v4-tools .management-card>h2{margin:26px -26px 24px}.v4-tools .management-card .block{margin:22px 0}.v4-tools .management-card .muted{margin-bottom:20px}
 @media(max-width:760px){.v4-tools .management-card>h2{margin:24px -20px 22px}}
+
+.text-outcome,.text-theory{background:#f3f1f8;border-radius:0 24px 24px;padding:20px}.text-concept{background:#e5e2f2;border-radius:0 24px 24px}.text-concept h3{background:#E41527;color:white;padding:10px 16px}.text-rule{border-left:4px solid #211C58}.text-critical{border-left:4px solid #E41527}.text-heading{border:0!important;margin-top:28px}.text-heading h3{font-size:23px;color:#211C58}.question-feedback{border-left:3px solid #211C58;padding-left:12px;white-space:pre-wrap}.question-feedback:empty{display:none}.management-card small{display:block;overflow-wrap:anywhere}.section-nav a{overflow-wrap:anywhere}

@@ -1,0 +1,14 @@
+services:
+  workbook-review:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    container_name: workbook_review
+    restart: unless-stopped
+    env_file: review.env
+    volumes:
+      - review_data:/data
+    ports:
+      - '0.0.0.0:18082:8080'
+volumes:
+  review_data:

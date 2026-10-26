@@ -19,3 +19,5 @@
 .v4-catalog .course-tile{display:flex;flex-direction:column;align-items:flex-start}
 .v4-catalog .course-tile a{margin-top:auto}
 .v4-catalog .course-tile p{margin-bottom:24px}
+
+.legacy-workbooks>summary{cursor:pointer;color:#211C58;font-size:20px;font-weight:700;padding:18px 0}.legacy-workbooks .catalog-grid{margin-top:18px}

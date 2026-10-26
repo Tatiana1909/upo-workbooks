@@ -2,8 +2,8 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY server/app.py server/builder.py server/fire.py server/fire_access.py server/games.py server/fire_builder.py server/full_backup.py ./
-COPY server/fire-access.enc ./
+COPY server/app.py server/builder.py server/fire.py server/fire_access.py server/games.py server/fire_builder.py server/full_backup.py server/backup_bundle.py server/release_bootstrap.py server/verify_legacy.py ./
+COPY server/fire-access.enc server/upo-templates.json ./
 COPY courses.js /app/static/courses.js
 COPY assets /app/static/assets
 COPY v2 /app/static/v2

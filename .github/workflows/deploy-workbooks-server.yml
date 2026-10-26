@@ -2,7 +2,7 @@ name: Deploy workbooks server
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/editable-upo-editions-20261026]
     paths:
       - 'v4/**'
       - 'courses.js'
@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +32,33 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "${SERVER_PORT:-22}" "$SERVER_HOST" >> ~/.ssh/known_hosts
 
-      - name: Full production restore point before changes
-        run: ssh root@194.48.140.70 'docker exec -i workbook_api python' < tools/production_fire_backup.py
+      - name: Full verified production recovery point
+        run: |
+          scp server/backup_bundle.py root@194.48.140.70:/tmp/ifcm-release-backup.py
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          umask 077
+          stamp=$(date -u +%Y%m%dT%H%M%SZ)
+          point="/opt/upo-workbooks/backups/before-editable-release-$stamp"
+          install -d -m 700 "$point"
+          docker cp /tmp/ifcm-release-backup.py workbook_api:/tmp/ifcm-release-backup.py
+          docker exec workbook_api python /tmp/ifcm-release-backup.py --data-dir /data --output /tmp/ifcm-release-data.tgz --source-dir /app
+          docker cp workbook_api:/tmp/ifcm-release-data.tgz "$point/data.tgz"
+          docker inspect workbook_api > "$point/container-settings.json"
+          tar --exclude=backups --exclude=__pycache__ -czf "$point/source-and-settings.tgz" -C /opt/upo-workbooks .
+          tar -tzf "$point/source-and-settings.tgz" >/dev/null
+          (cd "$point" && sha256sum data.tgz source-and-settings.tgz container-settings.json > SHA256SUMS && sha256sum -c SHA256SUMS)
+          python3 - "$point" <<'PY'
+          import sys,tarfile
+          from pathlib import Path
+          p=Path(sys.argv[1])
+          with tarfile.open(p/'data.tgz') as t:(p/'legacy.sqlite3').write_bytes(t.extractfile('data/workbooks.sqlite3').read())
+          PY
+          chmod 600 "$point"/*
+          printf '%s' "$point" > /opt/upo-workbooks/backups/latest-editable-release
+          docker exec workbook_api rm -f /tmp/ifcm-release-backup.py /tmp/ifcm-release-data.tgz
+          echo 'Full recovery archive verified before production changes'
+          REMOTE
 
       - name: Package application
         run: tar -czf /tmp/upo-workbooks.tgz server v2 v3 v4 builder assets courses.js
@@ -109,11 +135,14 @@ jobs:
               assert exc.code == 403
           print('Separate fire teacher access and warehouse isolation: OK')
           PY
+          point=$(cat /opt/upo-workbooks/backups/latest-editable-release)
+          docker cp "$point/legacy.sqlite3" workbook_api:/tmp/ifcm-legacy.sqlite3
+          docker exec workbook_api python /app/verify_legacy.py /tmp/ifcm-legacy.sqlite3 /data/workbooks.sqlite3
+          docker exec workbook_api python /app/release_bootstrap.py
+          docker exec workbook_api python /app/verify_legacy.py /tmp/ifcm-legacy.sqlite3 /data/workbooks.sqlite3
+          docker exec workbook_api rm -f /tmp/ifcm-legacy.sqlite3
           rm -f /tmp/upo-workbooks.tgz
           REMOTE
-
-      - name: Publish editable fire content and verify preserved records
-        run: ssh root@194.48.140.70 'docker exec -i workbook_api python' < tools/publish_fire_production.py
 
       - name: Verify public endpoint
         run: |
@@ -121,3 +150,23 @@ jobs:
           for path in v3/index.html v3/sklad-1c-upo.html v3/rabotniki-sklada.html v3/admin.html builder/index.html builder/workbook.html builder/review.html builder/editor.js builder/render.js api/v1/workbooks v4/index.html v4/sklad-1c-upo.html v4/rabotniki-sklada.html v4/admin.html v4/admin.js v4/brand.css v4/admin-nav.js v4/admin-nav.css v4/builder/index.html v4/builder/workbook.html v4/builder/review.html v4/builder/editor.js v4/brand/ornament-color.webp v4/brand/ornament-outline.webp v4/fire/index.html v4/fire/teacher.html v4/fire/fire.js v4/fire/fire.css v4/fire/data.json api/v1/fire/settings v4/builder/fire.html v4/fire/editable.html v4/fire/catalog.js api/v1/fire/builder/catalog; do
             curl --fail --silent --show-error --retry 3 --output /dev/null "http://194.48.140.70:8081/$path"
           done
+
+  review:
+    if: github.ref == 'refs/heads/feature/editable-upo-editions-20261026'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts
+      - name: Package review source
+        run: tar -czf /tmp/upo-review.tgz server v2 v3 v4 builder assets courses.js tools
+      - name: Back up production and deploy isolated review
+        run: |
+          scp /tmp/upo-review.tgz root@194.48.140.70:/tmp/upo-review.tgz
+          ssh root@194.48.140.70 'install -d -m 700 /tmp/upo-review-source && tar -xzf /tmp/upo-review.tgz -C /tmp/upo-review-source && bash /tmp/upo-review-source/tools/review-stage.sh'

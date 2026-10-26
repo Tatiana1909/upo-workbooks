@@ -17,13 +17,13 @@
     <h1>Каталог курсов<br>и рабочих тетрадей</h1>
     <p class="catalog-lead">Короткая теория, практика в тестовой базе, контрольные вопросы и прямой доступ к инструкциям и СОПам.</p>
     <div id="course-directions"><section class="course-direction" data-direction="1С:УПО"><h2 class="direction-title">1С:УПО</h2><p class="direction-description">Рабочие тетради по работе в системе 1С:УПО</p><div class="catalog-grid">
-      <article class="course-tile">
+      <article class="course-tile" data-legacy-course="accounting">
         <span>5 ДНЕЙ · 300 МИНУТ</span>
         <h2>Складской и производственный учёт в 1С УПО</h2>
         <p>Для бухгалтеров‑калькуляторов: от логики учёта до инвентаризации и контроля месяца.</p>
         <a href="sklad-1c-upo.html">Открыть тетрадь →</a>
       </article>
-      <article class="course-tile">
+      <article class="course-tile" data-legacy-course="warehouse">
         <span>7 БЛОКОВ · 150 МИНУТ</span>
         <h2>Работники склада</h2>
         <p>Для кладовщиков, МОЛов и операторов ТСД: приёмка, перемещения и контроль операций. Инструкции и СОП доступны прямо из учебных блоков.</p>
@@ -33,7 +33,7 @@
     </section></div><p id="catalog-status" role="status"></p><p class="catalog-note"><a href="admin.html">Вход администратора</a></p>
 
     <script src="builder/catalog.js"></script>
-    <script src="fire/catalog.js"></script>
+    
   </main>
 <script>try{if(JSON.parse(sessionStorage.getItem('ifcm-workbook-admin-session')||'null')?.token){document.body.classList.add('admin-catalog');IFCMAdminNav.mount(document.body,'catalog')}}catch{}</script></body>
 </html>
