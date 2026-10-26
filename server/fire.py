@@ -15,8 +15,9 @@ def course_data(static_dir):
         DATA = json.loads((Path(static_dir) / 'v4/fire/data.json').read_text())
     return DATA
 
-def tasks():
-    return [q for m in DATA['modules'] for q in m['quiz'] + m['games']]
+def tasks(data=None):
+    data = DATA if data is None else data
+    return [q for m in data['modules'] for q in m['quiz'] + m['games']]
 
 def is_correct(q, v):
     if q['type'] == 'choice':
@@ -25,12 +26,13 @@ def is_correct(q, v):
         return False
     return v == q['answer'] if q['type'] == 'order' else sorted(v) == sorted(q['answer'])
 
-def validate_state(s):
+def validate_state(s, data=None):
+    data = DATA if data is None else data
     for key in ('answers', 'first', 'notes', 'read', 'exam', 'profile'):
         s.setdefault(key, {})
         if not isinstance(s[key], dict):
             raise HTTPException(422, 'Неверный формат данных: ' + key)
-    bank = {q['id']: q for q in tasks() + DATA['final']}
+    bank = {q['id']: q for q in tasks(data) + data['final']}
     for key in ('answers', 'first', 'exam'):
         for qid, v in s[key].items():
             q = bank.get(qid)
@@ -53,8 +55,8 @@ def validate_state(s):
         raise HTTPException(422, 'Неверная история')
     return s
 
-def prepare_state(s, previous):
-    validate_state(s)
+def prepare_state(s, previous, data=None):
+    validate_state(s, data)
     previous = previous or {}
     # Only the server submit endpoint can freeze an exam and its threshold.
     for k in ('submitted', 'submittedAt', 'examThreshold'):
@@ -71,18 +73,19 @@ def prepare_state(s, previous):
     s['first'].update(previous.get('first', {}))
     return s
 
-def score(s, threshold=80):
-    validate_state(s)
-    ts = tasks()
+def score(s, threshold=80, data=None):
+    data = DATA if data is None else data
+    validate_state(s, data)
+    ts = tasks(data)
     answered = sum(q['id'] in s['answers'] for q in ts)
     good = sum(is_correct(q, s['answers'].get(q['id'])) for q in ts)
-    read = sum(s['read'].get(m['id']) is True for m in DATA['modules'])
+    read = sum(s['read'].get(m['id']) is True for m in data['modules'])
     submitted = s.get('submitted') is True
-    exam_good = sum(is_correct(q, s['exam'].get(q['id'])) for q in DATA['final'])
-    critical = sum(q.get('critical', False) and not is_correct(q, s['exam'].get(q['id'])) for q in DATA['final'])
-    exam_percent = round(exam_good / len(DATA['final']) * 100)
+    exam_good = sum(is_correct(q, s['exam'].get(q['id'])) for q in data['final'])
+    critical = sum(q.get('critical', False) and not is_correct(q, s['exam'].get(q['id'])) for q in data['final'])
+    exam_percent = round(exam_good / len(data['final']) * 100)
     threshold = s.get('examThreshold', threshold)
-    return dict(percent=round((read+answered+(len(DATA['final']) if submitted else 0))/(len(DATA['modules'])+len(ts)+len(DATA['final']))*100), correct=good+(exam_good if submitted else 0), totalQ=len(ts)+len(DATA['final']), answered=answered+(len(s['exam']) if submitted else 0), checked=read, totalChecks=len(DATA['modules']), points=10*(good+(exam_good if submitted else 0)), examCorrect=exam_good, examPercent=exam_percent, criticalErrors=critical, passed=submitted and exam_percent>=threshold and critical==0, firstCorrect=sum(is_correct(q,s['first'].get(q['id'])) for q in ts), practiceCorrect=good, practiceTotal=len(ts), unit=s['profile'].get('unit',''), submitted=submitted)
+    return dict(percent=round((read+answered+(len(data['final']) if submitted else 0))/(len(data['modules'])+len(ts)+len(data['final']))*100), correct=good+(exam_good if submitted else 0), totalQ=len(ts)+len(data['final']), answered=answered+(len(s['exam']) if submitted else 0), checked=read, totalChecks=len(data['modules']), points=10*(good+(exam_good if submitted else 0)), examCorrect=exam_good, examPercent=exam_percent, criticalErrors=critical, passed=submitted and exam_percent>=threshold and critical==0, firstCorrect=sum(is_correct(q,s['first'].get(q['id'])) for q in ts), practiceCorrect=good, practiceTotal=len(ts), unit=s['profile'].get('unit',''), submitted=submitted)
 
 class Settings(BaseModel):
     object: str = Field(default='', max_length=300)

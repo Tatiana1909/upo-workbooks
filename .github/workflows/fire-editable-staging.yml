@@ -1,0 +1,40 @@
+name: Fire editable isolated staging
+on:
+  push:
+    branches: [feature/fire-editable-20261026]
+    paths: ['server/**', 'v4/fire/**', 'v4/builder/fire*', 'tools/**', '.github/workflows/fire-editable-staging.yml']
+concurrency:
+  group: fire-editable-isolated-staging
+  cancel-in-progress: false
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: API regression tests
+        run: |
+          pip install -r server/requirements.txt pytest httpx
+          pytest -q server/tests --disable-warnings
+          node --check v4/fire/editable-runner.js
+          node --check v4/builder/fire-editor.js
+      - name: Prepare connection
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts
+      - name: Full backup, restore check and isolated staging
+        run: |
+          tar -czf /tmp/upo-workbooks-pb-staging.tgz server v2 v3 v4 builder assets courses.js
+          scp /tmp/upo-workbooks-pb-staging.tgz root@194.48.140.70:/tmp/upo-workbooks-pb-staging.tgz
+          ssh root@194.48.140.70 bash -s < tools/stage_fire.sh
+      - name: Verify staging endpoints
+        run: |
+          curl -fsS --retry 3 http://194.48.140.70:8083/health
+          curl -fsS --retry 3 -o /dev/null http://194.48.140.70:8083/v4/builder/fire.html
+          curl -fsS --retry 3 http://194.48.140.70:8083/api/v1/fire/builder/catalog

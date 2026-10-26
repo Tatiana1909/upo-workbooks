@@ -821,4 +821,9 @@ fire_settings = fire.register_fire(app, db, fire_current_user, fire_current_admi
 def fire_access_public_key():
     return {'public_key': fire_access.public_key()}
 
+import fire_builder
+from full_backup import create as full_backup
+fire_builder.register(app, db, fire_current_admin, fire_current_user, now_iso, STATIC_DIR, DB_PATH.parent,
+    lambda reason: full_backup(DB_PATH, STATIC_DIR, reason))
+
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="workbooks")
