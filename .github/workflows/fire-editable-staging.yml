@@ -5,7 +5,7 @@ on:
     paths: ['server/**', 'v4/fire/**', 'v4/builder/fire*', 'tools/**', '.github/workflows/fire-editable-staging.yml']
 concurrency:
   group: fire-editable-isolated-staging
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   stage:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
             if curl -fsS http://127.0.0.1:8123/health; then break; fi
             sleep 1
           done
-          NODE_PATH=/tmp/pb-browser/node_modules PB_UI_SCREENSHOTS=/tmp/pb-ui-screenshots node tools/test-fire-ui.cjs
+          timeout 180s env NODE_PATH=/tmp/pb-browser/node_modules PB_UI_SCREENSHOTS=/tmp/pb-ui-screenshots node tools/test-fire-ui.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
