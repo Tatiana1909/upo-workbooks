@@ -435,7 +435,7 @@ def login(data: LoginInput, request: Request):
                 "INSERT INTO users(id, full_name, normalized_name, created_at, updated_at) VALUES(?,?,?,?,?)",
                 (user_id, full_name, normalized, timestamp, timestamp),
             )
-        if data.course_id:
+        if data.course_id and request.url.path != '/api/v1/fire/builder/session':
             ensure_course_progress(con, user_id, data.course_id, timestamp)
         con.commit()
     return {"token": encode_token(user_id, full_name, "user", scope=fire.CID if separate_fire else None), "full_name": full_name}
@@ -820,6 +820,10 @@ fire_settings = fire.register_fire(app, db, fire_current_user, fire_current_admi
 @app.get('/api/v1/fire/access-public-key')
 def fire_access_public_key():
     return {'public_key': fire_access.public_key()}
+
+@app.post('/api/v1/fire/builder/session')
+def fire_editable_login(data: LoginInput, request: Request):
+    return fire_login(data, request)
 
 import fire_builder
 from full_backup import create as full_backup

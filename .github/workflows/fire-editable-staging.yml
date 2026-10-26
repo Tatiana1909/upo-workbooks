@@ -20,6 +20,22 @@ jobs:
           pytest -q server/tests --disable-warnings
           node --check v4/fire/editable-runner.js
           node --check v4/builder/fire-editor.js
+      - name: Browser checks on desktop and mobile
+        run: |
+          npm install --prefix /tmp/pb-browser playwright
+          /tmp/pb-browser/node_modules/.bin/playwright install --with-deps chromium
+          mkdir -p /tmp/pb-ui-screenshots
+          PB_UI_DATA=/tmp/pb-ci-ui python server/serve_fire_ui.py > /tmp/pb-ui-server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8123/health; then break; fi
+            sleep 1
+          done
+          NODE_PATH=/tmp/pb-browser/node_modules PB_UI_SCREENSHOTS=/tmp/pb-ui-screenshots node tools/test-fire-ui.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fire-ui-screenshots
+          path: /tmp/pb-ui-screenshots
       - name: Prepare connection
         env:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
