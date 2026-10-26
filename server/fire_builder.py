@@ -60,7 +60,7 @@ def validate(c):
         require(type(q.get('critical',False)) is bool,'Неверная отметка критического вопроса')
     for m in c['modules']:
         identity(m);text(m.get('title'),'Название раздела',200,False)
-        for k in ('lead','source','prompt','gamesTitle'):text(m.get(k,''),'Текст раздела')
+        for k in ('lead','source','prompt','gamesTitle','imageNotice','scenarioNotice'):text(m.get(k,''),'Текст раздела')
         require(type(m.get('minutes')) is int and 0<=m['minutes']<=1000,'Длительность раздела')
         require(isinstance(m.get('theory'),list) and len(m['theory'])<=200,'Неверные учебные блоки')
         for pair in m['theory']:
@@ -104,6 +104,8 @@ def seed(static):
     images={'prevent':[('image2.jpeg','Курение запрещено'),('image3.jpeg','Курение и открытый огонь запрещены'),('image1.jpeg','Место для курения')],'ext':[('image4.png','Плакат из инструкции: порошковый огнетушитель'),('image5.png','Плакат из инструкции: углекислотный огнетушитель')],'use':[('image6.png','Плакат из инструкции: пожарный кран')]}
     for m,title in zip(c['modules'],titles):
         m.update(gamesTitle=title,images=[dict(url='/v4/fire/assets/'+f,title=t) for f,t in images.get(m['id'],[])],materials=[],blocks=[],scenarioMode='smoke' if m['id']=='smoke' else 'list')
+        m['imageNotice']='Изображения — из исходной инструкции. Для конкретной модели приоритет имеют её маркировка и паспорт; плакат не подтверждает допуск любого огнетушителя.' if m['id']=='ext' else ''
+        m['scenarioNotice']='Это три условные ситуации, а не шкала безопасной концентрации дыма. Пройдите каждую.' if m['id']=='smoke' else ''
         if m['id']=='smoke':m.update(scenarioLabels=['Признаки горения','Задымлённый маршрут','Выходы недоступны'],mapLabels=['А · короткий коридор. Дым','Б · лестница к выходу. Путь свободен','В · лифт. Для эвакуации не используется'])
     return validate(c)
 
