@@ -2,7 +2,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
 (async()=>{const browser=await chromium.launch({headless:true});const context=await browser.newContext({viewport:{width:1440,height:1000}});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto('http://127.0.0.1:8123/v4/fire/teacher.html');
 await page.locator('input[name=name]').fill('pb-test-admin');await page.locator('input[name=code]').fill('pb-test-password');await page.getByRole('button',{name:'Войти и сохранять на сервере'}).click();await page.getByRole('link',{name:'Конструктор и версии ПБ'}).click();await page.getByRole('button',{name:'Редактировать',exact:true}).click();
-await page.screenshot({path:(process.env.PB_UI_SCREENSHOTS||'/tmp')+'/pb-editor-desktop.png',fullPage:false});assert.equal(await page.getByText('Учебные разделы · 6',{exact:true}).count(),1);console.log('editor: six sections visible');
+assert.equal(await page.getByText('Учебные разделы · 6',{exact:true}).count(),1);console.log('editor: six sections visible');await page.screenshot({path:(process.env.PB_UI_SCREENSHOTS||'/tmp')+'/pb-editor-desktop.png',fullPage:false});
 // Change instruction title and URL through actual form fields, save, then open authenticated preview.
 const mat=page.locator('details').filter({has:page.locator('summary').filter({hasText:/^Материалы по теме · 1$/})}).last();
 const summary=page.locator('summary').filter({hasText:/^1\. Открыть и изучить инструкцию по ПБ$/});await summary.click();

@@ -145,3 +145,20 @@ def test_first_cannot_be_forged_and_keys_private(setup):
     state=c.get(P+'/editions/'+cid+'/progress',headers=u).json()
     assert state['state']['first']['p1']==0 and state['feedback']['current']['p1']['correct']
     assert not state['feedback']['exam']
+
+def test_all_content_types_editable_and_separate_login(setup):
+    c,m,a,u,w=setup;d=imported(c,a);content=d['content'];first=content['modules'][0]
+    content['title']='Редактируемое обучение ПБ';content['passPercent']=90
+    first['title']='Новый заголовок';first['theory'].append(['Тема','Новый текст'])
+    first['quiz'][0].update(options=['Ответ А','Ответ Б','Ответ В'],answer=2,explain='Обновлённый ключ')
+    first['games'][0].update(options=['А','Б'],answer=[0],type='multi')
+    first['images'][0]['url']='https://example.org/new-image.png'
+    first['materials']=[dict(kind='sop',title='СОП',url='https://example.org/sop')]
+    first['blocks']=[dict(id='b-'+t,type=t,text='Блок '+t,url='https://example.org/file.mp4',reviewMode='manual',evidenceRequired=t=='practice',maxImages=2) for t in ('text','open','practice','image','video','link')]
+    content['modules']=list(reversed(content['modules']))
+    d=c.put(P+'/drafts/'+d['id'],headers=a,json=d).json();cid=publish(c,a,d)
+    stored=c.get(P+'/editions/'+cid+'/author',headers=a).json()['content'];assert stored==content
+    assert c.post(P+'/session',json={'full_name':'Новый Участник Тест','code':'pb-test-code'}).status_code==200
+    with m.db() as con:
+        uid=con.execute("SELECT id FROM users WHERE full_name='Новый Участник Тест'").fetchone()['id']
+        assert con.execute('SELECT COUNT(*) FROM progress WHERE user_id=?',(uid,)).fetchone()[0]==0
