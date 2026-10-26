@@ -2,7 +2,7 @@ name: Deploy workbooks server
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/editable-upo-editions-20261026]
     paths:
       - 'v4/**'
       - 'courses.js'
@@ -118,7 +118,7 @@ jobs:
           done
 
   review:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feature/editable-upo-editions-20261026'
+    if: github.ref == 'refs/heads/feature/editable-upo-editions-20261026'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
