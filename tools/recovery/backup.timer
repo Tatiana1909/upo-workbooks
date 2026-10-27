@@ -1,0 +1,8 @@
+[Unit]
+Description=Nightly IFCM workbook backup at 03 Krasnoyarsk time
+[Timer]
+OnCalendar=*-*-* 20:00:00 UTC
+RandomizedDelaySec=600
+Persistent=true
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,57 @@
+name: Workbooks verified backup
+on:
+  push:
+    branches: [feature/verified-backups]
+    paths: ['.github/workflows/workbooks-backup.yml', 'tools/recovery/**', 'server/backup_bundle.py']
+  workflow_dispatch:
+concurrency:
+  group: workbooks-server-production
+  cancel-in-progress: false
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify recovery format and safe extraction
+        run: |
+          python -m pip install pytest
+          python -m pytest server/tests/test_backup_bundle.py -q
+          python -m py_compile tools/recovery/*.py
+      - name: Prepare existing server connection
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts
+      - name: Install local backup schedule and run an isolated recovery check
+        run: |
+          tar -czf /tmp/ifcm-verified-backup-tools.tgz tools/recovery server/backup_bundle.py
+          scp /tmp/ifcm-verified-backup-tools.tgz root@194.48.140.70:/tmp/ifcm-verified-backup-tools.tgz
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          umask 077
+          install -d -m 700 /tmp/ifcm-verified-backup-source /opt/upo-workbooks/maintenance
+          tar -xzf /tmp/ifcm-verified-backup-tools.tgz -C /tmp/ifcm-verified-backup-source
+          install -m 600 /tmp/ifcm-verified-backup-source/server/backup_bundle.py /opt/upo-workbooks/maintenance/backup_bundle.py
+          for name in backup.py restore_check.py probe.py; do
+            install -m 600 "/tmp/ifcm-verified-backup-source/tools/recovery/$name" "/opt/upo-workbooks/maintenance/$name"
+          done
+          install -m 644 /tmp/ifcm-verified-backup-source/tools/recovery/backup.service /etc/systemd/system/ifcm-workbooks-backup.service
+          install -m 644 /tmp/ifcm-verified-backup-source/tools/recovery/backup.timer /etc/systemd/system/ifcm-workbooks-backup.timer
+          systemctl daemon-reload
+          if ! systemctl start ifcm-workbooks-backup.service; then
+            journalctl -u ifcm-workbooks-backup.service -n 20 -o cat | grep -E '^\{"local_backup_verified"' || true
+            exit 1
+          fi
+          test "$(systemctl show --property Result --value ifcm-workbooks-backup.service)" = success
+          systemctl enable --now ifcm-workbooks-backup.timer >/dev/null
+          systemctl is-active --quiet ifcm-workbooks-backup.timer
+          curl --fail --silent --show-error https://194.48.140.70/health
+          echo 'Private local backup, isolated recovery and nightly schedule verified.'
+          rm -f /tmp/ifcm-verified-backup-tools.tgz
+          REMOTE
