@@ -41,6 +41,7 @@ cp "$APP/server/compose.yaml" "$BACKUP/compose.yaml"
 cp "$APP/server/.env" "$BACKUP/app.env"
 DATA_VOLUME=$(docker inspect workbook_api --format '{{range .Mounts}}{{if eq .Destination "/data"}}{{.Name}}{{end}}{{end}}')
 test -n "$DATA_VOLUME"
+PHASE=preparation
 BACKEND_CHANGED=0
 SUCCESS=0
 rollback() {
@@ -55,13 +56,14 @@ rollback() {
       echo 'HTTPS activation failed; previous application listener restored. Recovery archives remain on the server.' >&2
     else
       docker rm -f "$GATEWAY" >/dev/null 2>&1 || true
-      echo 'HTTPS setup stopped before application switching; the original service is unchanged.' >&2
+      echo "HTTPS setup stopped during $PHASE before application switching; the original service is unchanged." >&2
     fi
   fi
   exit "$code"
 }
 trap rollback EXIT
 
+PHASE=container-images
 docker pull "$NGINX_IMAGE" >/dev/null
 docker pull "$CERTBOT_IMAGE" >/dev/null
 # Keep the exact image used for renewal, avoiding mutable tags during scheduled runs.
@@ -86,8 +88,10 @@ docker run -d --name "$GATEWAY" --restart unless-stopped --network host \
   -v "$TLS/acme:/var/www/acme:ro" \
   -v "$TLS/letsencrypt:/etc/letsencrypt:ro" \
   "$NGINX_DIGEST" >/dev/null
+PHASE=acme-route
 TOKEN="ifcm-https-check-$STAMP"
 printf '%s' "$TOKEN" > "$TLS/acme/.well-known/acme-challenge/$TOKEN"
+chmod 644 "$TLS/acme/.well-known/acme-challenge/$TOKEN"
 for attempt in $(seq 1 20); do
   if [ "$(curl --silent --fail --max-time 5 "http://127.0.0.1/.well-known/acme-challenge/$TOKEN" -H "Host: $IP" || true)" = "$TOKEN" ]; then break; fi
   sleep 1
@@ -100,9 +104,11 @@ certbot_run() {
     -v "$TLS/certbot-logs:/var/log/letsencrypt" "$CERTBOT_DIGEST" "$@"
 }
 # Validate the route against staging first; production is requested only on success.
+PHASE=staging-certificate
 certbot_run "$TLS/staging" certonly --staging --non-interactive --agree-tos --register-unsafely-without-email \
   --preferred-profile shortlived --webroot --webroot-path /var/www/acme --ip-address "$IP" \
   --cert-name ifcm-workbooks-ip --quiet
+PHASE=trusted-certificate
 certbot_run "$TLS/letsencrypt" certonly --non-interactive --agree-tos --register-unsafely-without-email \
   --preferred-profile shortlived --webroot --webroot-path /var/www/acme --ip-address "$IP" \
   --cert-name ifcm-workbooks-ip --quiet
@@ -151,6 +157,7 @@ docker exec "$GATEWAY" nginx -t
 install -m 644 "$SOURCE_DIR/compose.yaml" "$APP/server/compose.yaml"
 sed -i '/^WORKBOOK_BIND_ADDRESS=/d;/^WORKBOOK_BIND_PORT=/d;/^WORKBOOK_ALLOWED_ORIGINS=/d' "$APP/server/.env"
 printf 'WORKBOOK_BIND_ADDRESS=127.0.0.1\nWORKBOOK_BIND_PORT=%s\nWORKBOOK_ALLOWED_ORIGINS=https://%s\n' "$BACKEND_PORT" "$IP" >> "$APP/server/.env"
+PHASE=activation
 BACKEND_CHANGED=1
 (cd "$APP/server" && docker compose -p upo_workbooks up -d --no-build --no-deps workbook-api) >/dev/null
 for attempt in $(seq 1 30); do
@@ -168,6 +175,7 @@ curl --fail --silent --max-time 15 "https://$IP/health" >/dev/null
 curl --fail --silent --max-time 15 "https://$IP/v4/accounts.html" >/dev/null
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' "http://$IP:8081/v4/accounts.html")" = 308
 docker exec workbook_api python -c 'import sqlite3,os; c=sqlite3.connect(os.environ["WORKBOOK_DB_PATH"]); assert c.execute("PRAGMA integrity_check").fetchone()[0]=="ok"; print("Database integrity and persistent volume verified")'
+PHASE=automatic-renewal
 # Renewal is independent of GitHub and runs even when no deployments take place.
 install -m 700 "$SOURCE_DIR/renew.sh" /usr/local/sbin/ifcm-workbooks-cert-renew
 install -m 644 "$SOURCE_DIR/renew.service" /etc/systemd/system/ifcm-workbooks-cert-renew.service
