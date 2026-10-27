@@ -5,3 +5,5 @@ server/fire-access.enc
 **/*.sqlite3
 **/*.sqlite3-wal
 **/*.sqlite3-shm
+https/
+backups/

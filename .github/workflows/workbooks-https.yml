@@ -1,0 +1,54 @@
+name: Workbooks HTTPS
+on:
+  push:
+    branches: [feature/workbooks-https]
+    paths: ['.github/workflows/workbooks-https.yml', 'tools/workbooks-https/**']
+  workflow_dispatch:
+concurrency:
+  group: workbooks-server-production
+  cancel-in-progress: false
+jobs:
+  https:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH for the existing workbook server
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts
+      - name: Check script syntax
+        run: |
+          bash -n tools/workbooks-https/configure.sh
+          bash -n tools/workbooks-https/renew.sh
+      - name: Install HTTPS with private server backups and automatic renewal
+        run: |
+          tar -czf /tmp/ifcm-workbooks-https.tgz tools/workbooks-https server/compose.yaml
+          scp /tmp/ifcm-workbooks-https.tgz root@194.48.140.70:/tmp/ifcm-workbooks-https.tgz
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          install -d -m 700 /tmp/ifcm-workbooks-https-source
+          tar -xzf /tmp/ifcm-workbooks-https.tgz -C /tmp/ifcm-workbooks-https-source
+          install -m 644 /tmp/ifcm-workbooks-https-source/server/compose.yaml /tmp/ifcm-workbooks-https-source/tools/workbooks-https/compose.yaml
+          if [ -f /opt/upo-workbooks/https/origin ]; then
+            test "$(cat /opt/upo-workbooks/https/origin)" = 'https://194.48.140.70'
+            curl --fail --silent --show-error https://194.48.140.70/health
+            systemctl is-active --quiet ifcm-workbooks-cert-renew.timer
+            echo 'Existing HTTPS installation verified without replacing server settings.'
+          else
+            bash /tmp/ifcm-workbooks-https-source/tools/workbooks-https/configure.sh
+          fi
+          rm -f /tmp/ifcm-workbooks-https.tgz
+          REMOTE
+      - name: Verify trusted public HTTPS and legacy redirects
+        run: |
+          curl --fail --silent --show-error --retry 3 https://194.48.140.70/health
+          for path in v4/index.html v4/accounts.html v4/accounts.js; do
+            curl --fail --silent --show-error --output /dev/null "https://194.48.140.70/$path"
+          done
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://194.48.140.70:8081/v4/accounts.html)" = 308
+          test "$(curl --silent --output /dev/null --write-out '%{redirect_url}' http://194.48.140.70:8081/v4/accounts.html)" = https://194.48.140.70/v4/accounts.html
+          echo 'Trusted HTTPS and legacy redirects verified.'
