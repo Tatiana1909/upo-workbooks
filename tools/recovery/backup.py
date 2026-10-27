@@ -28,9 +28,11 @@ def main():
     with open(Path(__file__).with_name('backup.lock'),'a') as lock:
         try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:return {'backup_already_running':True}
+        STAGE='capacity-check'
         if shutil.disk_usage(ROOT).free<1024**3:raise RuntimeError('Insufficient space for a verified recovery point')
         stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         directory=ROOT/(stamp+'.partial');directory.mkdir(mode=0o700)
+        STAGE='runtime-inspection'
         runtime=json.loads(command(['docker','inspect','workbook_api']))[0]
         container=runtime['Id'];image=runtime['Image']
         STAGE='application-archive'
@@ -63,6 +65,6 @@ def main():
 
 if __name__=='__main__':
     try:print(json.dumps(main()))
-    except Exception:
-        print(json.dumps({'local_backup_verified':False,'stage':STAGE,'action':'Check the private backup service on the server'}))
+    except Exception as error:
+        print(json.dumps({'local_backup_verified':False,'stage':STAGE,'error_type':type(error).__name__,'action':'Check the private backup service on the server'}))
         raise SystemExit(1)
