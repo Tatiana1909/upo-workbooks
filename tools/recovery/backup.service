@@ -1,0 +1,9 @@
+[Unit]
+Description=Create and verify a private IFCM workbooks recovery point
+Requires=docker.service
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/upo-workbooks/maintenance/backup.py
+UMask=0077
+TimeoutStartSec=1800
