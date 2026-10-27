@@ -5,7 +5,7 @@ on:
     paths: ['.github/workflows/workbooks-https.yml', 'tools/workbooks-https/**']
   workflow_dispatch:
 concurrency:
-  group: workbooks-https-server
+  group: workbooks-server-production
   cancel-in-progress: false
 jobs:
   https:
@@ -33,7 +33,14 @@ jobs:
           install -d -m 700 /tmp/ifcm-workbooks-https-source
           tar -xzf /tmp/ifcm-workbooks-https.tgz -C /tmp/ifcm-workbooks-https-source
           install -m 644 /tmp/ifcm-workbooks-https-source/server/compose.yaml /tmp/ifcm-workbooks-https-source/tools/workbooks-https/compose.yaml
-          bash /tmp/ifcm-workbooks-https-source/tools/workbooks-https/configure.sh
+          if [ -f /opt/upo-workbooks/https/origin ]; then
+            test "$(cat /opt/upo-workbooks/https/origin)" = 'https://194.48.140.70'
+            curl --fail --silent --show-error https://194.48.140.70/health
+            systemctl is-active --quiet ifcm-workbooks-cert-renew.timer
+            echo 'Existing HTTPS installation verified without replacing server settings.'
+          else
+            bash /tmp/ifcm-workbooks-https-source/tools/workbooks-https/configure.sh
+          fi
           rm -f /tmp/ifcm-workbooks-https.tgz
           REMOTE
       - name: Verify trusted public HTTPS and legacy redirects
