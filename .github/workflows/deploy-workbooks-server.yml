@@ -108,6 +108,12 @@ jobs:
           fi
           sed -i '/^WORKBOOK_ACCESS_CODE=/d;/^WORKBOOK_ADMIN_LOGIN=/d;/^WORKBOOK_ADMIN_PASSWORD=/d;/^WORKBOOK_ALLOWED_ORIGINS=/d;/^WORKBOOK_DB_PATH=/d;/^WORKBOOK_TOKEN_TTL_HOURS=/d;/^WORKBOOK_ADMIN_TOKEN_TTL_HOURS=/d' .env
           printf 'WORKBOOK_ACCESS_CODE=%s\nWORKBOOK_ADMIN_LOGIN=%s\nWORKBOOK_ADMIN_PASSWORD=%s\nWORKBOOK_ALLOWED_ORIGINS=http://194.48.140.70:8081\nWORKBOOK_DB_PATH=/data/workbooks.sqlite3\nWORKBOOK_TOKEN_TTL_HOURS=168\nWORKBOOK_ADMIN_TOKEN_TTL_HOURS=12\n' "$CODE" "$ADMIN_LOGIN" "$ADMIN_PASSWORD" >> .env
+          if [ -f /opt/upo-workbooks/https/origin ]; then
+            HTTPS_ORIGIN=$(cat /opt/upo-workbooks/https/origin)
+            test "$HTTPS_ORIGIN" = 'https://194.48.140.70'
+            sed -i '/^WORKBOOK_ALLOWED_ORIGINS=/d' .env
+            printf 'WORKBOOK_ALLOWED_ORIGINS=%s\n' "$HTTPS_ORIGIN" >> .env
+          fi
           docker compose -p upo_workbooks up -d --build --remove-orphans
           for attempt in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8081/health; then

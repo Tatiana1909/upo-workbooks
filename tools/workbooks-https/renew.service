@@ -1,0 +1,9 @@
+[Unit]
+Description=Renew IFCM workbook IP certificate and reload TLS gateway
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/ifcm-workbooks-cert-renew
+UMask=0077
