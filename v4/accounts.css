@@ -1,0 +1,140 @@
+:root {
+  font-family: Arial, sans-serif;
+  color: #23243b;
+  background: #f5f5f8;
+}
+body {
+  margin: 0;
+}
+header {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  background: white;
+  padding: 20px 5%;
+  flex-wrap: wrap;
+}
+header img {
+  width: 110px;
+}
+a {
+  color: #a82038;
+}
+main {
+  max-width: 1150px;
+  margin: 32px auto;
+  padding: 0 20px;
+}
+h1 {
+  font-size: 28px;
+}
+h2 {
+  font-size: 21px;
+}
+.card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+label {
+  display: block;
+  margin: 12px 0;
+  font-weight: 600;
+}
+input:not([type="checkbox"]),
+select,
+textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  font: inherit;
+  margin-top: 6px;
+}
+input[type="checkbox"] {
+  margin-right: 8px;
+}
+button,
+.button {
+  display: inline-block;
+  border: 0;
+  border-radius: 6px;
+  background: #b21f39;
+  color: white;
+  padding: 12px 18px;
+  font: inherit;
+  cursor: pointer;
+  margin: 5px 8px 5px 0;
+  text-decoration: none;
+}
+button.secondary {
+  background: #3d405c;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+small {
+  display: block;
+  color: #555;
+  line-height: 1.5;
+}
+#message {
+  white-space: pre-wrap;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+#message:empty {
+  display: none;
+}
+.error {
+  background: #ffe4e6;
+  color: #8d1426;
+}
+.success {
+  background: #e8f4ed;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+td,
+th {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+th {
+  background: #edeef3;
+}
+.scroll {
+  overflow: auto;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+dialog {
+  max-width: 800px;
+  width: 85%;
+  max-height: 85vh;
+  overflow: auto;
+  border: 1px solid #aaa;
+  border-radius: 12px;
+}
+fieldset {
+  border: 1px solid #ddd;
+  margin: 16px 0;
+}
+legend {
+  font-weight: bold;
+}
