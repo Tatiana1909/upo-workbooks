@@ -19,7 +19,13 @@ jobs:
       - run: python -m pip install -r server/requirements.txt pytest httpx
       - run: python -m pytest server/tests -q --disable-warnings
       - run: npm install --prefix /tmp/account-ui playwright@1.62.1
-      - run: /tmp/account-ui/node_modules/.bin/playwright install --with-deps chromium
+      - name: Select test browser
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "ACCOUNTS_UI_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            /tmp/account-ui/node_modules/.bin/playwright install --with-deps chromium
+          fi
       - name: Browser acceptance
         env:
           NODE_PATH: /tmp/account-ui/node_modules

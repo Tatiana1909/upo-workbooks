@@ -61,7 +61,7 @@ jobs:
           REMOTE
 
       - name: Package application
-        run: tar -czf /tmp/upo-workbooks.tgz server v2 v3 v4 builder assets courses.js
+        run: tar --exclude=server/fire-access.enc -czf /tmp/upo-workbooks.tgz .dockerignore server v2 v3 v4 builder assets courses.js
 
       - name: Upload application
         env:

@@ -3,16 +3,14 @@ const assert = require("node:assert/strict");
 (async () => {
   const browser = await chromium.launch({
     headless: true,
+    channel: process.env.ACCOUNTS_UI_CHANNEL || undefined,
     executablePath: process.env.ACCOUNTS_UI_CHROME || undefined,
-    args: [
-      "--no-sandbox",
-      "--disable-dev-shm-usage",
-      "--no-zygote",
-      "--single-process",
-      "--use-gl=angle",
-      "--use-angle=swiftshader",
-      "--in-process-gpu",
-    ],
+    // Special flags apply only to the portable browser used in the local sandbox.
+    // Standard CI Chromium must retain its normal process isolation.
+    args: process.env.ACCOUNTS_UI_CHROME ? [
+      "--no-sandbox", "--disable-dev-shm-usage", "--no-zygote", "--single-process",
+      "--use-gl=angle", "--use-angle=swiftshader", "--in-process-gpu",
+    ] : [],
   });
   const page = await browser.newPage({
     viewport: { width: 1440, height: 1000 },
