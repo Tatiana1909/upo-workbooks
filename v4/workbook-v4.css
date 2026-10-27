@@ -20,4 +20,6 @@
 .v4-catalog .course-tile a{margin-top:auto}
 .v4-catalog .course-tile p{margin-bottom:24px}
 
-.legacy-workbooks>summary{cursor:pointer;color:#211C58;font-size:20px;font-weight:700;padding:18px 0}.legacy-workbooks .catalog-grid{margin-top:18px}
+.catalog-administration>summary{cursor:pointer;color:#211C58;font-size:20px;font-weight:700;padding:18px 0}.catalog-administration .catalog-grid{margin-top:18px}
+
+.catalog-administration{margin-top:32px;border-top:1px solid var(--line)}.catalog-administration .course-tile a{display:inline-block;overflow-wrap:anywhere}
