@@ -28,13 +28,24 @@ def main():
     with open(Path(__file__).with_name('backup.lock'),'a') as lock:
         try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:return {'backup_already_running':True}
-        STAGE='capacity-check'
-        if shutil.disk_usage(ROOT).free<1024**3:raise RuntimeError('Insufficient space for a verified recovery point')
         stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         directory=ROOT/(stamp+'.partial');directory.mkdir(mode=0o700)
         STAGE='runtime-inspection'
         runtime=json.loads(command(['docker','inspect','workbook_api']))[0]
         container=runtime['Id'];image=runtime['Image']
+        STAGE='capacity-check'
+        sizing="import os,json; total=0\nfor root in ['/data','/app']:\n for path,dirs,files in os.walk(root):\n  dirs[:]=[d for d in dirs if d not in ('backups','.git','__pycache__')]\n  for name in files:\n   p=os.path.join(path,name)\n   if not os.path.islink(p):total+=os.path.getsize(p)\nprint(json.dumps(total))"
+        runtime_size=json.loads(command(['docker','exec',container,'python','-c',sizing]))
+        host_size=0
+        for path,dirs,files in os.walk(APP):
+            dirs[:]=[d for d in dirs if d not in ('backups','.git','__pycache__')]
+            for name in files:
+                p=Path(path)/name
+                if not p.is_symlink():host_size+=p.stat().st_size
+        # Allow uncompressed archives, SQLite snapshot, extracted clone and a reserve.
+        required=4*runtime_size+2*host_size+128*1024**2
+        if shutil.disk_usage(ROOT).free<required:
+            raise RuntimeError('Insufficient space for a verified recovery point')
         STAGE='application-archive'
         script=Path(__file__).with_name('backup_bundle.py')
         command(['docker','cp',str(script),container+':/tmp/ifcm-scheduled-backup.py'])
