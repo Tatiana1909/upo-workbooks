@@ -1,0 +1,40 @@
+name: Personal accounts checks
+on:
+  pull_request:
+    paths: ['server/**', 'v4/**', 'tools/test-accounts-ui.cjs', '.github/workflows/personal-accounts-check.yml']
+  push:
+    branches: ['feature/personal-accounts']
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r server/requirements.txt pytest httpx
+      - run: python -m pytest server/tests -q --disable-warnings
+      - run: npm install --prefix /tmp/account-ui playwright@1.62.1
+      - name: Select test browser
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "ACCOUNTS_UI_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            /tmp/account-ui/node_modules/.bin/playwright install --with-deps chromium
+          fi
+      - name: Browser acceptance
+        env:
+          NODE_PATH: /tmp/account-ui/node_modules
+        run: |
+          python server/tests/run_accounts_ui.py > /tmp/accounts-stage.log 2>&1 &
+          stage_pid=$!
+          trap 'kill "$stage_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:8124/health >/dev/null; then break; fi
+            sleep 1
+          done
+          node tools/test-accounts-ui.cjs

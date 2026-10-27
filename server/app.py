@@ -33,7 +33,7 @@ ADMIN_PASSWORD = os.environ.get("WORKBOOK_ADMIN_PASSWORD", "")
 DB_PATH = Path(os.environ.get("WORKBOOK_DB_PATH", "/data/workbooks.sqlite3"))
 STATIC_DIR = Path(os.environ.get("WORKBOOK_STATIC_DIR", "/app/static"))
 fire_access = FireAccess(DB_PATH.parent)
-fire_access.install(os.environ.get('WORKBOOK_FIRE_ENVELOPE', str(Path(__file__).with_name('fire-access.enc'))))
+fire_access.install(os.environ.get('WORKBOOK_FIRE_ENVELOPE', str(DB_PATH.parent / 'fire-access.enc')))
 TOKEN_TTL = int(os.environ.get("WORKBOOK_TOKEN_TTL_HOURS", "168")) * 3600
 ADMIN_TOKEN_TTL = int(os.environ.get("WORKBOOK_ADMIN_TOKEN_TTL_HOURS", "12")) * 3600
 ALLOWED_ORIGINS = [x.strip() for x in os.environ.get(
@@ -275,6 +275,8 @@ def bearer_payload(authorization: str | None):
 
 def current_user(authorization: str | None = Header(None)):
     payload = bearer_payload(authorization)
+    personal = accounts.authorize(payload, 'user', 'upo')
+    if personal: return personal
     if payload.get("role") != "user" or payload.get('scope'):
         raise HTTPException(403, "Недостаточно прав")
     payload["uid"] = payload["sub"]
@@ -283,6 +285,9 @@ def current_user(authorization: str | None = Header(None)):
 
 def current_admin(authorization: str | None = Header(None)):
     payload = bearer_payload(authorization)
+    personal = accounts.authorize(payload, 'admin', 'upo')
+    if personal: return personal
+    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1':raise HTTPException(401,'Войдите в персональный аккаунт')
     if payload.get("role") != "admin" or payload.get('scope'):
         raise HTTPException(403, "Недостаточно прав")
     return payload
@@ -290,6 +295,9 @@ def current_admin(authorization: str | None = Header(None)):
 
 def fire_identity(authorization, role):
     payload = bearer_payload(authorization)
+    personal = accounts.authorize(payload, role, 'fire')
+    if personal: return personal
+    if role=='admin' and os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1':raise HTTPException(401,'Войдите в персональный аккаунт')
     if payload.get('role') != role:
         raise HTTPException(403, 'Недостаточно прав')
     if fire_access.config:
@@ -414,6 +422,8 @@ def download_material(folder_key: str, filename: str):
 
 @app.post("/api/v1/session")
 def login(data: LoginInput, request: Request):
+    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1') == '1' and (request.url.path.endswith('/builder/session') or (data.course_id and data.course_id not in COURSE_TITLES)):
+        raise HTTPException(401, 'Для этой тетради используйте персональный вход')
     separate_fire = data.course_id == fire.CID and fire_access.config is not None
     queue = check_rate_limit(request.client.host if request.client else "unknown", "fire-student" if separate_fire else "student")
     valid = fire_access.matches('code', data.code) if separate_fire else hmac.compare_digest(data.code.encode("utf-8"), ACCESS_CODE.encode("utf-8"))
@@ -443,11 +453,15 @@ def login(data: LoginInput, request: Request):
 
 @app.post('/api/v1/fire/session')
 def fire_login(data: LoginInput, request: Request):
+    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1' and request.url.path.endswith('/builder/session'):
+        raise HTTPException(401,'Для этой тетради используйте персональный вход')
     return login(data.model_copy(update={'course_id': fire.CID}), request)
 
 
 @app.post("/api/v1/admin/session")
 def admin_login(data: AdminLoginInput, request: Request):
+    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1') == '1':
+        raise HTTPException(401, 'Используйте персональный вход /v4/accounts.html')
     queue = check_rate_limit(request.client.host if request.client else "unknown", "admin")
     login_ok = hmac.compare_digest(data.login.encode("utf-8"), ADMIN_LOGIN.encode("utf-8"))
     password_ok = hmac.compare_digest(data.password.encode("utf-8"), ADMIN_PASSWORD.encode("utf-8"))
@@ -463,6 +477,8 @@ def admin_login(data: AdminLoginInput, request: Request):
 
 @app.post('/api/v1/fire/admin/session')
 def fire_admin_login(data: AdminLoginInput, request: Request):
+    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1') == '1':
+        raise HTTPException(401, 'Используйте персональный вход /v4/accounts.html')
     if not fire_access.config:
         return admin_login(data, request)
     queue = check_rate_limit(request.client.host if request.client else 'unknown', 'fire-admin')
@@ -644,7 +660,7 @@ def attempt_payload(row):
 
 @app.get("/api/v1/admin/dashboard")
 def admin_dashboard(admin=Depends(current_admin)):
-    del admin
+    actor = admin.get("account")
     with closing(db()) as con:
         users = con.execute("SELECT * FROM users ORDER BY full_name COLLATE NOCASE").fetchall()
         progress_rows = con.execute("""
@@ -654,6 +670,10 @@ def admin_dashboard(admin=Depends(current_admin)):
         """).fetchall()
         attempt_rows = con.execute("SELECT * FROM course_attempts ORDER BY attempt_no").fetchall()
         direction_rows = con.execute("SELECT course_id,content FROM builder_editions").fetchall()
+    if actor and 'admin' not in actor['roles']:
+        users = [r for r in users if accounts.visible(actor,r['id'])]
+        progress_rows = [r for r in progress_rows if accounts.visible(actor,r['user_id']) and accounts.course_allowed(actor,r['course_id'])]
+        attempt_rows = [r for r in attempt_rows if accounts.visible(actor,r['user_id']) and accounts.course_allowed(actor,r['course_id'])]
     course_directions = {row["course_id"]: parse_json(row["content"], {}).get("courseDirection") or "1С:УПО" for row in direction_rows}
     course_directions[fire.CID] = "Безопасность"
 
@@ -703,6 +723,7 @@ def admin_dashboard(admin=Depends(current_admin)):
 
     course_stats = []
     for course_id, title in course_titles().items():
+        if actor and not accounts.course_allowed(actor,course_id):continue
         rows = by_course.get(course_id, [])
         course_stats.append({
             "course_id": course_id,
@@ -740,7 +761,8 @@ def admin_dashboard(admin=Depends(current_admin)):
 
 @app.get("/api/v1/admin/users/{user_id}")
 def admin_user_detail(user_id: str, admin=Depends(current_admin)):
-    del admin
+    actor=admin.get('account')
+    if actor and not accounts.visible(actor,user_id):raise HTTPException(403,'Нет доступа к участнику')
     with closing(db()) as con:
         user = con.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
         if not user:
@@ -752,6 +774,7 @@ def admin_user_detail(user_id: str, admin=Depends(current_admin)):
         """, (user_id,)).fetchall()
     courses = defaultdict(list)
     for row in rows:
+        if actor and not accounts.course_allowed(actor,row['course_id']):continue
         courses[row["course_id"]].append(attempt_payload(row))
     return {
         "user": {
@@ -772,9 +795,12 @@ def admin_user_detail(user_id: str, admin=Depends(current_admin)):
 
 
 def authorize_admin_export(authorization: str | None, x_admin_key: str | None):
-    if x_admin_key and hmac.compare_digest(x_admin_key.encode("utf-8"), ADMIN_KEY.encode("utf-8")):
+    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1') != '1' and x_admin_key and hmac.compare_digest(x_admin_key.encode("utf-8"), ADMIN_KEY.encode("utf-8")):
         return
     payload = bearer_payload(authorization)
+    personal=accounts.authorize(payload,'admin','upo')
+    if personal:
+        return personal['account']
     if payload.get("role") != "admin" or payload.get('scope'):
         raise HTTPException(403, "Недостаточно прав")
 
@@ -784,23 +810,26 @@ def export_results(
     authorization: str | None = Header(None),
     x_admin_key: str | None = Header(None),
 ):
-    authorize_admin_export(authorization, x_admin_key)
+    actor = authorize_admin_export(authorization, x_admin_key)
     with closing(db()) as con:
         rows = con.execute("""
-          SELECT u.full_name, p.course_id, p.summary_json, p.attempt_no, p.updated_at
+          SELECT u.id AS user_id, u.full_name, p.course_id, p.state_json, p.summary_json, p.attempt_no, p.updated_at
           FROM progress p JOIN users u ON u.id = p.user_id
           ORDER BY p.updated_at DESC
         """).fetchall()
     output = io.StringIO()
     writer = csv.writer(output, delimiter=";")
-    writer.writerow(["ФИО", "Курс", "Попытка", "Прогресс, %", "Успех, %", "Баллы", "Верных ответов", "Всего вопросов", "Обновлено"])
+    writer.writerow(["ID участника", "Табельный номер", "Подразделение", "Должность", "ФИО", "Курс", "Попытка", "Прогресс, %", "Успех, %", "Баллы", "Верных ответов", "Всего вопросов", "Обновлено"])
     for row in rows:
+        if actor and (not accounts.visible(actor,row['user_id']) or not accounts.course_allowed(actor,row['course_id'])):continue
+        profile=parse_json(row['state_json'],{}).get('profile',{})
         summary = normalized_summary(parse_json(row["summary_json"], empty_summary()))
-        writer.writerow([
+        values=[row['user_id'],profile.get('personnel_number',''),profile.get('unit',''),profile.get('position',''),
             row["full_name"], course_titles().get(row["course_id"], row["course_id"]), row["attempt_no"],
             summary["percent"], summary["success_percent"], summary["points"],
             summary["correct"], summary["totalQ"], row["updated_at"],
-        ])
+        ]
+        writer.writerow(["'"+str(v) if str(v).startswith(("=","+","-","@","\t","\r")) else v for v in values])
     payload = "\ufeff" + output.getvalue()
     return StreamingResponse(
         iter([payload.encode("utf-8")]), media_type="text/csv; charset=utf-8",
@@ -829,5 +858,74 @@ import fire_builder
 from full_backup import create as full_backup
 fire_builder.register(app, db, fire_current_admin, fire_current_user, now_iso, STATIC_DIR, DB_PATH.parent,
     lambda reason: full_backup(DB_PATH, STATIC_DIR, reason))
+
+from accounts import Accounts
+accounts = Accounts(app, db, now_iso, encode_token, decode_token, check_rate_limit, ADMIN_LOGIN, ADMIN_PASSWORD)
+def sign_account_token(raw):
+    signature = hmac.new(TOKEN_SECRET.encode(), raw, hashlib.sha256).digest()
+    return (raw + b'.' + base64.urlsafe_b64encode(signature).rstrip(b'=')).decode()
+accounts.sign = sign_account_token
+app.state.accounts = accounts
+
+# Uniform authorization of personal sessions including evidence and legacy adapters.
+from fastapi.responses import JSONResponse
+@app.middleware('http')
+async def personal_access(request: Request, call_next):
+    try:
+        path=request.url.path
+        is_accounts=path=='/api/v1/accounts' or path.startswith('/api/v1/accounts/')
+        auth=request.headers.get('authorization','')
+        if path.startswith('/api/v1/') and auth.startswith('Bearer '):
+            payload=decode_token(auth[7:])
+            if not payload.get('account_id') and os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1':
+                if '/builder/' in path or '/workbooks/' in path or path.startswith('/api/v1/admin/') or payload.get('role')=='admin':
+                    raise HTTPException(401,'Войдите в персональный аккаунт')
+                if '/progress/' in path and path.split('/progress/')[1].split('/')[0] not in COURSE_TITLES:
+                    raise HTTPException(401,'Войдите в персональный аккаунт')
+            if payload.get('account_id'):
+                account=accounts.check(payload, allow_change=is_accounts)
+                if not is_accounts:
+                    realm='fire' if path.startswith('/api/v1/fire/') or '/fire-safety-v4' in path else 'upo'
+                    staff='admin' in account['roles'] or 'teacher' in account['roles']
+                    if staff and 'admin' not in account['roles']:
+                        if account['courses'] and ('/builder/drafts' in path or '/builder/templates' in path or '/builder/import' in path or '/builder/editions' in path and not '/fire/' in path or path.endswith('/builder/trash')):
+                            raise HTTPException(403,'Для работы с конструктором требуется доступ ко всему направлению')
+                        if realm not in account['realms']:raise HTTPException(403,'Нет доступа к направлению')
+                        permission='view'
+                        if request.method!='GET':
+                            permission='publish' if path.endswith('/publish') else ('edit' if '/builder/' in path and '/reviews/' not in path and not path.endswith('/review') else 'review')
+                        if request.method=='GET' and any(x in path for x in ('/builder/drafts','/builder/templates','/builder/trash')):permission='edit'
+                        if permission not in account['permissions']:raise HTTPException(403,'Нет права на это действие')
+                        # Filtered dashboard and user detail are implemented in their handlers.
+                    parts=path.split('/')
+                    cid=None;uid=None
+                    if '/progress/' in path:cid=parts[parts.index('progress')+1]
+                    elif '/workbooks/' in path:cid=parts[parts.index('workbooks')+1]
+                    elif '/fire/builder/editions/' in path:cid=parts[parts.index('editions')+1]
+                    elif '/builder/reviews/' in path:
+                        idx=parts.index('reviews');uid=parts[idx+1];cid=parts[idx+2]
+                    elif '/fire/' in path and not '/builder/' in path:cid=fire.CID
+                    if '/evidence/' in path and request.method=='GET':
+                        with closing(db()) as con:
+                            if '/fire/' in path:r=con.execute('SELECT uid AS user_id,cid AS course_id FROM fb_evidence WHERE id=?',(parts[-1],)).fetchone()
+                            else:r=con.execute('SELECT user_id,course_id FROM builder_evidence WHERE id=?',(parts[-1],)).fetchone()
+                        if r:uid=r['user_id'];cid=r['course_id']
+                    if cid and not accounts.course_allowed(account,cid):raise HTTPException(403,'Курс не назначен')
+                    if uid and staff and not accounts.visible(account,uid):raise HTTPException(403,'Нет доступа к участнику')
+                    if request.method=='PUT' and path.endswith('/review') and staff:
+                        body=await request.json();target=body.get('user_id') or body.get('uid')
+                        if target and not accounts.visible(account,target):raise HTTPException(403,'Нет доступа к участнику')
+                    if request.method=='PUT' and ('/progress/' in path or path.endswith('/progress')):
+                        try:body=await request.json()
+                        except ValueError:raise HTTPException(422,'Неверный JSON')
+                        if not isinstance(body,dict) or not isinstance(body.get('state'),dict) or not isinstance(body['state'].get('profile',{}),dict):raise HTTPException(422,'Неверный формат состояния')
+                        profile=body['state'].setdefault('profile',{})
+                        profile.update(name=account['full_name'],unit=account['unit'],position=account['position'],participant_id=account['id'],personnel_number=account['personnel_number'])
+                        request._body=json.dumps(body,ensure_ascii=False).encode()
+        response=await call_next(request)
+        if path.startswith('/api/v1/accounts/') or path=='/api/v1/accounts':response.headers['Cache-Control']='no-store'
+        return response
+    except HTTPException as exc:
+        return JSONResponse({'detail':exc.detail},status_code=exc.status_code,headers={'Cache-Control':'no-store'})
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="workbooks")

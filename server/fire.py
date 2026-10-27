@@ -148,6 +148,8 @@ def register_fire(app, db, current_user, current_admin, now_iso, static_dir):
     def results(admin=Depends(current_admin)):
         with closing(db()) as con:
             rows = con.execute('''SELECT a.*,u.full_name,r.content AS review FROM course_attempts a JOIN users u ON u.id=a.user_id LEFT JOIN fire_reviews r ON r.user_id=a.user_id AND r.attempt=a.attempt_no WHERE a.course_id=? ORDER BY u.full_name,a.attempt_no''',(CID,)).fetchall()
+        if admin.get('account'):
+            rows=[r for r in rows if app.state.accounts.visible(admin['account'],r['user_id'])]
         return {'rows':[dict(user_id=r['user_id'],full_name=r['full_name'],attempt=r['attempt_no'],state=json.loads(r['state_json']),summary=json.loads(r['summary_json']),updated_at=r['updated_at'],started_at=r['started_at'],completed_at=r['completed_at'],review=json.loads(r['review']) if r['review'] else {}) for r in rows]}
     @app.put('/api/v1/fire/review')
     def review(data: Review,admin=Depends(current_admin)):

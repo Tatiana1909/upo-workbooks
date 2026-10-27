@@ -61,7 +61,7 @@ jobs:
           REMOTE
 
       - name: Package application
-        run: tar -czf /tmp/upo-workbooks.tgz server v2 v3 v4 builder assets courses.js
+        run: tar --exclude=server/fire-access.enc -czf /tmp/upo-workbooks.tgz .dockerignore server v2 v3 v4 builder assets courses.js
 
       - name: Upload application
         env:
@@ -119,26 +119,11 @@ jobs:
             fi
             sleep 2
           done
-          docker exec workbook_api python -c 'import app, urllib.request, json; token=app.encode_token("admin", app.ADMIN_LOGIN, "admin", 60); req=urllib.request.Request("http://127.0.0.1:8080/api/v1/admin/dashboard", headers={"Authorization":"Bearer "+token}); data=json.load(urllib.request.urlopen(req)); assert "kpi" in data; req=urllib.request.Request("http://127.0.0.1:8080/api/v1/builder/drafts", headers={"Authorization":"Bearer "+token}); assert isinstance(json.load(urllib.request.urlopen(req)), list); print("Administrator and builder APIs: OK")'
-          docker exec -i workbook_api python <<'PY'
-          import app, urllib.request, urllib.error, json
-          assert app.fire_access.config, 'Separate fire access is not configured'
-          token = app.encode_token('fire-admin', app.fire_access.config['login'], 'admin', 60, scope=app.fire.CID)
-          headers = {'Authorization': 'Bearer ' + token}
-          req = urllib.request.Request('http://127.0.0.1:8080/api/v1/fire/results', headers=headers)
-          assert isinstance(json.load(urllib.request.urlopen(req))['rows'], list)
-          req = urllib.request.Request('http://127.0.0.1:8080/api/v1/admin/dashboard', headers=headers)
-          try:
-              urllib.request.urlopen(req)
-              raise AssertionError('Fire teacher must not access warehouse administration')
-          except urllib.error.HTTPError as exc:
-              assert exc.code == 403
-          print('Separate fire teacher access and warehouse isolation: OK')
-          PY
+          docker exec workbook_api python /app/verify_accounts.py
           point=$(cat /opt/upo-workbooks/backups/latest-editable-release)
           docker cp "$point/legacy.sqlite3" workbook_api:/tmp/ifcm-legacy.sqlite3
           docker exec workbook_api python /app/verify_legacy.py /tmp/ifcm-legacy.sqlite3 /data/workbooks.sqlite3
-          docker exec workbook_api python /app/release_bootstrap.py
+          docker exec workbook_api python -c 'import os; import release_bootstrap; release_bootstrap.publish() if os.environ.get("WORKBOOK_PERSONAL_ACCOUNTS","1") != "1" else print("Existing publications preserved; no implicit course publication")'
           docker exec workbook_api python /app/verify_legacy.py /tmp/ifcm-legacy.sqlite3 /data/workbooks.sqlite3
           docker exec workbook_api rm -f /tmp/ifcm-legacy.sqlite3
           rm -f /tmp/upo-workbooks.tgz

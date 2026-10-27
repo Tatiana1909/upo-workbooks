@@ -1,7 +1,7 @@
 (() => {
 const base='/v4/';
 const link=(key,label,href,active,extra='')=>`<a class="menu-link ${extra} ${key===active?'active':''}" data-menu="${key}" href="${base+href}" ${key===active?'aria-current="page"':''}>${label}</a>`;
-function markup(active){return `<aside class="admin-menu" aria-label="Разделы администратора"><small>Управление обучением</small><nav>
+function markup(active){return `<aside class="admin-menu" aria-label="Разделы администратора"><small>Управление обучением</small><nav><section class="menu-group">${link('participants','Участники','accounts.html?manage=1',active)}${link('profile','Мой профиль и пароль','accounts.html',active)}</section>
 <section class="menu-group ${['overview','results'].includes(active)?'current-group':''}"><h2>Контроль обучения</h2>${link('overview','Общая сводка','admin.html#overview',active)}<div class="menu-sub">${link('results','Результаты','admin.html#results',active)}${link('export','Скачать CSV','admin.html?download=csv#results',active)}</div></section>
 <section class="menu-group ${['builder','review'].includes(active)?'current-group':''}"><h2>Рабочие тетради</h2>${link('builder','Конструктор тетрадей','builder/index.html',active)}${link('review','Проверка работ','builder/review.html',active)}${active==='review'?'<div class="menu-sub"><a class="menu-link" href="/v4/builder/review.html">Все работы участников</a></div>':''}</section>
 <section class="menu-group ${active==='catalog'?'current-group':''}">${link('catalog','Каталог курсов','index.html',active,'menu-heading')}</section>

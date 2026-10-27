@@ -242,6 +242,8 @@ def register(app, db, admin, student, now, static, data_dir, backup):
         with closing(db()) as con:
             e=edition(con,cid)
             rows=con.execute('SELECT a.*,u.full_name FROM fb_attempts a JOIN users u ON u.id=a.uid WHERE cid=? ORDER BY u.full_name,attempt',(cid,)).fetchall()
+            if u.get('account'):
+                rows=[r for r in rows if app.state.accounts.visible(u['account'],r['uid'],con)]
             return {'rows':[dict(user_id=r['uid'],full_name=r['full_name'],attempt=r['attempt'],state=json.loads(r['state']),summary=json.loads(r['summary']),review=json.loads(r['review']),updated_at=r['updated_at'],course_id=cid,version=e['version']) for r in rows]}
     @app.put(PREFIX+'/editions/{cid}/review')
     def review(cid:str,p:dict,u=Depends(admin)):
@@ -296,8 +298,8 @@ def register(app, db, admin, student, now, static, data_dir, backup):
         return FileResponse(Path(data_dir)/'fire-builder-evidence'/(iid+'.'+r['extension']),headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'})
     @app.get(PREFIX+'/editions/{cid}/results.csv')
     def export(cid:str,u=Depends(admin)):
-        rows=results(cid,u)['rows'];out=io.StringIO();w=csv.writer(out,delimiter=';');w.writerow(['Версия','ID версии','ФИО','Попытка','Прохождение %','Тест %','Критические ошибки','Порог','Комментарий','Повторная проверка'])
+        rows=results(cid,u)['rows'];out=io.StringIO();w=csv.writer(out,delimiter=';');w.writerow(['ID участника','Табельный номер','Подразделение','Должность','Версия','ID версии','ФИО','Попытка','Прохождение %','Тест %','Критические ошибки','Порог','Комментарий','Повторная проверка'])
         def safe(v):
             s=str(v);return "'"+s if s.startswith(('=','+','-','@','\t','\r')) else s
-        for r in rows:w.writerow([safe(v) for v in (r['version'],cid,r['full_name'],r['attempt'],r['summary']['percent'],r['summary']['examPercent'],r['summary']['criticalErrors'],r['state'].get('examThreshold',''),r['review'].get('comment',''),r['review'].get('needs_recheck',False))])
+        for r in rows:w.writerow([safe(v) for v in (r['user_id'],r['state'].get('profile',{}).get('personnel_number',''),r['state'].get('profile',{}).get('unit',''),r['state'].get('profile',{}).get('position',''),r['version'],cid,r['full_name'],r['attempt'],r['summary']['percent'],r['summary']['examPercent'],r['summary']['criticalErrors'],r['state'].get('examThreshold',''),r['review'].get('comment',''),r['review'].get('needs_recheck',False))])
         return StreamingResponse(iter(['\ufeff'+out.getvalue()]),media_type='text/csv',headers={'Content-Disposition':'attachment; filename=fire-results.csv'})
