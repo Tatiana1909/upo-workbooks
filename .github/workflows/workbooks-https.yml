@@ -1,0 +1,40 @@
+name: Workbooks HTTPS
+on:
+  push:
+    branches: [feature/workbooks-https]
+    paths: ['.github/workflows/workbooks-https.yml', 'tools/workbooks-https/**']
+  workflow_dispatch:
+concurrency:
+  group: workbooks-https-server
+  cancel-in-progress: false
+jobs:
+  https:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts
+      - name: Inspect server listeners and web configuration
+        run: |
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          import json,shutil,socket,subprocess
+          rows=subprocess.check_output(['ss','-ltnp'],text=True).splitlines()[1:]
+          report={}
+          for port in (80,443,8443,18081):
+              matching=[r for r in rows if r.split()[3].endswith(':'+str(port))]
+              report['port_'+str(port)+'_free']=not matching
+              if port in (80,443):report['port_'+str(port)+'_nginx']=bool(matching) and all('nginx' in r for r in matching)
+          report['nginx_installed']=shutil.which('nginx') is not None
+          report['systemd_available']=shutil.which('systemctl') is not None
+          print(json.dumps(report))
+          PYCODE
+          echo 'HTTPS prerequisite check complete; no configuration changed.'
+          REMOTE
