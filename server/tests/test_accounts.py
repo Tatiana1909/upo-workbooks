@@ -192,3 +192,29 @@ def test_course_choices_mark_latest_per_workbook_and_preserve_old_access(service
     c.post('/api/v1/builder/editions/'+new+'/archive',headers=legacy)
     choices={r['id']:r for r in c.get('/api/v1/accounts/courses/list',headers=h).json()}
     assert choices[old]['is_latest'] and new not in choices
+
+
+def test_renew_invitation_code_preserves_settings_and_existing_registrants(service):
+    c,m,legacy=service;_,cid=publish(c,legacy);h=admin(c)
+    c.post('/api/v1/accounts/units',headers=h,json={'name':'Игарка'})
+    inv=c.post('/api/v1/accounts/invitations/create',headers=h,json={'label':'Бухгалтер','courses':[cid],'max_uses':5}).json()
+    sh=headers(c.post('/api/v1/accounts/register',json={**person(), 'invitation':inv['token'], 'password':'my-password-123','password_repeat':'my-password-123'}))
+    before=c.get('/api/v1/accounts/invitations/list',headers=h).json()
+    denied=c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=sh,json={})
+    assert denied.status_code==403
+    teacher=create(c,h,password='teacher-password',roles=['teacher'],realms=['upo'],units=['Игарка'],confirm_namesake=True)
+    th=headers(c.post('/api/v1/accounts/session',json={'login':teacher['login'],'password':'teacher-password'}))
+    assert c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=th,json={}).status_code==403
+    renewed=c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=h,json={})
+    assert renewed.status_code==200,renewed.text
+    code=renewed.json()['token'];assert code!=inv['token']
+    assert c.get('/api/v1/accounts/invitation',params={'token':inv['token']}).status_code==403
+    assert c.get('/api/v1/accounts/invitation',params={'token':code}).status_code==200
+    assert c.get('/api/v1/accounts/invitations/list',headers=h).json()==before
+    assert c.get('/api/v1/progress/'+cid,headers=sh).status_code==200
+    audit=c.get('/api/v1/accounts/audit/log',headers=h).text
+    assert code not in audit and inv['token'] not in audit
+    assert 'invitation_code_renewed' in audit
+    assert code not in c.get('/api/v1/accounts/invitations/list',headers=h).text
+    c.post('/api/v1/accounts/invitations/'+inv['id']+'/revoke',headers=h,json={})
+    assert c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=h,json={}).status_code==422

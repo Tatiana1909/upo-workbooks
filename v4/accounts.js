@@ -106,9 +106,16 @@ async function submit(form, action) {
     e.preventDefault();
     const buttons = [...form.querySelectorAll("button")];
     buttons.forEach((b) => (b.disabled = true));
+    form.querySelector(".form-error")?.remove();
     try {
       await action(data(form));
     } catch (x) {
+      const error = document.createElement("p");
+      error.className = "error form-error";
+      error.setAttribute("role", "alert");
+      error.textContent = x.message;
+      form.prepend(error);
+      error.scrollIntoView({ block: "nearest" });
       say(x.message, true);
     } finally {
       buttons.forEach((b) => (b.disabled = false));
@@ -237,7 +244,7 @@ async function management() {
     api("/invitations/list"),
     api("/courses/list"),
   ]);
-  root.innerHTML = `<section class="card"><h1>Управление участниками</h1><button id="add">Добавить участника</button><button id="inviteNew">Создать приглашение</button><button id="audit">Журнал аккаунтов</button><button id="profile">Мой профиль</button>${me.roles.includes("admin") ? '<button id="unitAdd">Добавить подразделение</button>' : ""}<label>Поиск по ФИО, логину или табельному номеру<input id="search"></label><div class="scroll"><table><thead><tr><th>ФИО / логин</th><th>Подразделение / должность</th><th>Табельный номер</th><th>Роли / статус</th><th>Действия</th></tr></thead><tbody id="people"></tbody></table></div></section><section class="card"><h2>Загрузка из Excel</h2><p>Заголовки: Фамилия; Имя; Отчество; Подразделение; Должность; Табельный номер. Табельный номер храните в Excel как текст, чтобы сохранить начальные нули.</p><input id="import" type="file" accept=".xlsx,.csv"><div id="preview"></div></section><section class="card"><h2>Приглашения</h2>${invites.map((i) => `<p>${esc(i.label)} · ${esc(i.unit || "Все подразделения")} · ${i.uses}/${i.max_uses} · до ${esc(new Date(i.expires_at * 1000).toLocaleString("ru-RU"))} ${i.active ? `<button data-revoke="${esc(i.id)}">Отозвать</button>` : "отозвано"}</p>`).join("") || "<p>Приглашений нет.</p>"}</section><dialog id="modal"></dialog>`;
+  root.innerHTML = `<section class="card"><h1>Управление участниками</h1><button id="add">Добавить участника</button><button id="inviteNew">Создать приглашение</button><button id="audit">Журнал аккаунтов</button><button id="profile">Мой профиль</button>${me.roles.includes("admin") ? '<button id="unitAdd">Добавить подразделение</button>' : ""}<label>Поиск по ФИО, логину или табельному номеру<input id="search"></label><div class="scroll"><table><thead><tr><th>ФИО / логин</th><th>Подразделение / должность</th><th>Табельный номер</th><th>Роли / статус</th><th>Действия</th></tr></thead><tbody id="people"></tbody></table></div></section><section class="card"><h2>Загрузка из Excel</h2><p>Заголовки: Фамилия; Имя; Отчество; Подразделение; Должность; Табельный номер. Табельный номер храните в Excel как текст, чтобы сохранить начальные нули.</p><input id="import" type="file" accept=".xlsx,.csv"><div id="preview"></div></section><section class="card"><h2>Приглашения</h2>${invites.map((i) => `<p>${esc(i.label)} · ${esc(i.unit || "Все подразделения")} · ${i.uses}/${i.max_uses} · до ${esc(new Date(i.expires_at * 1000).toLocaleString("ru-RU"))} ${i.active ? `<button data-renew-invite="${esc(i.id)}">Получить новый код</button><button data-revoke="${esc(i.id)}">Отозвать</button>` : "отозвано"}</p>`).join("") || "<p>Приглашений нет.</p>"}</section><dialog id="modal"></dialog>`;
   drawPeople();
   document.getElementById("search").oninput = drawPeople;
   document.getElementById("profile").onclick = profile;
@@ -265,6 +272,21 @@ async function management() {
         }
       }),
   );
+  root.querySelectorAll("[data-renew-invite]").forEach((button) => {
+    button.onclick = async () => {
+      if (!confirm("Выдать новый код приглашения? Предыдущий код и ссылка перестанут работать. Доступ уже зарегистрированных участников сохранится.")) return;
+      button.disabled = true;
+      try {
+        const invitation = invites.find((i) => i.id === button.dataset.renewInvite);
+        const result = await api("/invitations/" + button.dataset.renewInvite + "/renew-code", {}, "POST");
+        showInvitationCode(result.token, invitation?.label || "Приглашение");
+      } catch (error) {
+        say(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    };
+  });
   document.getElementById("import").onchange = importFile;
 }
 function drawPeople() {
@@ -398,14 +420,38 @@ function inviteForm() {
   submit(f, async (d) => {
     d.courses = new FormData(f).getAll("courses");
     const r = await api("/invitations/create", d, "POST");
-    await management();
-    say(
-      "Ссылка регистрации (показана однократно):\n" +
-        location.origin +
-        "/v4/accounts.html?invite=" +
-        encodeURIComponent(r.token),
-    );
+    try {
+      await management();
+    } catch (error) {
+      say("Приглашение создано. Не удалось обновить список: " + error.message, true);
+    }
+    showInvitationCode(r.token, d.label);
   });
+}
+function showInvitationCode(token, label) {
+  const url = location.origin + "/v4/accounts.html?invite=" + encodeURIComponent(token);
+  modal(`<h2>Приглашение «${esc(label)}» готово</h2>
+    <p>Передайте участникам ссылку — код в ней уже заполнен. При регистрации вручную используйте код ниже.</p>
+    <label>Код приглашения<input id="invitationCode" readonly value="${esc(token)}" autocomplete="off"></label>
+    <button id="copyInvitationCode" type="button">Копировать код</button>
+    <label>Ссылка для регистрации<textarea id="invitationLink" rows="3" readonly>${esc(url)}</textarea></label>
+    <button id="copyInvitationLink" type="button">Копировать ссылку</button>
+    <p id="invitationCopyStatus" role="status"></p>
+    <p>Скопируйте код или ссылку до закрытия окна. Если потеряете их, в разделе «Приглашения» можно получить новый код; прежний перестанет работать.</p>`);
+  for (const [buttonId, fieldId] of [["copyInvitationCode", "invitationCode"], ["copyInvitationLink", "invitationLink"]]) {
+    document.getElementById(buttonId).onclick = async () => {
+      const input = document.getElementById(fieldId);
+      const status = document.getElementById("invitationCopyStatus");
+      try {
+        await navigator.clipboard.writeText(input.value);
+        status.textContent = "Скопировано";
+      } catch {
+        input.focus();
+        input.select();
+        status.textContent = "Текст выделен. Нажмите Ctrl+C или выберите «Копировать».";
+      }
+    };
+  }
 }
 async function showAudit() {
   try {

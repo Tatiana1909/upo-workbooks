@@ -426,6 +426,18 @@ class Accounts:
                 self.audit(c,a['id'],None,'invitation_created',{'id':iid,'unit':unit,'courses':courses});c.commit()
             return {'id':iid,'token':token}
 
+        @app.post('/api/v1/accounts/invitations/{iid}/renew-code')
+        def renew_invitation_code(iid:str,a=Depends(management)):
+            token=secrets.token_urlsafe(24)
+            with closing(self.db()) as c:
+                c.execute('BEGIN IMMEDIATE')
+                r=c.execute('SELECT * FROM identity_invites WHERE id=?',(iid,)).fetchone()
+                if not r or ('admin' not in a['roles'] and r['created_by']!=a['id']):raise HTTPException(403,'Нет доступа')
+                if not r['active'] or r['expires_at']<=time.time() or r['uses']>=r['max_uses']:raise HTTPException(422,'Приглашение недействительно. Создайте новое приглашение')
+                c.execute('UPDATE identity_invites SET token_hash=? WHERE id=?',(hashlib.sha256(token.encode()).hexdigest(),iid))
+                self.audit(c,a['id'],None,'invitation_code_renewed',{'id':iid});c.commit()
+            return {'id':iid,'token':token}
+
         @app.post('/api/v1/accounts/invitations/{iid}/revoke')
         def revoke(iid:str,a=Depends(management)):
             with closing(self.db()) as c:
