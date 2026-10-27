@@ -206,14 +206,15 @@ function choices(name, title, items, selected = []) {
   return `<fieldset><legend>${esc(title)}</legend>${items.map((x) => `<label><input type="checkbox" name="${name}" value="${esc(x.id)}" ${selected.includes(x.id) ? "checked" : ""}>${esc(x.title)}</label>`).join("") || "<p>Доступных вариантов пока нет.</p>"}</fieldset>`;
 }
 function coursesInput(value = "") {
+  const selected = parseList(value);
   return choices(
     "courses",
     "Назначенные курсы",
-    courseOptions.map((x) => ({
+    courseOptions.filter((x) => x.is_latest !== false || selected.includes(x.id)).map((x) => ({
       id: x.id,
-      title: x.title + " · версия " + x.version,
+      title: x.title + (x.is_latest === false ? " · прежняя версия " + x.version : " · актуальная версия"),
     })),
-    parseList(value),
+    selected,
   );
 }
 async function home() {

@@ -168,3 +168,27 @@ def test_xlsx_and_preview_duplicates(service):
     assert r.status_code==200,r.text
     assert r.json()[0]['valid'] and r.json()[0]['data']['personnel_number']=='00045'
     assert not r.json()[1]['valid']
+
+
+def test_course_choices_mark_latest_per_workbook_and_preserve_old_access(service):
+    c,m,legacy=service
+    draft,old=publish(c,legacy)
+    new=c.post('/api/v1/builder/drafts/'+draft['id']+'/publish',headers=legacy,json={'revision':draft['revision']}).json()['course_id']
+    _,independent=publish(c,legacy)
+    with closing(m.db()) as con:
+        content=json.dumps({'title':'Пожарная безопасность'})
+        con.execute('INSERT INTO fb_editions VALUES(?,?,?,?,?)',('pb-one','fire-a',1,content,'before'))
+        con.execute('INSERT INTO fb_editions VALUES(?,?,?,?,?)',('pb-two','fire-a',2,content,'after'))
+        con.execute('INSERT INTO fb_editions VALUES(?,?,?,?,?)',('pb-other','fire-b',1,content,'after'))
+        con.commit()
+    h=admin(c)
+    choices={r['id']:r for r in c.get('/api/v1/accounts/courses/list',headers=h).json()}
+    assert not choices[old]['is_latest']
+    assert not choices['pb-one']['is_latest']
+    assert all(choices[cid]['is_latest'] for cid in (new,independent,'pb-two','pb-other'))
+    # Filtering must not delete old publications or their access URLs.
+    assert c.get('/api/v1/workbooks/'+old).status_code==200
+    assert c.get('/api/v1/accounts/courses/list').status_code==401
+    c.post('/api/v1/builder/editions/'+new+'/archive',headers=legacy)
+    choices={r['id']:r for r in c.get('/api/v1/accounts/courses/list',headers=h).json()}
+    assert choices[old]['is_latest'] and new not in choices

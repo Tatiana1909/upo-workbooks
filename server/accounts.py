@@ -284,10 +284,12 @@ class Accounts:
         def course_list(a=Depends(management)):
             result=[]
             with closing(self.db()) as c:
-                for r in c.execute("SELECT course_id,title,version FROM builder_editions WHERE archived=0 AND deleted_at IS NULL ORDER BY title,version DESC"):
-                    if self.course_allowed(a,r['course_id']):result.append({'id':r['course_id'],'title':r['title'],'version':r['version'],'realm':'upo'})
-                for r in c.execute('SELECT id,content,version FROM fb_editions ORDER BY version DESC'):
-                    if self.course_allowed(a,r['id']):result.append({'id':r['id'],'title':json.loads(r['content'])['title'],'version':r['version'],'realm':'fire'})
+                for r in c.execute("""SELECT e.course_id,e.title,e.version,
+                    e.version=(SELECT MAX(n.version) FROM builder_editions n WHERE n.draft_id=e.draft_id AND n.archived=0 AND n.deleted_at IS NULL) AS is_latest
+                    FROM builder_editions e WHERE e.archived=0 AND e.deleted_at IS NULL ORDER BY e.title,e.version DESC"""):
+                    if self.course_allowed(a,r['course_id']):result.append({'id':r['course_id'],'title':r['title'],'version':r['version'],'is_latest':bool(r['is_latest']),'realm':'upo'})
+                for r in c.execute('SELECT e.id,e.content,e.version,e.version=(SELECT MAX(n.version) FROM fb_editions n WHERE n.draft_id=e.draft_id) AS is_latest FROM fb_editions e ORDER BY e.version DESC'):
+                    if self.course_allowed(a,r['id']):result.append({'id':r['id'],'title':json.loads(r['content'])['title'],'version':r['version'],'is_latest':bool(r['is_latest']),'realm':'fire'})
             return result
 
         @app.get('/api/v1/accounts/units')
