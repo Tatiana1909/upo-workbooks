@@ -107,7 +107,8 @@ def seed(static):
         m['imageNotice']='Изображения — из исходной инструкции. Для конкретной модели приоритет имеют её маркировка и паспорт; плакат не подтверждает допуск любого огнетушителя.' if m['id']=='ext' else ''
         m['scenarioNotice']='Это три условные ситуации, а не шкала безопасной концентрации дыма. Пройдите каждую.' if m['id']=='smoke' else ''
         if m['id']=='smoke':m.update(scenarioLabels=['Признаки горения','Задымлённый маршрут','Выходы недоступны'],mapLabels=['А · короткий коридор. Дым','Б · лестница к выходу. Путь свободен','В · лифт. Для эвакуации не используется'])
-    return validate(c)
+    from material_links import replace_links
+    return validate(replace_links(c,'fire')[0])
 
 def register(app, db, admin, student, now, static, data_dir, backup):
     def init():

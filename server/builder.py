@@ -27,6 +27,8 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
     builtins=json.loads(builtin_path.read_text()) if builtin_path.exists() else {}
     templates_path=Path(__file__).with_name('upo-templates.json')
     templates=json.loads(templates_path.read_text()) if templates_path.exists() else {}
+    from material_links import replace_links
+    templates={source:replace_links(content,source)[0] for source,content in templates.items()}
     def init():
         with closing(db()) as con:
             con.executescript('''

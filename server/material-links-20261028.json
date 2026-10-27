@@ -1,0 +1,329 @@
+{
+  "accounting": {
+    "material-accounting-16": {
+      "title": "Знакомство с 1С:УПО и логика учёта",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/2-Q9bQWHZsGwKA"
+    },
+    "material-accounting-17": {
+      "title": "Основные отличия 1С:УР и 1С:УПО",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/1BSxNcjIq9bjgQ"
+    },
+    "material-accounting-18": {
+      "title": "Пользовательские настройки в системе 1С:УПО",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/tCYZfwW5BySIDQ"
+    },
+    "material-accounting-19": {
+      "title": "Ввод и проверка начальных остатков в 1С:УПО",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/7Hjxs44CrctfNA"
+    },
+    "material-accounting-20": {
+      "title": "СОП: Пользовательские настройки в 1С:УПО",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/sqUZ_V-l6FjKfQ"
+    },
+    "material-accounting-21": {
+      "title": "СОП: Ввод и проверка начальных остатков",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/WGMGu7G3eRCWag"
+    },
+    "material-accounting-31": {
+      "title": "Принятие к учёту ТМЦ по приходной накладной через ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/xoy4oM9JfGBvXA"
+    },
+    "material-accounting-32": {
+      "title": "Приходная накладная на основании заказа поставщику",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/758vyi4UzBiD7w"
+    },
+    "material-accounting-33": {
+      "title": "Формирование приходной накладной из Диадок",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/0eWqmZDS3Zs_KQ"
+    },
+    "material-accounting-34": {
+      "title": "Приёмка ТМЦ на склад без заказа поставщику",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/8w7uUd1YDxlNmw"
+    },
+    "material-accounting-35": {
+      "title": "Поступление ТМЦ с расхождениями",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/jJknWRkl9z_tZA"
+    },
+    "material-accounting-36": {
+      "title": "Корректировка поступления: УКД и КСФ",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/x3wcipJ3nIVStg"
+    },
+    "material-accounting-37": {
+      "title": "Сторнирование документов товародвижения",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/GjsvGYczEGjmmw"
+    },
+    "material-accounting-38": {
+      "title": "Реестр документов по ячейкам склада",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/KabyokYXFUDMZw"
+    },
+    "material-accounting-39": {
+      "title": "Перемещение запасов на основании заказа",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/U9gzStYkDA4Tyg"
+    },
+    "material-accounting-40": {
+      "title": "Перемещение запасов",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/-_m7p5WrCtO_Rw"
+    },
+    "material-accounting-41": {
+      "title": "Перемещение складской и производственной номенклатуры на основании заказа",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/EM1fb0Xv-nobeQ"
+    },
+    "material-accounting-42": {
+      "title": "Перемещение складской и производственной номенклатуры",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/FBEGBb2CioRLOQ"
+    },
+    "material-accounting-43": {
+      "title": "Перемещение ТМЦ между 1С:УР и 1С:УПО",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/mKH4D9pwNE5ZFw"
+    },
+    "material-accounting-44": {
+      "title": "Создание перемещений по ячейке со склада Красноярск",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/1y1T21a6qeBdsg"
+    },
+    "material-accounting-45": {
+      "title": "Авансовый отчёт",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/KHi8iVv1UCtltA"
+    },
+    "material-accounting-46": {
+      "title": "СОП: Приходная накладная из заказа поставщику",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/IPKotRr6u-yECw"
+    },
+    "material-accounting-47": {
+      "title": "СОП: Приходная накладная без заказа поставщику",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/3yil7re5bLLlqA"
+    },
+    "material-accounting-48": {
+      "title": "СОП: Приходная накладная из Диадок",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/DGd1AQYRDLIPbA"
+    },
+    "material-accounting-49": {
+      "title": "СОП: Проверка приходной накладной после приёмки с ТСД",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/HzkB2Gj110VDww"
+    },
+    "material-accounting-50": {
+      "title": "СОП: Поступление ТМЦ с расхождениями",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/8P-HWigoa9JzFA"
+    },
+    "material-accounting-51": {
+      "title": "СОП: Корректировка поступления",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/TtgOtE1buG_ZtQ"
+    },
+    "material-accounting-52": {
+      "title": "СОП: Авансовый отчёт",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/ByS7q-EkGVWBqw"
+    },
+    "material-accounting-53": {
+      "title": "СОП: Перемещение запасов на основании заказа",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/5MH4CJCkrMLpZg"
+    },
+    "material-accounting-54": {
+      "title": "СОП: Перемещение запасов без заказа",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/PlngEyAGfynvrQ"
+    },
+    "material-accounting-55": {
+      "title": "СОП: Перемещение складской и производственной номенклатуры из заказа",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/x2As5ztgQW0Y4g"
+    },
+    "material-accounting-56": {
+      "title": "СОП: Перемещение складской и производственной номенклатуры",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/GfbvNQK0tnKnZw"
+    },
+    "material-accounting-57": {
+      "title": "СОП: Перемещение ТМЦ между 1С:УР и 1С:УПО",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/uVScgZpGqntn8Q"
+    },
+    "material-accounting-58": {
+      "title": "СОП: Перемещения по ячейке склада",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/9AE7ubof07mtbg"
+    },
+    "material-accounting-59": {
+      "title": "СОП: Реестр документов по ячейкам склада",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/4HRbGK7jxkUpDQ"
+    },
+    "material-accounting-60": {
+      "title": "СОП: Сторнирование документов товародвижения",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/CsJAwEQwVC0PVw"
+    },
+    "material-accounting-70": {
+      "title": "Загрузка продаж из кассовых систем IFCM",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/EclgsYjBzTnrsQ"
+    },
+    "material-accounting-71": {
+      "title": "Альбом отчётов для складского учёта",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/U4HdMA2qgMJK6Q"
+    },
+    "material-accounting-72": {
+      "title": "Настройка отчётов на примере «Движение товаров»",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/ucQpWaiob7OuZg"
+    },
+    "material-accounting-73": {
+      "title": "СОП: Загрузка продаж и формирование целевых документов",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/f3VYtsd01JCX9w"
+    },
+    "material-accounting-74": {
+      "title": "СОП: Настройка отчётов на примере «Движение товаров»",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/1pzyu875FsJ2pA"
+    },
+    "material-accounting-75": {
+      "title": "СОП: Контрольные отчёты складского учёта",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/YA7jh0tweK4f1Q"
+    },
+    "material-accounting-85": {
+      "title": "Инвентаризация запасов",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/uLd2-ay004e0tg"
+    },
+    "material-accounting-86": {
+      "title": "СОП: Инвентаризация запасов",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/H6rh4Y3WPvB60A"
+    },
+    "material-accounting-96": {
+      "title": "Списание запасов",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/Yaom0xZbJ2ZLCw"
+    },
+    "material-accounting-97": {
+      "title": "Групповое перепроведение",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/OVTOHDRnfYK5EQ"
+    },
+    "material-accounting-98": {
+      "title": "Контрольный лист закрытия месяца",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/GTii7zPWTazr6g"
+    },
+    "material-accounting-99": {
+      "title": "СОП: Списание запасов",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/qy7RWIZwqTdTVA"
+    },
+    "material-accounting-100": {
+      "title": "СОП: Групповое перепроведение документов",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/dCd6XEpDgY0G9w"
+    },
+    "material-accounting-101": {
+      "title": "СОП: Контроль перед закрытием месяца",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/Xc0PeThwpql0cw"
+    }
+  },
+  "warehouse": {
+    "material-warehouse-17": {
+      "title": "Общие правила работы с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/5yuQhL9WLTKI4Q"
+    },
+    "material-warehouse-18": {
+      "title": "Памятка по работе с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/EBrnUL6wzp5t2w"
+    },
+    "material-warehouse-19": {
+      "title": "Приёмка от поставщика с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/32Clg-fcZf_YuQ"
+    },
+    "material-warehouse-20": {
+      "title": "СОП: Складская логистика",
+      "materialType": "sop",
+      "url": "https://disk.360.yandex.ru/i/WXwmgLw8jUSvYQ"
+    },
+    "material-warehouse-29": {
+      "title": "Приёмка перемещения на склад с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/Lyr3Nlar_NI-5Q"
+    },
+    "material-warehouse-39": {
+      "title": "Заказ на перемещение",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/CcoArOcmqjefUw"
+    },
+    "material-warehouse-40": {
+      "title": "Сборка и перемещение по заказу с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/exPjItc_N365eQ"
+    },
+    "material-warehouse-41": {
+      "title": "Перемещение запасов без заказа",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/8JX9xozvarZx7Q"
+    },
+    "material-warehouse-50": {
+      "title": "Заказ на перемещение в номенклатуру производства",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/XBJ-cAxNxLzE0w"
+    },
+    "material-warehouse-60": {
+      "title": "Инвентаризация запасов с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/gueExCcIDBXXiw"
+    },
+    "material-warehouse-70": {
+      "title": "Списание запасов с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/6gPm1M9nHFXcQw"
+    },
+    "material-warehouse-80": {
+      "title": "Сбор информации с ТСД",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/ukRHkVf-MaR9Iw"
+    },
+    "material-warehouse-81": {
+      "title": "Печать штрихкодов для склада",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/lAsIVcgFAkX7og"
+    },
+    "material-warehouse-82": {
+      "title": "Контроль складских операций и отчёты",
+      "materialType": "instruction",
+      "url": "https://disk.360.yandex.ru/i/_PuXVG7LfHrMAg"
+    }
+  },
+  "fire": {
+    "url": "https://disk.360.yandex.ru/i/Y-da-9hfeoi0LQ"
+  }
+}
