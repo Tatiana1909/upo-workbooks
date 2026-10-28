@@ -192,9 +192,15 @@ class Accounts:
             if unit not in actor['units']:
                 raise HTTPException(403, 'Подразделение не входит в вашу область ответственности')
         uid = secrets.token_hex(16)
-        login = data.get('login') or 'u' + secrets.token_hex(6)
-        if not isinstance(login,str) or not 3<=len(login)<=80 or not all(ch.isascii() and (ch.isalnum() or ch in '._-') for ch in login):
-            raise HTTPException(422, 'Логин: 3–80 латинских букв, цифр, точек, дефисов или подчёркиваний')
+        if source == 'self_registration':
+            login = full
+            if len(login)>500:raise HTTPException(422,'ФИО для логина: не более 500 символов')
+            if c.execute("SELECT 1 FROM identity_accounts WHERE normalized_name=? AND source='self_registration'",(normalized,)).fetchone():
+                raise HTTPException(409,'Аккаунт с таким ФИО уже существует. Войдите в него или обратитесь к преподавателю для проверки совпадения')
+        else:
+            login = data.get('login') or 'u' + secrets.token_hex(6)
+            if not isinstance(login,str) or not 3<=len(login)<=80 or not all(ch.isascii() and (ch.isalnum() or ch in '._-') for ch in login):
+                raise HTTPException(422, 'Логин: 3–80 латинских букв, цифр, точек, дефисов или подчёркиваний')
         password = data.get('password')
         temporary = password is None
         if temporary:
@@ -248,7 +254,9 @@ class Accounts:
             queue=self.rate(request.client.host if request.client else 'unknown','personal-login')
             queue.append(time.time())
             with closing(self.db()) as c:
-                r=c.execute('SELECT * FROM identity_accounts WHERE login=? COLLATE NOCASE',(str(data.get('login','')),)).fetchone()
+                login_value=' '.join(str(data.get('login','')).split())
+                c.create_collation('IFCM_LOGIN',lambda a,b:(a.casefold()>b.casefold())-(a.casefold()<b.casefold()))
+                r=c.execute('SELECT * FROM identity_accounts WHERE login=? COLLATE IFCM_LOGIN',(login_value,)).fetchone()
                 if not r or not verify_password(str(data.get('password','')),r['password_hash']) or r['status']!='active':
                     raise HTTPException(401,'Неверный логин или пароль')
                 queue.clear()
@@ -322,9 +330,6 @@ class Accounts:
             with closing(self.db()) as c:
                 c.execute('BEGIN IMMEDIATE')
                 invite=self.invite(c,str(data.get('invitation','')))
-                unit=data.get('unit')
-                if (invite['unit'] and unit!=invite['unit']) or not c.execute('SELECT 1 FROM identity_units WHERE name=?',(unit,)).fetchone():
-                    raise HTTPException(422,'Выберите подразделение из справочника')
                 safe={k:data.get(k) for k in ('last_name','first_name','patronymic','no_patronymic','unit','position','personnel_number','no_personnel_number','password')}
                 safe.update(courses=json.loads(invite['courses']))
                 result=self.create(c,safe,'self_registration',None)

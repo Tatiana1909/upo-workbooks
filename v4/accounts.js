@@ -86,7 +86,7 @@ function data(form) {
 const field = (name, label, type = "text", required = true) =>
   `<label>${label}<input name="${name}" type="${type}" ${required ? "required" : ""} ${type === "password" ? 'minlength="10" maxlength="200" autocomplete="new-password"' : 'maxlength="160"'}></label>`;
 function profileFields(selfRegistration = false) {
-  return `<div class="grid">${field("last_name", "Фамилия")}${field("first_name", "Имя")}${field("patronymic", "Отчество", "text", false)}<label><input type="checkbox" name="no_patronymic">Нет отчества</label><label>Подразделение<select aria-label="Подразделение" name="unit" required><option value="">Выберите подразделение</option>${units.map((x) => `<option>${esc(x)}</option>`).join("")}</select></label>${field("position", "Должность", "text", selfRegistration)}${field("personnel_number", "Табельный номер", "text", false)}<label><input type="checkbox" name="no_personnel_number">Отсутствует / пока неизвестен</label></div>`;
+  return `<div class="grid">${field("last_name", "Фамилия")}${field("first_name", "Имя")}${field("patronymic", "Отчество", "text", false)}<label><input type="checkbox" name="no_patronymic">Нет отчества</label>${selfRegistration ? field("unit", "Подразделение") : `<label>Подразделение<select aria-label="Подразделение" name="unit" required><option value="">Выберите подразделение</option>${units.map((x) => `<option>${esc(x)}</option>`).join("")}</select></label>`}${field("position", "Должность", "text", selfRegistration)}${field("personnel_number", "Табельный номер", "text", false)}<label><input type="checkbox" name="no_personnel_number">Отсутствует / пока неизвестен</label></div>`;
 }
 function bindOptional(form) {
   for (const [flag, key] of [
@@ -140,6 +140,7 @@ function login() {
   root.innerHTML = `<section class="card"><h1>Персональный вход</h1><form id="login">${field("login", "Логин")}${field("password", "Пароль", "password")}<button>Войти</button></form><button class="secondary" id="register">Зарегистрироваться</button><p>Если вы забыли логин или пароль, обратитесь к преподавателю или администратору.</p></section>`;
   root.querySelector("[name=password]").removeAttribute("minlength");
   root.querySelector("[name=password]").autocomplete = "current-password";
+  root.querySelector("[name=login]").maxLength = 500;
   submit(document.getElementById("login"), async (d) => {
     setSession(await api("/session", d, "POST"));
     me = session.account;
@@ -158,10 +159,20 @@ async function registration() {
     );
     token = d.invitation;
     units = r.units;
-    root.innerHTML = `<section class="card"><h1>Регистрация участника</h1><p>${esc(r.label)} ${esc(r.group_name)}</p><form id="registration">${profileFields(true)}${field("password", "Установите пароль", "password")}${field("password_repeat", "Повторите пароль", "password")}<small>От 10 до 200 символов. Логин создаётся автоматически.</small><button>Создать аккаунт</button></form></section>`;
+    root.innerHTML = `<section class="card"><h1>Регистрация участника</h1><p>${esc(r.label)} ${esc(r.group_name)}</p><form id="registration">${profileFields(true)}<label>Ваш логин<input id="registrationLogin" readonly autocomplete="off"></label>${field("password", "Установите пароль", "password")}${field("password_repeat", "Повторите пароль", "password")}<small>От 10 до 200 символов. Логин — ваши фамилия, имя и отчество. Регистр букв при входе не важен.</small><button>Создать аккаунт</button></form></section>`;
     const form = document.getElementById("registration");
     if (r.unit) form.elements.unit.value = r.unit;
     bindOptional(form);
+    const updateLogin = () => {
+      document.getElementById("registrationLogin").value = [
+        form.elements.last_name.value,
+        form.elements.first_name.value,
+        form.elements.no_patronymic.checked ? "" : form.elements.patronymic.value,
+      ].map((s) => s.trim().replace(/\s+/g, " ")).filter(Boolean).join(" ");
+    };
+    form.addEventListener("input", updateLogin);
+    form.addEventListener("change", updateLogin);
+    updateLogin();
     submit(form, async (d) => {
       setSession(await api("/register", { ...d, invitation: token }, "POST"));
       me = session.account;

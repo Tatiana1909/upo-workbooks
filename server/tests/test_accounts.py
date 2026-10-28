@@ -250,3 +250,30 @@ def test_custom_short_invitation_codes_and_multiple_participants(service):
         con.execute('UPDATE identity_invites SET token_hash=? WHERE id=?',(hashlib.sha256(old_token.encode()).hexdigest(),auto['id']));con.commit()
     assert c.get('/api/v1/accounts/invitation',params={'token':old_token}).status_code==200
     assert 'BUH01' not in c.get('/api/v1/accounts/audit/log',headers=h).text
+
+
+def test_self_registration_uses_typed_unit_and_full_name_login(service):
+    c,m,legacy=service;_,cid=publish(c,legacy);h=admin(c)
+    c.post('/api/v1/accounts/units',headers=h,json={'name':'Игарка'})
+    inv=c.post('/api/v1/accounts/invitations/create',headers=h,json={'label':'Бухгалтер','unit':'Игарка','courses':[cid],'max_uses':10}).json()
+    details={**person(),'unit':'  Новое   подразделение  ','last_name':'  Соколова ','first_name':' Анна  ','patronymic':' Сергеевна ',
+        'invitation':inv['token'],'password':'my-password-123','password_repeat':'my-password-123','login':'injected','roles':['admin'],'courses':['warehouse']}
+    registered=c.post('/api/v1/accounts/register',json=details)
+    assert registered.status_code==200,registered.text
+    result=registered.json();account=result['account']
+    assert result['login']==account['login']=='Соколова Анна Сергеевна'
+    assert account['unit']=='Новое подразделение'
+    assert account['roles']==['participant'] and account['courses']==[cid]
+    for name in ('Соколова Анна Сергеевна','соколова анна сергеевна','  СОКОЛОВА   АННА СЕРГЕЕВНА  '):
+        assert c.post('/api/v1/accounts/session',json={'login':name,'password':'my-password-123'}).status_code==200
+    assert c.post('/api/v1/accounts/session',json={'login':account['login'],'password':'wrong-password'}).status_code==401
+    assert c.post('/api/v1/accounts/register',json={**details,'unit':'Другое подразделение'}).status_code==409
+    with closing(m.db()) as con:
+        assert con.execute('SELECT name FROM identity_units WHERE name=?',('Новое подразделение',)).fetchone()
+        assert con.execute('SELECT uses FROM identity_invites WHERE id=?',(inv['id'],)).fetchone()[0]==1
+    without_patronymic={**person(),'last_name':'Петров','first_name':'Иван','no_patronymic':True,'patronymic':'Игнорируется','unit':'Введённое вручную',
+        'invitation':inv['token'],'password':'my-password-123','password_repeat':'my-password-123'}
+    result=c.post('/api/v1/accounts/register',json=without_patronymic)
+    assert result.status_code==200 and result.json()['login']=='Петров Иван'
+    assert c.post('/api/v1/accounts/register',json={**without_patronymic,'last_name':'Другой','unit':'  '}).status_code==422
+    assert c.post('/api/v1/accounts/session',json={'login':'test-author','password':'new-test-password'}).status_code==200
