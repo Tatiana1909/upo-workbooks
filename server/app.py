@@ -658,6 +658,39 @@ def attempt_payload(row):
     }
 
 
+def dashboard_families(courses, records):
+    """Read-only summary by workbook lineage; never rewrite edition results."""
+    groups = {}
+    aliases = {}
+    for course in sorted(courses, key=lambda c: c.get('edition_version', 0), reverse=True):
+        group = course.get('group_id', course['course_id'])
+        if group not in groups:
+            representative = group.removeprefix('source:') if group.startswith('source:') else course['course_id']
+            groups[group] = {**course, 'course_id': representative,
+                             'course_title': course.get('group_title') or course.get('course_title', representative)}
+        aliases[course['course_id']] = group
+    latest = {}
+    for record in records:
+        group = aliases[record['course_id']]
+        key = (record['user_id'], group)
+        previous = latest.get(key)
+        chosen = record if not previous or record['updated_at'] > previous['updated_at'] else previous
+        latest[key] = {**chosen, 'course_id': groups[group]['course_id'],
+                       'course_title': groups[group]['course_title'],
+                       'course_direction': groups[group]['course_direction'],
+                       **{field: (previous.get(field, 0) if previous else 0) + record.get(field, 0)
+                          for field in ('attempts_count', 'pending_review', 'needs_recheck')}}
+    rows = list(latest.values())
+    for course in groups.values():
+        members = [r for r in rows if r['course_id'] == course['course_id']]
+        course.update(users=len(members),
+                      completed=sum(r['status'] == 'completed' for r in members),
+                      active=sum(r['status'] == 'active' for r in members),
+                      average_progress=round(sum(r['progress_percent'] for r in members) / len(members)) if members else 0,
+                      average_success=round(sum(r['success_percent'] for r in members) / len(members)) if members else 0)
+    return list(groups.values()), rows
+
+
 @app.get("/api/v1/admin/dashboard")
 def admin_dashboard(admin=Depends(current_admin)):
     actor = admin.get("account")
@@ -745,6 +778,7 @@ def admin_dashboard(admin=Depends(current_admin)):
             "average_success": round(sum(item["success_percent"] for item in rows) / len(rows)) if rows else 0,
         })
 
+    course_stats, records = dashboard_families(course_stats, records)
     unique_active_users = {item["user_id"] for item in records if item["status"] == "active"}
     unique_completed_users = {item["user_id"] for item in records if item["status"] == "completed"}
     return {
@@ -932,7 +966,8 @@ async def personal_access(request: Request, call_next):
                         profile.update(name=account['full_name'],unit=account['unit'],position=account['position'],participant_id=account['id'],personnel_number=account['personnel_number'])
                         request._body=json.dumps(body,ensure_ascii=False).encode()
         response=await call_next(request)
-        if path.startswith('/api/v1/accounts/') or path=='/api/v1/accounts':response.headers['Cache-Control']='no-store'
+        if path.startswith('/api/v1/accounts/') or path=='/api/v1/accounts' or path=='/api/v1/admin/dashboard' or path in ('/v4/admin.html','/v4/admin.js','/v4/admin-summary.js'):
+            response.headers['Cache-Control']='no-store'
         return response
     except HTTPException as exc:
         return JSONResponse({'detail':exc.detail},status_code=exc.status_code,headers={'Cache-Control':'no-store'})
