@@ -669,13 +669,21 @@ def admin_dashboard(admin=Depends(current_admin)):
           ORDER BY p.updated_at DESC
         """).fetchall()
         attempt_rows = con.execute("SELECT * FROM course_attempts ORDER BY attempt_no").fetchall()
-        direction_rows = con.execute("SELECT course_id,content FROM builder_editions").fetchall()
+        direction_rows = con.execute("SELECT course_id,draft_id,version,title,content FROM builder_editions").fetchall()
+        imported_groups = {r["draft_id"]: r["source_course"] for r in con.execute("SELECT draft_id,source_course FROM builder_imports")}
     if actor and 'admin' not in actor['roles']:
         users = [r for r in users if accounts.visible(actor,r['id'])]
         progress_rows = [r for r in progress_rows if accounts.visible(actor,r['user_id']) and accounts.course_allowed(actor,r['course_id'])]
         attempt_rows = [r for r in attempt_rows if accounts.visible(actor,r['user_id']) and accounts.course_allowed(actor,r['course_id'])]
     course_directions = {row["course_id"]: parse_json(row["content"], {}).get("courseDirection") or "1С:УПО" for row in direction_rows}
     course_directions[fire.CID] = "Безопасность"
+    course_groups = {cid: {"group_id": "source:" + cid, "group_title": title, "edition_version": 0} for cid, title in COURSE_TITLES.items()}
+    for row in direction_rows:
+        course_groups[row["course_id"]] = {
+            "group_id": "source:" + imported_groups[row["draft_id"]] if row["draft_id"] in imported_groups else "draft:" + row["draft_id"],
+            "group_title": row["title"], "edition_version": row["version"],
+        }
+
 
     attempts_map = defaultdict(list)
     for row in attempt_rows:
@@ -729,6 +737,7 @@ def admin_dashboard(admin=Depends(current_admin)):
             "course_id": course_id,
             "course_title": title,
             "course_direction": course_directions.get(course_id, "1С:УПО"),
+            **course_groups.get(course_id, {}),
             "users": len(rows),
             "completed": sum(1 for item in rows if item["status"] == "completed"),
             "active": sum(1 for item in rows if item["status"] == "active"),
