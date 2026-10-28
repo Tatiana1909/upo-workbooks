@@ -52,6 +52,69 @@
  .workbook-reader .reader-pager{gap:12px}.workbook-reader .reader-pager button{font-size:13px;padding:10px 14px}.workbook-reader #pagePosition{width:100%;order:-1;text-align:center}
  .workbook-reader .material-group>summary{font-size:18px;padding:14px 16px}.workbook-reader .material-group>div{padding:0 14px}
 }
+/* Compact vertical spacing; reading text is increased by 1.5 pt (2 CSS px). */
+.workbook-reader{font-size:18px}
+.workbook-reader .preview-text{font-size:18px}
+.workbook-reader label{font-size:17px;margin-top:10px;margin-bottom:5px}
+.workbook-reader button,.workbook-reader .button{font-size:16px;padding-top:8px;padding-bottom:8px}
+.workbook-reader .status{font-size:16px}
+.workbook-reader .section-number{font-size:17px}
+.workbook-reader .text-concept>h3{padding-top:7px;padding-bottom:7px}
+.workbook-reader .block{padding-top:12px;padding-bottom:12px;margin-top:16px;margin-bottom:16px}
+.workbook-reader .block>h3{margin-top:0;margin-bottom:8px}
+.workbook-reader .block>h3:empty{display:none}
+.workbook-reader .block>.preview-text{margin-top:6px;margin-bottom:8px}
+.workbook-reader .block>h3:empty+.preview-text{margin-top:0}
+.workbook-reader .block>:last-child{margin-bottom:0}
+.workbook-reader .learning-game{padding-top:12px;padding-bottom:12px;margin-top:18px;margin-bottom:18px}
+.workbook-reader .learning-game>p{margin-top:8px;margin-bottom:10px}
+.workbook-reader .learning-game>:last-child{margin-bottom:0}
+.workbook-reader .learning-game button{font-size:18px;padding-top:8px;padding-bottom:8px}
+.workbook-reader .game-kicker{font-size:14px;margin-bottom:8px}
+.workbook-reader .game-help{font-size:16px}
+.workbook-reader .game-actions{margin-top:12px}
+.workbook-reader .game-hint{margin-top:8px;margin-bottom:8px}
+.workbook-reader .game-feedback{margin-top:8px}
+.workbook-reader .game-feedback:empty{display:none}
+.workbook-reader .game-pairs label,.workbook-reader .game-choices label,.workbook-reader .game-step label,.workbook-reader .game-order li{padding-top:8px;padding-bottom:8px;margin-top:8px;margin-bottom:8px}
+.workbook-reader .game-step{padding-top:10px;padding-bottom:10px}
+.workbook-reader .game-order li span{min-width:0;overflow-wrap:anywhere}
+.workbook-reader .game-order li div{flex-shrink:0}
+.workbook-reader .screenshot-drop{font-size:15px}
+.workbook-reader .screenshot-drop button{font-size:inherit;padding-top:3px;padding-bottom:3px}
+.workbook-reader .evidence-gallery button{font-size:14px}
+.workbook-reader .material-label{font-size:16px}
+.workbook-reader .material-line>a{font-size:19px}
+.workbook-reader .material-block .preview-text{font-size:17px}
+.workbook-reader .block.material-block{padding-top:10px;padding-bottom:10px;margin:0}
+.workbook-reader .material-group>summary{padding-top:10px;padding-bottom:10px}
+.workbook-reader .material-group>summary span{font-size:16px}
+.workbook-reader .text-heading{padding:0;margin-top:20px;margin-bottom:10px}
+.workbook-reader .text-heading h3{padding-top:9px;padding-bottom:9px;margin-bottom:10px}
+.workbook-reader .text-heading p{margin-top:6px;margin-bottom:6px}
+.workbook-reader .section-nav{padding-top:16px;padding-bottom:16px}
+.workbook-reader .section-nav>h2{margin-bottom:10px}
+.workbook-reader .section-nav nav>a{padding-top:10px;padding-bottom:10px}
+.workbook-reader #sectionProgress{font-size:16px;padding-top:10px}
+.workbook-reader .layout>.workbook-content>h1{padding-top:18px;padding-bottom:18px}
+.workbook-reader .layout>.workbook-content>h1+.preview-text{padding-top:12px;padding-bottom:12px;font-size:19px}
+.workbook-reader .workbook-content>section.card{padding-top:18px;padding-bottom:18px}
+.workbook-reader .workbook-content>section.card>h2{margin-top:-18px;margin-bottom:18px;padding-top:16px;padding-bottom:16px}
+.workbook-reader .result{font-size:18px;padding-top:12px;padding-bottom:12px}
+.workbook-reader .reader-pager{margin-top:18px;margin-bottom:18px}
+.workbook-reader #pagePosition{font-size:17px}
+@media(max-width:760px){
+ .workbook-reader header>span{font-size:16px}
+ .workbook-reader header button{font-size:14px}
+ .workbook-reader .mobile-section-select{font-size:16px}
+ .workbook-reader .mobile-section-select select{font-size:17px}
+ .workbook-reader .layout>.workbook-content>h1{padding-top:16px;padding-bottom:16px}
+ .workbook-reader .layout>.workbook-content>h1+.preview-text{font-size:18px}
+ .workbook-reader .workbook-content>section.card{padding-top:14px;padding-bottom:14px}
+ .workbook-reader .workbook-content>section.card>h2{margin-top:-14px;padding-top:14px;padding-bottom:14px}
+ .workbook-reader .reader-pager button{font-size:15px}
+ .workbook-reader .learning-game{padding-top:10px;padding-bottom:10px}
+}
 @media print{
  .workbook-reader header,.workbook-reader .section-nav,.workbook-reader .reader-pager,.workbook-reader .preview-banner{display:none!important}
  .workbook-reader main.layout{display:block;padding:0}
