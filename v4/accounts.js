@@ -61,7 +61,7 @@ function setSession(s) {
   ) {
     if (s.account.roles.includes("admin") || s.account.realms.includes("upo"))
       sessionStorage.setItem("ifcm-workbook-admin-session", JSON.stringify(s));
-    if (s.account.roles.includes("admin") || s.account.realms.includes("fire"))
+    if (!s.account.roles.includes("admin") && s.account.realms.length === 1 && s.account.realms.includes("fire"))
       sessionStorage.setItem("ifcm-fire-session-teacher", JSON.stringify(s));
   }
 }
@@ -208,7 +208,7 @@ function profile() {
       await api("/logout", {}, "POST");
     } finally {
       clearSession();
-      login();
+      location.replace("/v4/index.html");
     }
   };
 }

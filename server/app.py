@@ -297,7 +297,7 @@ def fire_identity(authorization, role):
     payload = bearer_payload(authorization)
     personal = accounts.authorize(payload, role, 'fire')
     if personal: return personal
-    if role=='admin' and os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1':raise HTTPException(401,'Войдите в персональный аккаунт')
+    if role=='admin' and os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1' and payload.get('scope') != fire.CID:raise HTTPException(401,'Войдите в персональный аккаунт')
     if payload.get('role') != role:
         raise HTTPException(403, 'Недостаточно прав')
     if fire_access.config:
@@ -477,10 +477,8 @@ def admin_login(data: AdminLoginInput, request: Request):
 
 @app.post('/api/v1/fire/admin/session')
 def fire_admin_login(data: AdminLoginInput, request: Request):
-    if os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1') == '1':
-        raise HTTPException(401, 'Используйте персональный вход /v4/accounts.html')
     if not fire_access.config:
-        return admin_login(data, request)
+        raise HTTPException(503, 'Отдельный вход преподавателя ПБ ещё не настроен')
     queue = check_rate_limit(request.client.host if request.client else 'unknown', 'fire-admin')
     login_ok = hmac.compare_digest(data.login.encode(), fire_access.config['login'].encode())
     password_ok = fire_access.matches('password', data.password)
@@ -920,7 +918,10 @@ async def personal_access(request: Request, call_next):
         auth=request.headers.get('authorization','')
         if path.startswith('/api/v1/') and auth.startswith('Bearer '):
             payload=decode_token(auth[7:])
-            if not payload.get('account_id') and os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1':
+            separate_fire_staff = (path.startswith('/api/v1/fire/') and payload.get('role') == 'admin'
+                and payload.get('scope') == fire.CID and fire_access.config
+                and payload.get('credential_revision') == fire_access.config['revision'])
+            if not payload.get('account_id') and not separate_fire_staff and os.environ.get('WORKBOOK_PERSONAL_ACCOUNTS','1')=='1':
                 if '/builder/' in path or '/workbooks/' in path or path.startswith('/api/v1/admin/') or payload.get('role')=='admin':
                     raise HTTPException(401,'Войдите в персональный аккаунт')
                 if '/progress/' in path and path.split('/progress/')[1].split('/')[0] not in COURSE_TITLES:
@@ -930,6 +931,8 @@ async def personal_access(request: Request, call_next):
                 if not is_accounts:
                     realm='fire' if path.startswith('/api/v1/fire/') or '/fire-safety-v4' in path else 'upo'
                     staff='admin' in account['roles'] or 'teacher' in account['roles']
+                    if realm=='fire' and staff and ('admin' in account['roles'] or account['realms'] != ['fire']):
+                        raise HTTPException(403,'Для кабинета пожарной безопасности используйте отдельный вход ПБ')
                     if staff and 'admin' not in account['roles']:
                         if account['courses'] and ('/builder/drafts' in path or '/builder/templates' in path or '/builder/import' in path or '/builder/editions' in path and not '/fire/' in path or path.endswith('/builder/trash')):
                             raise HTTPException(403,'Для работы с конструктором требуется доступ ко всему направлению')

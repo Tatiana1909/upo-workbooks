@@ -143,6 +143,8 @@ class Accounts:
         if role == 'user':
             if 'participant' not in a['roles']:
                 raise HTTPException(403, 'Требуется аккаунт участника')
+        elif realm == 'fire' and ('admin' in a['roles'] or 'teacher' not in a['roles'] or a['realms'] != ['fire']):
+            raise HTTPException(403, 'Для кабинета пожарной безопасности используйте отдельный вход ПБ')
         elif not ('admin' in a['roles'] or ('teacher' in a['roles'] and realm in a['realms'])):
             raise HTTPException(403, 'Нет доступа к этому направлению')
         return {**p, 'uid': a['id'], 'sub': a['id'], 'name': a['full_name'], 'role': role, 'account': a}

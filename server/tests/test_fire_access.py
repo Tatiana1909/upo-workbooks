@@ -76,3 +76,31 @@ def test_encrypted_provisioning_and_rotation(service, tmp_path):
     teacher = bearer(c.post('/api/v1/fire/admin/session', json={
         'login': 'pb-test-admin', 'password': 'pb-new-test-password'}))
     assert c.get('/api/v1/fire/results', headers=teacher).status_code == 200
+
+
+def test_separate_fire_login_with_personal_accounts_enabled(service,tmp_path,monkeypatch):
+    from test_accounts import admin,headers
+    c,m,_=service
+    provision(m,tmp_path)
+    h=admin(c)
+    monkeypatch.setenv('WORKBOOK_PERSONAL_ACCOUNTS','1')
+    # Personal UPO administrator must not enter any fire staff surface.
+    for path in ('/api/v1/fire/results','/api/v1/fire/builder/drafts','/api/v1/fire/builder/editions'):
+        assert c.get(path,headers=h).status_code==403
+    assert c.post('/api/v1/fire/admin/session',json={'login':'test-author','password':'new-test-password'}).status_code==401
+    fire=bearer(c.post('/api/v1/fire/admin/session',json={'login':'pb-test-admin','password':'pb-test-password'}))
+    assert c.get('/api/v1/fire/results',headers=fire).status_code==200
+    d=c.post('/api/v1/fire/builder/import',headers=fire,json={})
+    assert d.status_code==200,d.text
+    assert c.get('/api/v1/fire/builder/drafts',headers=fire).status_code==200
+    for path in ('/api/v1/admin/dashboard','/api/v1/builder/drafts','/api/v1/accounts','/api/v1/admin/results.csv'):
+        assert c.get(path,headers=fire).status_code in (401,403)
+    provision(m,tmp_path,'pb-changed-password')
+    assert c.get('/api/v1/fire/results',headers=fire).status_code in (401,403)
+    assert c.post('/api/v1/fire/admin/session',json={'login':'pb-test-admin','password':'pb-test-password'}).status_code==401
+
+
+def test_unconfigured_fire_staff_login_never_falls_back_to_upo(service):
+    c,m,_=service
+    assert not m.fire_access.config
+    assert c.post('/api/v1/fire/admin/session',json={'login':'test-author','password':'test-password'}).status_code==503

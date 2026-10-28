@@ -1,5 +1,6 @@
 (() => {
   const install = () => {
+    if ((document.body.dataset.role === 'teacher' || new URLSearchParams(location.search).get('role') === 'teacher') && location.pathname.startsWith('/v4/fire/')) return;
     if (document.getElementById("personal-links")) return;
     const nav = document.createElement("nav");
     nav.id = "personal-links";
