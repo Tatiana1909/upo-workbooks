@@ -277,3 +277,32 @@ def test_self_registration_uses_typed_unit_and_full_name_login(service):
     assert result.status_code==200 and result.json()['login']=='Петров Иван'
     assert c.post('/api/v1/accounts/register',json={**without_patronymic,'last_name':'Другой','unit':'  '}).status_code==422
     assert c.post('/api/v1/accounts/session',json={'login':'test-author','password':'new-test-password'}).status_code==200
+
+
+def test_learning_entry_temporary_password_and_latest_assigned(service):
+    c,m,legacy=service
+    draft,cid=publish(c,legacy)
+    h=admin(c)
+    # Another published edition, assigned together with the old one.
+    with closing(m.db()) as db:
+        row=db.execute('SELECT * FROM builder_editions WHERE course_id=?',(cid,)).fetchone()
+        new=cid+'-next'
+        db.execute('INSERT INTO builder_editions(course_id,draft_id,version,title,content,published_at) VALUES(?,?,?,?,?,?)',
+                   (new,row['draft_id'],row['version']+1,row['title'],row['content'],row['published_at']))
+        db.commit()
+    a=create(c,h,courses=[cid,new])
+    sh=headers(c.post('/api/v1/accounts/session',json={'login':a['login'],'password':a['temporary_password']}))
+    entries=c.get('/api/v1/accounts/learning',headers=sh)
+    assert entries.status_code==200,entries.text
+    assert len(entries.json())==1
+    assert entries.json()[0]['url']=='/v4/builder/workbook.html?course='+new
+    assert c.get('/api/v1/progress/'+new,headers=sh).status_code==403
+    assert c.put('/api/v1/progress/'+new,headers=sh,json={'state':{},'summary':{}}).status_code==403
+    assert c.post('/api/v1/accounts/password',headers=sh,json={
+        'current_password':a['temporary_password'],'new_password':'changed-password-123',
+        'password_repeat':'changed-password-123'}).status_code==200
+    fresh=headers(c.post('/api/v1/accounts/session',json={'login':a['login'],'password':'changed-password-123'}))
+    assert c.get('/api/v1/progress/'+new,headers=fresh).status_code==200
+    b=create(c,h,confirm_namesake=True,courses=[])
+    bh=headers(c.post('/api/v1/accounts/session',json={'login':b['login'],'password':b['temporary_password']}))
+    assert c.get('/api/v1/accounts/learning',headers=bh).json()==[]

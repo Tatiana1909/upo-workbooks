@@ -136,6 +136,12 @@ function returnTo() {
   }
   return false;
 }
+async function enterWorkbook() {
+  if (returnTo()) return;
+  const courses = await api("/learning");
+  if (courses.length) { location.assign(courses[0].url); return; }
+  location.assign("/v4/index.html");
+}
 function login() {
   root.innerHTML = `<section class="card"><h1>Персональный вход</h1><form id="login">${field("login", "Логин")}${field("password", "Пароль", "password")}<button>Войти</button></form><button class="secondary" id="register">Зарегистрироваться</button><p>Если вы забыли логин или пароль, обратитесь к преподавателю или администратору.</p></section>`;
   root.querySelector("[name=password]").removeAttribute("minlength");
@@ -144,7 +150,8 @@ function login() {
   submit(document.getElementById("login"), async (d) => {
     setSession(await api("/session", d, "POST"));
     me = session.account;
-    if (me.must_change) profile();
+    if (me.roles.includes("participant")) await enterWorkbook();
+    else if (me.must_change) profile();
     else if (!returnTo()) await home();
   });
   document.getElementById("register").onclick = registration;
@@ -176,13 +183,7 @@ async function registration() {
     submit(form, async (d) => {
       setSession(await api("/register", { ...d, invitation: token }, "POST"));
       me = session.account;
-      history.replaceState(null, "", "/v4/accounts.html");
-      profile();
-      say(
-        "Аккаунт создан. Ваш логин: " +
-          me.login +
-          ". Сохраните его для следующих входов.",
-      );
+      await enterWorkbook();
     });
   };
   submit(document.getElementById("invite"), proceed);

@@ -268,6 +268,25 @@ class Accounts:
         @app.get('/api/v1/accounts/me')
         def me(a=Depends(identity)):return a
 
+        @app.get('/api/v1/accounts/learning')
+        def learning(a=Depends(identity)):
+            # Available even with a temporary password; learning data stays locked.
+            result=[]
+            with closing(self.db()) as c:
+                rows=c.execute('SELECT course_id,draft_id,version,title FROM builder_editions WHERE archived=0 AND deleted_at IS NULL ORDER BY version DESC').fetchall()
+                seen=set()
+                for r in rows:
+                    key=('upo',r['draft_id'])
+                    if r['course_id'] in a['courses'] and key not in seen:
+                        seen.add(key)
+                        result.append({'title':r['title'],'url':'/v4/builder/workbook.html?course='+r['course_id']})
+                for r in c.execute('SELECT id,draft_id,version,content FROM fb_editions ORDER BY version DESC'):
+                    key=('fire',r['draft_id'])
+                    if r['id'] in a['courses'] and key not in seen:
+                        seen.add(key)
+                        result.append({'title':json.loads(r['content'])['title'],'url':'/v4/fire/editable.html?edition='+r['id']})
+            return result
+
         @app.post('/api/v1/accounts/logout')
         def logout(authorization:str|None=Header(None),a=Depends(identity)):
             p=self.decode(authorization[7:])
