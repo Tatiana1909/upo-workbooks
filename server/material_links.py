@@ -49,14 +49,15 @@ def replace_links(content, source):
     return result, changed
 
 
-def release(db_path, apply=False):
+def release(db_path, apply=False, *, release_id=RELEASE, transform=replace_links,
+            sources=('accounting', 'warehouse', 'fire'), change_kind='links'):
     """Atomic/idempotent publication from current editions, never from unsaved draft edits."""
     con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
     try:
         con.execute('BEGIN IMMEDIATE')
         con.execute('CREATE TABLE IF NOT EXISTS content_link_releases(id TEXT PRIMARY KEY, report TEXT NOT NULL)')
-        done = con.execute('SELECT report FROM content_link_releases WHERE id=?', (RELEASE,)).fetchone()
+        done = con.execute('SELECT report FROM content_link_releases WHERE id=?', (release_id,)).fetchone()
         if done:
             return {**json.loads(done['report']), 'already_applied': True}
         # Verify every pre-existing result, published snapshot, review and file record
@@ -67,9 +68,9 @@ def release(db_path, apply=False):
                 quoted = '"' + table.replace('"', '""') + '"'
                 protected[quoted] = [tuple(r) for r in con.execute('SELECT rowid,* FROM ' + quoted)]
         timestamp = datetime.now(timezone.utc).isoformat()
-        report = {'release': RELEASE, 'applied': apply, 'editions': []}
+        report = {'release': release_id, 'applied': apply, 'editions': []}
         transitions = []
-        for source in ('accounting', 'warehouse', 'fire'):
+        for source in sources:
             fire = source == 'fire'
             draft_table = 'fb_drafts' if fire else 'builder_drafts'
             edition_table = 'fb_editions' if fire else 'builder_editions'
@@ -88,8 +89,8 @@ def release(db_path, apply=False):
             if not old or (not fire and (old['deleted_at'] or old['archived'])):
                 raise ValueError('Latest published edition is missing or hidden: ' + source)
             # Preserve unpublished teaching changes in the draft, but do not publish them.
-            draft_content, draft_count = replace_links(json.loads(draft['content']), source)
-            published, count = replace_links(json.loads(old['content']), source)
+            draft_content, draft_count = transform(json.loads(draft['content']), source)
+            published, count = transform(json.loads(old['content']), source)
             if draft_count:
                 con.execute(f'UPDATE {draft_table} SET content=?,revision=revision+1,updated_at=? WHERE id=?',
                             (json.dumps(draft_content, ensure_ascii=False), timestamp, did))
@@ -105,7 +106,7 @@ def release(db_path, apply=False):
                                 (cid, did, version, published['title'], packed, timestamp))
                 transitions.append((old[id_key], cid))
             report['editions'].append(dict(source=source, course_id=cid, previous_id=old[id_key], version=version,
-                links_changed=count, draft_links_changed=draft_count,
+                **{change_kind+'_changed':count, 'draft_'+change_kind+'_changed':draft_count},
                 url=('/v4/fire/editable.html?edition=' if fire else '/v4/builder/workbook.html?course=') + cid))
         # Give the new edition to the same explicitly assigned audience. Keep old access.
         # No other course, realm, role, password or session is changed.
@@ -119,7 +120,7 @@ def release(db_path, apply=False):
                 if added:
                     con.execute(f'UPDATE {table} SET courses=? WHERE id=?', (json.dumps(courses + added), row['id']))
                     con.execute('INSERT INTO identity_audit(at,actor,subject,action,details) VALUES(?,?,?,?,?)',
-                                (timestamp, None, row['id'], 'material_link_edition_assigned', json.dumps({'release': RELEASE, 'table': table, 'added': added})))
+                                (timestamp, None, row['id'], 'material_link_edition_assigned' if change_kind=='links' else 'content_edition_assigned', json.dumps({'release': release_id, 'table': table, 'added': added})))
                     assignments += 1
         verified = 0
         for table, old_rows in protected.items():
@@ -130,7 +131,7 @@ def release(db_path, apply=False):
         report['existing_results_and_editions_unchanged'] = True
         report['protected_rows_verified'] = verified
         report['assignments_updated'] = assignments
-        con.execute('INSERT INTO content_link_releases VALUES(?,?)', (RELEASE, json.dumps(report, ensure_ascii=False)))
+        con.execute('INSERT INTO content_link_releases VALUES(?,?)', (release_id, json.dumps(report, ensure_ascii=False)))
         assert con.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
         if apply:
             con.commit()

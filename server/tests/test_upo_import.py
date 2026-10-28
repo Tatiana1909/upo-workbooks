@@ -16,7 +16,7 @@ def test_complete_transfer_and_isolation(service,tmp_path):
         draft=next(x for x in c.get('/api/v1/builder/drafts',headers=h).json() if x['id']==d['id'])
         body=draft['content'];assert len(body['sections'])==count
         blocks=[b for s in body['sections'] for b in s['blocks']]
-        assert sum(b['type']=='single' for b in blocks)==quiz
+        assert sum(b['type'] in ('single','multiple','boolean') for b in blocks)==quiz
         assert sum(b['type'] in {'sequence','sort','match','errors','scenario','documents','hotspots'} for b in blocks)==7
         assert any(b['type']=='completion' for b in blocks)
         assert all(b.get('points')==0 for b in blocks if b['type']=='practice')

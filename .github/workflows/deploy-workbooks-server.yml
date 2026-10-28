@@ -132,6 +132,7 @@ jobs:
           docker exec workbook_api python -c 'import os; import release_bootstrap; release_bootstrap.publish() if os.environ.get("WORKBOOK_PERSONAL_ACCOUNTS","1") != "1" else print("Existing publications preserved; no implicit course publication")'
           docker exec workbook_api python /app/verify_legacy.py /tmp/ifcm-legacy.sqlite3 /data/workbooks.sqlite3
           docker exec workbook_api python /app/material_links.py --apply
+          docker exec workbook_api python /app/accounting_wording.py --apply
           docker exec workbook_api rm -f /tmp/ifcm-legacy.sqlite3
           rm -f /tmp/upo-workbooks.tgz
           REMOTE
