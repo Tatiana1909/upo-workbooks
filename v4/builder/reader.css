@@ -1,0 +1,62 @@
+/* Student workbook pages, using the established IFCM palette and ornaments. */
+.workbook-reader{background:#fff}
+.workbook-reader header{gap:16px;min-height:82px;padding:14px clamp(16px,2vw,40px)}
+.workbook-reader header>a{margin-right:auto}
+.workbook-reader header button{margin-left:0}
+.workbook-reader main.layout{width:100%;max-width:none;margin:0;padding:28px clamp(16px,2vw,40px) 50px;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.workbook-reader .workbook-content{grid-column:1;grid-row:1;min-width:0}
+.workbook-reader .section-nav{grid-column:2;grid-row:1;background:var(--navy);color:white;border-radius:0 30px 30px 0;padding:24px 18px;top:110px;max-height:calc(100vh - 135px)}
+.workbook-reader .section-nav>h2{background:none;color:#D1D4EB;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin:0 8px 16px;padding:0}
+.workbook-reader .section-nav nav>a{display:grid;grid-template-columns:28px minmax(0,1fr) 16px;align-items:center;gap:10px;margin:7px 0;padding:14px 12px;color:#D1D4EB;text-decoration:none;line-height:1.4;border-radius:0 26px 26px 0}
+.workbook-reader .section-nav nav>a:hover{background:#ffffff15;color:white}
+.workbook-reader .section-nav nav>a.active{background:var(--red);color:white;font-weight:700}
+.workbook-reader .section-number{display:grid;place-items:center;background:#ffffff15;border-radius:50% 0 50% 50%;width:27px;height:27px;font-size:15px}
+.workbook-reader .active .section-number{background:white;color:var(--red)}
+.workbook-reader .section-state{color:white}
+.workbook-reader #sectionProgress{font-size:14px;color:#D1D4EB;padding:12px 8px 0;border-top:1px solid #ffffff30}
+.workbook-reader .reader-ornament{height:44px;margin:18px 6px 0;background:url('../brand/pattern-white.webp') center/cover no-repeat;opacity:.2}
+.workbook-reader .mobile-section-select{display:none}
+.workbook-reader .layout>.workbook-content>h1{font-size:clamp(28px,2.7vw,44px);padding:28px 135px 28px 28px}
+.workbook-reader .workbook-content>section.card{margin:24px 0 0;padding:28px;background:white;border:1px solid var(--line);border-radius:0 30px 30px 30px;scroll-margin-top:110px}
+.workbook-reader .workbook-content>section.card>h2{margin:-28px -28px 24px;padding:24px 120px 24px 28px;background:white url('../brand/ornament-color.webp') right 20px center/65px auto no-repeat;color:var(--navy);border-radius:0 30px 0 0;border-bottom:1px solid var(--line);font-size:clamp(25px,2vw,34px);line-height:1.25}
+.workbook-reader section[hidden]{display:none!important}
+.workbook-reader .text-heading{background:none;padding:0;margin:28px 0 14px}
+.workbook-reader .text-heading h3{background:var(--red);color:white;padding:12px 20px;border-radius:0 26px 26px 0;font-size:23px;margin:0 0 14px}
+.workbook-reader .text-heading p{margin:8px 0}
+.workbook-reader .material-group{margin:12px 0;border:1px solid var(--line);border-radius:0 22px 22px 22px;overflow:hidden}
+.workbook-reader .material-group>summary{padding:15px 20px;background:var(--navy);color:white;font-size:20px;font-weight:700;cursor:pointer}
+.workbook-reader .material-group>summary span{font-size:14px;font-weight:400;opacity:.85;margin-left:8px}
+.workbook-reader .material-group>div{padding:0 18px}
+.workbook-reader .block.material-block{margin:0;padding:15px 0;background:white;border-radius:0;border-bottom:1px solid var(--line)}
+.workbook-reader .block.material-block:last-child{border-bottom:0}
+.workbook-reader .material-line{display:flex;align-items:baseline;gap:8px 12px;flex-wrap:wrap;line-height:1.6}
+.workbook-reader .material-label{font-size:14px;color:var(--muted);flex-shrink:0}
+.workbook-reader .material-line>a{font-size:17px;overflow-wrap:anywhere;min-width:0}
+.workbook-reader .material-block .preview-text{font-size:15px;margin:8px 0 0}
+.workbook-reader .reader-pager{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:26px 0;flex-wrap:wrap}
+.workbook-reader #pagePosition{color:var(--muted);font-size:15px}
+.workbook-reader .reader-pager button:disabled{opacity:.4;cursor:default}
+.workbook-reader .result{font-size:16px}
+@media(max-width:1000px){.workbook-reader main.layout{grid-template-columns:minmax(0,1fr) 250px;gap:20px}.workbook-reader .section-nav{padding:20px 12px}}
+@media(max-width:760px){
+ .workbook-reader header{gap:10px;padding:12px 16px}.workbook-reader header img{width:90px}.workbook-reader header>span{font-size:14px}.workbook-reader header button{font-size:12px;padding:8px 12px}
+ .workbook-reader main.layout{display:flex;flex-direction:column;padding:16px;gap:18px}
+ .workbook-reader .section-nav{width:100%;position:static;max-height:none;padding:16px 18px;order:-1;border-radius:0 24px 24px 24px}
+ .workbook-reader .section-nav>h2{font-size:13px;margin:0 0 10px}.workbook-reader .section-nav nav,.workbook-reader .reader-ornament{display:none}
+ .workbook-reader .mobile-section-select{display:block;color:white;margin:0;font-size:14px}.workbook-reader .mobile-section-select select{display:block;width:100%;font-size:15px;margin:8px 0 0;max-width:100%}
+ .workbook-reader #sectionProgress{margin:12px 0 0;padding:10px 0 0}.workbook-reader .workbook-content{width:100%}
+ .workbook-reader .layout>.workbook-content>h1{font-size:27px;padding:22px 75px 22px 20px;background-size:42px auto}
+ .workbook-reader .layout>.workbook-content>h1+.preview-text{padding:16px 20px;font-size:16px}
+ .workbook-reader .workbook-content>section.card{padding:20px;margin-top:18px}
+ .workbook-reader .workbook-content>section.card>h2{padding:20px 65px 20px 20px;margin:-20px -20px 20px;font-size:25px;background-size:35px auto;background-position:right 14px center}
+ .workbook-reader .reader-pager{gap:12px}.workbook-reader .reader-pager button{font-size:13px;padding:10px 14px}.workbook-reader #pagePosition{width:100%;order:-1;text-align:center}
+ .workbook-reader .material-group>summary{font-size:18px;padding:14px 16px}.workbook-reader .material-group>div{padding:0 14px}
+}
+@media print{
+ .workbook-reader header,.workbook-reader .section-nav,.workbook-reader .reader-pager,.workbook-reader .preview-banner{display:none!important}
+ .workbook-reader main.layout{display:block;padding:0}
+ .workbook-reader .workbook-content>section[hidden]{display:block!important}
+ .workbook-reader .workbook-content>section{break-after:page}
+ .workbook-reader .layout>.workbook-content>h1,.workbook-reader .workbook-content>section.card>h2{background-image:none}
+ .workbook-reader .material-group>summary{color:#211C58;background:white}
+}
