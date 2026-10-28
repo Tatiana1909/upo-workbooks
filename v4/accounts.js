@@ -274,17 +274,12 @@ async function management() {
   );
   root.querySelectorAll("[data-renew-invite]").forEach((button) => {
     button.onclick = async () => {
-      if (!confirm("Выдать новый код приглашения? Предыдущий код и ссылка перестанут работать. Доступ уже зарегистрированных участников сохранится.")) return;
-      button.disabled = true;
-      try {
-        const invitation = invites.find((i) => i.id === button.dataset.renewInvite);
-        const result = await api("/invitations/" + button.dataset.renewInvite + "/renew-code", {}, "POST");
+      const invitation = invites.find((i) => i.id === button.dataset.renewInvite);
+      modal(`<h2>Код приглашения «${esc(invitation?.label || "Приглашение")}»</h2><form id="renewInvitationCode">${invitationCodeField()}<p>После сохранения прежний код и ссылка перестанут работать. Зарегистрированные участники сохранят доступ.</p><button>Сохранить код</button></form>`);
+      submit(document.getElementById("renewInvitationCode"), async (data) => {
+        const result = await api("/invitations/" + button.dataset.renewInvite + "/renew-code", data, "POST");
         showInvitationCode(result.token, invitation?.label || "Приглашение");
-      } catch (error) {
-        say(error.message, true);
-      } finally {
-        button.disabled = false;
-      }
+      });
     };
   });
   document.getElementById("import").onchange = importFile;
@@ -410,9 +405,12 @@ function edit(r) {
     );
   });
 }
+function invitationCodeField() {
+  return '<label>Ваш код приглашения<input name="code" minlength="4" maxlength="32" autocomplete="off" placeholder="Например, BUH2026 или БУХ01"></label><p>От 4 до 32 символов: буквы, цифры и дефис. Регистр букв не важен. Если оставить поле пустым, будет создан короткий код из 6 символов.</p>';
+}
 function inviteForm() {
   modal(
-    `<h2>Приглашение к регистрации</h2><form id="invitation">${field("label", "Название приглашения")}${field("group_name", "Группа", "text", false)}<label>Подразделение<select aria-label="Подразделение" name="unit"><option value="">Выбирает участник</option>${units.map((x) => `<option>${esc(x)}</option>`).join("")}</select></label>${coursesInput()}${field("days", "Срок действия в днях", "number")}${field("max_uses", "Максимум регистраций", "number")}<button>Создать</button></form>`,
+    `<h2>Приглашение к регистрации</h2><form id="invitation">${field("label", "Название приглашения")}${invitationCodeField()}${field("group_name", "Группа", "text", false)}<label>Подразделение<select aria-label="Подразделение" name="unit"><option value="">Выбирает участник</option>${units.map((x) => `<option>${esc(x)}</option>`).join("")}</select></label>${coursesInput()}${field("days", "Срок действия в днях", "number")}${field("max_uses", "Максимум регистраций", "number")}<button>Создать</button></form>`,
   );
   const f = document.getElementById("invitation");
   f.elements.days.value = 7;

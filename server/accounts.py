@@ -6,6 +6,7 @@ import hmac
 import io
 import json
 import secrets
+import re
 import sqlite3
 import time
 from contextlib import closing
@@ -418,8 +419,10 @@ class Accounts:
             try:days=int(data.get('days',7));uses=int(data.get('max_uses',100))
             except (TypeError,ValueError):raise HTTPException(422,'Неверный срок или число регистраций')
             if not 1<=days<=90 or not 1<=uses<=10000:raise HTTPException(422,'Срок: 1–90 дней; регистраций: 1–10000')
-            token=secrets.token_urlsafe(24);iid=secrets.token_hex(16)
+            iid=secrets.token_hex(16)
             with closing(self.db()) as c:
+                c.execute('BEGIN IMMEDIATE')
+                token=self.invitation_code(c,data.get('code'))
                 if unit and not c.execute('SELECT 1 FROM identity_units WHERE name=?',(unit,)).fetchone():raise HTTPException(422,'Нет такого подразделения')
                 c.execute('INSERT INTO identity_invites(id,token_hash,label,unit,courses,group_name,expires_at,max_uses,created_by) VALUES(?,?,?,?,?,?,?,?,?)',
                     (iid,hashlib.sha256(token.encode()).hexdigest(),str(data.get('label','Приглашение'))[:160],unit,json.dumps(courses),str(data.get('group_name',''))[:160],time.time()+days*86400,uses,a['id']))
@@ -427,13 +430,13 @@ class Accounts:
             return {'id':iid,'token':token}
 
         @app.post('/api/v1/accounts/invitations/{iid}/renew-code')
-        def renew_invitation_code(iid:str,a=Depends(management)):
-            token=secrets.token_urlsafe(24)
+        def renew_invitation_code(iid:str,data:dict,a=Depends(management)):
             with closing(self.db()) as c:
                 c.execute('BEGIN IMMEDIATE')
                 r=c.execute('SELECT * FROM identity_invites WHERE id=?',(iid,)).fetchone()
                 if not r or ('admin' not in a['roles'] and r['created_by']!=a['id']):raise HTTPException(403,'Нет доступа')
                 if not r['active'] or r['expires_at']<=time.time() or r['uses']>=r['max_uses']:raise HTTPException(422,'Приглашение недействительно. Создайте новое приглашение')
+                token=self.invitation_code(c,data.get('code'),iid)
                 c.execute('UPDATE identity_invites SET token_hash=? WHERE id=?',(hashlib.sha256(token.encode()).hexdigest(),iid))
                 self.audit(c,a['id'],None,'invitation_code_renewed',{'id':iid});c.commit()
             return {'id':iid,'token':token}
@@ -499,8 +502,20 @@ class Accounts:
                 c.commit()
             return result
 
+    def invitation_code(self, c, value=None, exclude_id=''):
+        if value is not None and not isinstance(value,str):raise HTTPException(422,'Код должен быть текстом')
+        code=(value or '').strip().upper()
+        if code and not re.fullmatch(r'[A-ZА-ЯЁ0-9-]{4,32}',code):raise HTTPException(422,'Код: 4–32 символа, русские или латинские буквы, цифры и дефис, без пробелов')
+        for _ in range(20):
+            candidate=code or ''.join(secrets.choice('ABCDEFGHJKLMNPQRSTUVWXYZ23456789') for _ in range(6))
+            if not c.execute('SELECT 1 FROM identity_invites WHERE token_hash=? AND id<>?',(hashlib.sha256(candidate.encode()).hexdigest(),exclude_id)).fetchone():return candidate
+            if code:raise HTTPException(409,'Этот код уже используется. Укажите другой код')
+        raise HTTPException(409,'Не удалось подобрать код. Попробуйте ещё раз')
+
     def invite(self,c,token):
+        token=token.strip()
         r=c.execute('SELECT * FROM identity_invites WHERE token_hash=?',(hashlib.sha256(token.encode()).hexdigest(),)).fetchone()
+        if not r:r=c.execute('SELECT * FROM identity_invites WHERE token_hash=?',(hashlib.sha256(token.upper().encode()).hexdigest(),)).fetchone()
         if not r or not r['active'] or r['expires_at']<time.time() or r['uses']>=r['max_uses']:
             raise HTTPException(403,'Приглашение недействительно или срок его действия истёк')
         return r

@@ -218,3 +218,35 @@ def test_renew_invitation_code_preserves_settings_and_existing_registrants(servi
     assert code not in c.get('/api/v1/accounts/invitations/list',headers=h).text
     c.post('/api/v1/accounts/invitations/'+inv['id']+'/revoke',headers=h,json={})
     assert c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=h,json={}).status_code==422
+
+
+def test_custom_short_invitation_codes_and_multiple_participants(service):
+    c,m,legacy=service;_,cid=publish(c,legacy);h=admin(c)
+    c.post('/api/v1/accounts/units',headers=h,json={'name':'Игарка'})
+    base={'label':'Бухгалтер','courses':[cid],'max_uses':10}
+    inv=c.post('/api/v1/accounts/invitations/create',headers=h,json={**base,'code':' buh01 '})
+    assert inv.status_code==200,inv.text
+    inv=inv.json();assert inv['token']=='BUH01'
+    assert c.get('/api/v1/accounts/invitation',params={'token':'bUh01'}).status_code==200
+    assert c.post('/api/v1/accounts/invitations/create',headers=h,json={**base,'code':'BUH01'}).status_code==409
+    for code in ('123','a b c','<script>'):
+        assert c.post('/api/v1/accounts/invitations/create',headers=h,json={**base,'code':code}).status_code==422
+    for surname in ('Первая','Вторая'):
+        data=person();data['last_name']=surname
+        r=c.post('/api/v1/accounts/register',json={**data,'invitation':'buh01','password':'participant-test-password','password_repeat':'participant-test-password'})
+        assert r.status_code==200,r.text
+    renewed=c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=h,json={'code':'бух02'})
+    assert renewed.status_code==200 and renewed.json()['token']=='БУХ02'
+    assert c.get('/api/v1/accounts/invitation',params={'token':'бух02'}).status_code==200
+    assert c.get('/api/v1/accounts/invitation',params={'token':'BUH01'}).status_code==403
+    auto=c.post('/api/v1/accounts/invitations/create',headers=h,json=base).json()
+    assert len(auto['token'])==6
+    assert c.post('/api/v1/accounts/invitations/'+inv['id']+'/renew-code',headers=h,json={'code':auto['token']}).status_code==409
+    assert c.get('/api/v1/accounts/invitation',params={'token':'бух02'}).status_code==200
+    # Old long mixed-case invitation tokens continue to work unchanged.
+    import hashlib
+    old_token='Old_Mixed-case-Legacy-Token1234567'
+    with closing(m.db()) as con:
+        con.execute('UPDATE identity_invites SET token_hash=? WHERE id=?',(hashlib.sha256(old_token.encode()).hexdigest(),auto['id']));con.commit()
+    assert c.get('/api/v1/accounts/invitation',params={'token':old_token}).status_code==200
+    assert 'BUH01' not in c.get('/api/v1/accounts/audit/log',headers=h).text
