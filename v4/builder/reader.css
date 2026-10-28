@@ -3,9 +3,9 @@
 .workbook-reader header{gap:16px;min-height:82px;padding:14px clamp(16px,2vw,40px)}
 .workbook-reader header>a{margin-right:auto}
 .workbook-reader header button{margin-left:0}
-.workbook-reader main.layout{width:100%;max-width:none;margin:0;padding:28px clamp(16px,2vw,40px) 50px;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
-.workbook-reader .workbook-content{grid-column:1;grid-row:1;min-width:0}
-.workbook-reader .section-nav{grid-column:2;grid-row:1;background:var(--navy);color:white;border-radius:0 30px 30px 0;padding:24px 18px;top:110px;max-height:calc(100vh - 135px)}
+.workbook-reader main.layout{width:100%;max-width:none;margin:0;padding:28px clamp(16px,2vw,40px) 50px;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}
+.workbook-reader .workbook-content{grid-column:2;grid-row:1;min-width:0}
+.workbook-reader .section-nav{grid-column:1;grid-row:1;background:var(--navy);color:white;border-radius:0 30px 30px 0;padding:24px 18px;top:110px;max-height:calc(100vh - 135px)}
 .workbook-reader .section-nav>h2{background:none;color:#D1D4EB;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin:0 8px 16px;padding:0}
 .workbook-reader .section-nav nav>a{display:grid;grid-template-columns:28px minmax(0,1fr) 16px;align-items:center;gap:10px;margin:7px 0;padding:14px 12px;color:#D1D4EB;text-decoration:none;line-height:1.4;border-radius:0 26px 26px 0}
 .workbook-reader .section-nav nav>a:hover{background:#ffffff15;color:white}
@@ -37,7 +37,7 @@
 .workbook-reader #pagePosition{color:var(--muted);font-size:15px}
 .workbook-reader .reader-pager button:disabled{opacity:.4;cursor:default}
 .workbook-reader .result{font-size:16px}
-@media(max-width:1000px){.workbook-reader main.layout{grid-template-columns:minmax(0,1fr) 250px;gap:20px}.workbook-reader .section-nav{padding:20px 12px}}
+@media(max-width:1000px){.workbook-reader main.layout{grid-template-columns:250px minmax(0,1fr);gap:20px}.workbook-reader .section-nav{padding:20px 12px}}
 @media(max-width:760px){
  .workbook-reader header{gap:10px;padding:12px 16px}.workbook-reader header img{width:90px}.workbook-reader header>span{font-size:14px}.workbook-reader header button{font-size:12px;padding:8px 12px}
  .workbook-reader main.layout{display:flex;flex-direction:column;padding:16px;gap:18px}
