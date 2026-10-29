@@ -45,6 +45,10 @@ def main():
    age=datetime.now(timezone.utc)-datetime.strptime(x.name,'%Y%m%dT%H%M%S%fZ').replace(tzinfo=timezone.utc)
    if age>=timedelta(days=14):shutil.rmtree(x)
   print('OK')
+ elif op=='status' and len(args)==2:
+  valid=[x for x in ROOT.iterdir() if re.fullmatch(r'\d{8}T\d{12}Z',x.name) and x.is_dir() and not x.is_symlink() and (x/'verified.json').is_file()]
+  total=sum(f.stat().st_size for x in valid for f in x.iterdir() if f.is_file() and not f.is_symlink())
+  print(json.dumps({'free_bytes':shutil.disk_usage(ROOT).free,'verified_points':len(valid),'verified_total_bytes':total,'retention_days':14}))
  elif op=='get' and len(args)==3 and args[2] in NAMES:
   path=p/args[2]
   if path.is_symlink():raise ValueError()
