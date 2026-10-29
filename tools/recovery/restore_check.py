@@ -46,6 +46,17 @@ def check(directory):
                 raise ValueError('TLS recovery files are missing')
     image = metadata['image_id']
     if not re.fullmatch(r'sha256:[a-f0-9]{64}', image):raise ValueError('Invalid recovery image identifier')
+    # Restore the exact archived image when deployment cleanup removed its cache.
+    exists = subprocess.run(['docker','image','inspect',image],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode == 0
+    if not exists:
+        STAGE='restore-runtime-image'
+        with tarfile.open(directory/'server-settings.tgz','r:gz') as archive:
+            member=archive.getmember('runtime-image.tar')
+            if not member.isfile():raise ValueError('Invalid runtime image archive')
+            with archive.extractfile(member) as stream:
+                loaded=subprocess.run(['docker','image','load'],stdin=stream,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                if loaded.returncode:raise RuntimeError('Archived runtime image could not be loaded')
+        run(['docker','image','inspect',image])
     with tempfile.TemporaryDirectory(prefix='isolated-restore-', dir=directory.parent) as tmp:
         STAGE='extract-to-new-directory'
         root = restore(directory / 'data.tgz', Path(tmp) / 'restored')
