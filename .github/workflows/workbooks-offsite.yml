@@ -1,0 +1,63 @@
+name: Configure and verify offsite backup
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workbooks-server-production
+  cancel-in-progress: false
+jobs:
+  offsite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require private setup credential
+        env:
+          OFFSITE_ROOT_PASSWORD: ${{ secrets.OFFSITE_ROOT_PASSWORD }}
+        run: |
+          if [ -z "$OFFSITE_ROOT_PASSWORD" ]; then
+            echo 'Add the OFFSITE_ROOT_PASSWORD Actions secret before running this workflow.'
+            exit 1
+          fi
+      - name: Prepare existing production connection
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts 2>/dev/null
+      - name: Install restricted backup endpoint tools
+        run: |
+          python -m py_compile tools/offsite/*.py
+          tar -czf /tmp/ifcm-offsite-tools.tgz tools/offsite
+          scp /tmp/ifcm-offsite-tools.tgz root@194.48.140.70:/tmp/ifcm-offsite-tools.tgz
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          umask 077
+          install -d -m 700 /opt/upo-workbooks/maintenance/private /tmp/ifcm-offsite-source
+          tar -xzf /tmp/ifcm-offsite-tools.tgz -C /tmp/ifcm-offsite-source
+          for name in bootstrap.py receiver.py; do
+            install -m 600 "/tmp/ifcm-offsite-source/tools/offsite/$name" "/opt/upo-workbooks/maintenance/private/$name"
+          done
+          install -m 600 /tmp/ifcm-offsite-source/tools/offsite/offsite.py /opt/upo-workbooks/maintenance/offsite.py
+          REMOTE
+      - name: Authorize restricted offsite key using private stdin
+        env:
+          OFFSITE_ROOT_PASSWORD: ${{ secrets.OFFSITE_ROOT_PASSWORD }}
+        run: |
+          printf '%s' "$OFFSITE_ROOT_PASSWORD" | ssh root@194.48.140.70 'python3 /opt/upo-workbooks/maintenance/private/bootstrap.py'
+      - name: Copy latest verified recovery point and restore its downloaded copy
+        run: |
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          python3 /opt/upo-workbooks/maintenance/offsite.py --restore-check
+          install -d -m 755 /etc/systemd/system/ifcm-workbooks-backup.service.d
+          printf '[Service]\nExecStartPost=/usr/bin/python3 /opt/upo-workbooks/maintenance/offsite.py\n' > /etc/systemd/system/ifcm-workbooks-backup.service.d/offsite.conf
+          systemctl daemon-reload
+          systemctl is-active --quiet ifcm-workbooks-backup.timer
+          rm -f /opt/upo-workbooks/maintenance/private/offsite-envelope.pem
+          rm -f /opt/upo-workbooks/maintenance/private/bootstrap.py /opt/upo-workbooks/maintenance/private/receiver.py /tmp/ifcm-offsite-tools.tgz
+          rm -rf /tmp/ifcm-offsite-source
+          echo 'Daily offsite copy and isolated read-back recovery verified; retention 14 days.'
+          REMOTE
