@@ -11,6 +11,7 @@ def sha(p):
  return h.hexdigest()
 def ssh(command,**kw):
  args=['ssh','-i',str(BASE/'private/offsite_ed25519'),'-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(BASE/'private/offsite_known_hosts'),'-o','ConnectTimeout=15','root@185.218.17.114',command]
+ kw.setdefault('stdin',subprocess.DEVNULL)
  r=subprocess.run(args,stderr=subprocess.PIPE,**kw)
  if r.returncode:
   detail=r.stderr.decode(errors='replace')
