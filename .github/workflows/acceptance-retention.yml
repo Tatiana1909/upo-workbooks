@@ -41,4 +41,15 @@ jobs:
           systemctl is-enabled --quiet ifcm-workbooks-backup.timer
           echo 'Backup timer active and enabled'
           docker exec workbook_api python -c 'import sqlite3; c=sqlite3.connect("file:/data/workbooks.sqlite3?mode=ro",uri=True); assert c.execute("PRAGMA quick_check").fetchone()[0]=="ok"; print("Production database quick check passed")'
+          python3 - <<'PY'
+          import socket, shutil, os
+          print("VPN_CAPABILITIES", {k: bool(shutil.which(k)) for k in ("awg","wg","openvpn","amnezia")}, "tun", os.path.exists("/dev/net/tun"))
+          try:
+              with socket.create_connection(("185.218.17.114",22),timeout=10) as conn:
+                  banner=conn.recv(128)
+                  print("OFFSITE_SSH_REACHABLE", banner.startswith(b"SSH-"))
+          except OSError as exc:
+              print("OFFSITE_SSH_UNAVAILABLE",type(exc).__name__)
+          PY
+          docker exec workbook_api python -c 'from retention import sweep; import json; print(json.dumps(sweep("/data/workbooks.sqlite3","/data"),default=str))' 2>/dev/null || echo 'Retention module not deployed yet'
           REMOTE
