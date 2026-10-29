@@ -1,7 +1,7 @@
 name: Workbooks verified backup
 on:
   push:
-    branches: [feature/verified-backups]
+    branches: [main, feature/verified-backups]
     paths: ['.github/workflows/workbooks-backup.yml', 'tools/recovery/**', 'server/backup_bundle.py']
   workflow_dispatch:
 concurrency:
