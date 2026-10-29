@@ -1,0 +1,35 @@
+name: Fire exam readiness regression
+on:
+  pull_request:
+    paths: ['v4/fire/**', 'server/**', 'tools/test-fire-readiness-ui.cjs', '.github/workflows/fire-readiness-check.yml']
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r server/requirements.txt pytest httpx
+      - run: pytest server/tests -q --disable-warnings
+      - run: node --check v4/fire/editable-runner.js
+      - run: npm install --prefix /tmp/fire-ui playwright
+      - name: Browser regression with isolated database
+        env:
+          NODE_PATH: /tmp/fire-ui/node_modules
+        run: |
+          if command -v google-chrome >/dev/null; then
+            export PB_UI_CHROME="$(command -v google-chrome)"
+          else
+            /tmp/fire-ui/node_modules/.bin/playwright install --with-deps chromium
+          fi
+          python server/tests/run_fire_readiness_ui.py > /tmp/fire-readiness-stage.log 2>&1 &
+          stage_pid=$!
+          trap 'kill "$stage_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8125/health; then break; fi
+            sleep 1
+          done
+          timeout 180s node tools/test-fire-readiness-ui.cjs
