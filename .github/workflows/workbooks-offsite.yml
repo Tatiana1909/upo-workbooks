@@ -1,9 +1,6 @@
 name: Configure and verify offsite backup
 # Verify offsite scheduling and full maintenance script completion
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/workbooks-offsite.yml']
   workflow_dispatch:
 permissions:
   contents: read
