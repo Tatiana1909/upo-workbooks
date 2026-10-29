@@ -1,5 +1,5 @@
 name: Configure and verify offsite backup
-# Retry with controlling SSH terminal
+# Private SSH bootstrap terminal input corrected
 on:
   push:
     branches: [main]
