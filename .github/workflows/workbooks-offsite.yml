@@ -1,5 +1,5 @@
 name: Configure and verify offsite backup
-# Verify transfer stages after successful offsite authorization
+# Verify isolated offsite read-back restore stages
 on:
   push:
     branches: [main]
