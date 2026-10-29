@@ -55,5 +55,24 @@ jobs:
               print("OFFSITE_SSH_UNAVAILABLE",type(exc).__name__)
           PY
           docker exec workbook_api python -c 'from retention import sweep; import json; print(json.dumps(sweep("/data/workbooks.sqlite3","/data"),default=str))' 2>/dev/null || echo 'Retention module not deployed yet'
-          rm -f /opt/upo-workbooks/maintenance/private/offsite-envelope.pem
+          python3 - <<'CAPACITY'
+          from pathlib import Path
+          from datetime import datetime,timezone,timedelta
+          import json,os,re,shutil
+          root=Path('/opt/upo-workbooks/backups')
+          points=[]
+          for p in (root/'scheduled').iterdir():
+              if p.is_symlink() or not p.is_dir() or not re.fullmatch(r'\d{8}T\d{12}Z',p.name):continue
+              try:
+                  v=json.loads((p/'verified.json').read_text())
+                  if not (v.get('database_and_files_verified') and v.get('isolated_api_restore')):continue
+                  stamp=datetime.strptime(p.name,'%Y%m%dT%H%M%S%fZ').replace(tzinfo=timezone.utc)
+                  size=sum((Path(d)/f).stat().st_size for d,ds,fs in os.walk(p) for f in fs if not (Path(d)/f).is_symlink())
+                  points.append((stamp,size))
+              except (OSError,ValueError):continue
+          points.sort()
+          now=datetime.now(timezone.utc)
+          result={'free_bytes':shutil.disk_usage(root).free,'verified_points':len(points),'verified_total_bytes':sum(x[1] for x in points),'latest_point_bytes':points[-1][1] if points else None,'largest_point_bytes':max((x[1] for x in points),default=0),'oldest_point_at':points[0][0].isoformat() if points else None,'latest_point_at':points[-1][0].isoformat() if points else None,'reclaimable_older_7_bytes':sum(size for at,size in points[:-1] if now-at>=timedelta(days=7)),'reclaimable_older_14_bytes':sum(size for at,size in points[:-1] if now-at>=timedelta(days=14))}
+          print('BACKUP_CAPACITY_METRICS '+json.dumps(result))
+          CAPACITY
           REMOTE
