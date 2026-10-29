@@ -59,7 +59,6 @@ jobs:
         run: |
           ssh root@194.48.140.70 'bash -s' <<'REMOTE'
           set -euo pipefail
-          docker builder prune -f --filter until=1h
           if ! systemctl start ifcm-workbooks-backup.service; then
             journalctl -u ifcm-workbooks-backup.service -n 25 -o cat | grep -E 'backup_capacity_mib|local_backup_verified|Error:|Start request|Failed to|code=' || true
             du -sm /opt/upo-workbooks/backups /opt/upo-workbooks/maintenance /tmp/ifcm-offsite-source /tmp/ifcm-verified-backup-source /tmp/upo-review-source 2>/dev/null || true
@@ -74,5 +73,8 @@ jobs:
           rm -f /opt/upo-workbooks/maintenance/private/offsite-envelope.pem
           rm -f /opt/upo-workbooks/maintenance/private/bootstrap.py /opt/upo-workbooks/maintenance/private/receiver.py /tmp/ifcm-offsite-tools.tgz
           rm -rf /tmp/ifcm-offsite-source
+          systemctl is-enabled --quiet ifcm-workbooks-backup.timer
+          curl --noproxy '*' --resolve 194.48.140.70:443:127.0.0.1 --silent --fail https://194.48.140.70/health
+          df -m /opt/upo-workbooks
           echo 'Daily offsite copy and isolated read-back recovery verified; retention 14 days.'
           REMOTE
