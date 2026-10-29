@@ -48,7 +48,7 @@ printf 'IFCM_SETUP_OK\\n'
     if not chunk:break
     buf+=chunk
     if b'password:' in buf.lower() and not sent:
-     os.write(master,password+b'\\n');password=b'';sent=True
+     os.write(master,password+b'\n');password=b'';sent=True
    done,value=os.waitpid(pid,os.WNOHANG)
    if done:status=value;break
   if status is None:
