@@ -60,7 +60,7 @@ jobs:
           ssh root@194.48.140.70 'bash -s' <<'REMOTE'
           set -euo pipefail
           if ! systemctl start ifcm-workbooks-backup.service; then
-            journalctl -u ifcm-workbooks-backup.service -n 12 -o cat | grep -E '^\\{"local_backup_verified"' || true
+            journalctl -u ifcm-workbooks-backup.service -n 25 -o cat | grep -E 'local_backup_verified|Error:|Start request|Failed to|code=' || true
             exit 1
           fi
           python3 /opt/upo-workbooks/maintenance/offsite.py --restore-check
