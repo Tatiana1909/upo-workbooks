@@ -1,4 +1,5 @@
 name: Configure and verify offsite backup
+# Retry with controlling SSH terminal
 on:
   push:
     branches: [main]
