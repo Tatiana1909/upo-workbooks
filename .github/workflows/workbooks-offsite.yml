@@ -1,5 +1,5 @@
 name: Configure and verify offsite backup
-# Private SSH bootstrap terminal input corrected
+# Verify updated root password secret 20261029
 on:
   push:
     branches: [main]
