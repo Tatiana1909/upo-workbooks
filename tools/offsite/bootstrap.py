@@ -1,5 +1,5 @@
 """One-time authorized offsite setup. Credentials are decrypted only on production."""
-import os,subprocess,base64,pty,select,time,shlex,json
+import os,subprocess,base64,pty,select,time,shlex,json,sys
 from pathlib import Path
 BASE=Path('/opt/upo-workbooks/maintenance');PRIVATE=BASE/'private'
 def run(args,**kw):
@@ -32,7 +32,8 @@ printf 'IFCM_SETUP_OK\\n'
 '''
  encoded=base64.b64encode(script.encode()).decode()
  remote='printf %s '+shlex.quote(encoded)+' | base64 -d | /bin/sh'
- password=run(['openssl','pkeyutl','-decrypt','-inkey',str(PRIVATE/'offsite-envelope.pem'),'-pkeyopt','rsa_padding_mode:oaep','-pkeyopt','rsa_oaep_md:sha256'],input=base64.b64decode(Path(__file__).with_name('credential.b64').read_bytes()))
+ password=sys.stdin.buffer.read(1024)
+ if not password or b'\n' in password or b'\r' in password:raise RuntimeError('Missing private setup credential')
  master,slave=pty.openpty()
  process=subprocess.Popen(['ssh','-tt','-o','PubkeyAuthentication=no','-o','PreferredAuthentications=password','-o','NumberOfPasswordPrompts=1','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(PRIVATE/'offsite_known_hosts'),'root@185.218.17.114',remote],stdin=slave,stdout=slave,stderr=slave,start_new_session=True)
  os.close(slave);buf=b'';sent=False;deadline=time.monotonic()+90
