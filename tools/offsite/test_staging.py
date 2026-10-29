@@ -40,6 +40,24 @@ class TransferTests(unittest.TestCase):
   with self.assertRaises(ValueError):m.transfer(self.p,cleanup=True)
   self.assertEqual(target.read_text(),'untouched')
 class ReceiverTests(unittest.TestCase):
+ def test_external_retention_boundary_preserves_unrelated_entries(self):
+  from datetime import datetime,timezone,timedelta
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp)/'points';root.mkdir();now=datetime(2026,10,29,12,tzinfo=timezone.utc)
+   def point(at):
+    p=root/at.strftime('%Y%m%dT%H%M%S%fZ');p.mkdir();(p/'verified.json').write_text('{}');return p
+   expired=point(now-timedelta(days=14));inside=point(now-timedelta(days=14)+timedelta(seconds=1));latest=point(now)
+   unknown=root/'unrelated';unknown.mkdir();partial=root/'20261001T000000000000Z.partial';partial.mkdir()
+   outside=Path(tmp)/'outside';outside.mkdir();link=root/'20261001T000000000000Z';link.symlink_to(outside,target_is_directory=True)
+   script=Path(tmp)/'receiver.py';source=Path(__file__).with_name('receiver.py').read_text().replace("Path('/backups/ifcm-workbooks/points')",'Path('+repr(str(root))+')').replace('datetime.now(timezone.utc)','datetime(2026,10,29,12,tzinfo=timezone.utc)');script.write_text(source)
+   r=subprocess.run(['python',str(script)],env={**os.environ,'SSH_ORIGINAL_COMMAND':'commit '+latest.name},capture_output=True)
+   self.assertEqual(r.returncode,0,r.stderr);self.assertFalse(expired.exists());self.assertTrue(inside.exists());self.assertTrue(latest.exists());self.assertTrue(unknown.exists());self.assertTrue(partial.exists());self.assertTrue(link.is_symlink());self.assertTrue(outside.exists())
+ def test_external_last_good_point_is_kept_even_when_old(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp)/'points';root.mkdir();old=root/'20260901T000000000000Z';old.mkdir();(old/'verified.json').write_text('{}')
+   script=Path(tmp)/'receiver.py';script.write_text(Path(__file__).with_name('receiver.py').read_text().replace("Path('/backups/ifcm-workbooks/points')",'Path('+repr(str(root))+')'))
+   r=subprocess.run(['python',str(script)],env={**os.environ,'SSH_ORIGINAL_COMMAND':'commit '+old.name},capture_output=True)
+   self.assertEqual(r.returncode,0,r.stderr);self.assertTrue(old.exists())
  def test_scoped_status_is_read_only_and_rejects_traversal(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=Path(tmp)/'points';root.mkdir();p=root/'20261029T120000000001Z';p.mkdir();(p/'verified.json').write_text('{}')
