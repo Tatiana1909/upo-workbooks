@@ -59,7 +59,10 @@ jobs:
         run: |
           ssh root@194.48.140.70 'bash -s' <<'REMOTE'
           set -euo pipefail
-          systemctl start ifcm-workbooks-backup.service
+          if ! systemctl start ifcm-workbooks-backup.service; then
+            journalctl -u ifcm-workbooks-backup.service -n 12 -o cat | grep -E '^\\{"local_backup_verified"' || true
+            exit 1
+          fi
           python3 /opt/upo-workbooks/maintenance/offsite.py --restore-check
           install -d -m 755 /etc/systemd/system/ifcm-workbooks-backup.service.d
           printf '[Service]\nExecStartPost=/usr/bin/python3 /opt/upo-workbooks/maintenance/offsite.py\n' > /etc/systemd/system/ifcm-workbooks-backup.service.d/offsite.conf
