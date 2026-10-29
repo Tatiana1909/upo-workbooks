@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify staging cleanup safety
+        run: python3 -m unittest discover -s tools/offsite -p test_staging.py -q
       - name: Require private setup credential
         env:
           OFFSITE_ROOT_PASSWORD: ${{ secrets.OFFSITE_ROOT_PASSWORD }}
@@ -55,12 +57,32 @@ jobs:
           OFFSITE_ROOT_PASSWORD: ${{ secrets.OFFSITE_ROOT_PASSWORD }}
         run: |
           printf '%s' "$OFFSITE_ROOT_PASSWORD" | ssh root@194.48.140.70 'python3 /opt/upo-workbooks/maintenance/private/bootstrap.py'
-      - name: Verify every staged copy on external storage without deleting local files
+      - name: Switch to temporary local staging and verify a complete scheduled backup
         run: |
           ssh root@194.48.140.70 'bash -s' <<'REMOTE'
           set -euo pipefail
-          python3 /opt/upo-workbooks/maintenance/offsite.py --all --restore-check
-          df -m /opt/upo-workbooks
+          python3 /opt/upo-workbooks/maintenance/offsite.py --all --cleanup-confirmed --restore-check
+          install -d -m 755 /etc/systemd/system/ifcm-workbooks-backup.service.d
+          printf '%s\n' '[Service]' 'ExecStartPre=/usr/bin/python3 /opt/upo-workbooks/maintenance/offsite.py --all --cleanup-confirmed --restore-check --allow-empty' 'ExecStartPost=' 'ExecStartPost=/usr/bin/python3 /opt/upo-workbooks/maintenance/offsite.py --all --cleanup-confirmed --restore-check' > /etc/systemd/system/ifcm-workbooks-backup.service.d/offsite.conf
+          systemctl daemon-reload
+          if ! systemctl start ifcm-workbooks-backup.service; then
+            journalctl -u ifcm-workbooks-backup.service -n 20 -o cat | grep -E 'local_backup_verified|offsite_copy_verified|backup_capacity_mib|Error:' || true
+            exit 1
+          fi
+          python3 - <<'VERIFY'
+          import sys,json,re,shutil
+          from pathlib import Path
+          sys.path.insert(0,'/opt/upo-workbooks/maintenance')
+          import offsite
+          result=json.loads((offsite.BASE/'private/offsite-last-success.json').read_text())
+          assert result['offsite_copy_verified'] and result['offsite_readback_restore'] and result['local_staging_removed']
+          points=[p for p in offsite.ROOT.iterdir() if offsite.STAMP.fullmatch(p.name) and p.is_dir() and not p.is_symlink()]
+          assert not points
+          print('LOCAL_STAGING_STATUS '+json.dumps({'pending_points':len(points),'free_bytes':shutil.disk_usage(offsite.ROOT).free,'last_result':result}))
+          print('OFFSITE_STORAGE '+offsite.ssh('status '+result['point'],stdout=offsite.subprocess.PIPE).stdout.decode().strip())
+          VERIFY
           systemctl is-active --quiet ifcm-workbooks-backup.timer
-          echo 'All staged copies checked against external storage; no local copies deleted.'
+          systemctl is-enabled --quiet ifcm-workbooks-backup.timer
+          curl --noproxy '*' --resolve 194.48.140.70:443:127.0.0.1 --silent --fail https://194.48.140.70/health
+          echo 'Temporary local staging and 14-day external retention verified.'
           REMOTE
