@@ -1,5 +1,5 @@
 name: Configure and verify offsite backup
-# Verify isolated offsite read-back restore stages
+# Verify self-contained fresh offsite recovery point
 on:
   push:
     branches: [main]
@@ -55,6 +55,7 @@ jobs:
         run: |
           ssh root@194.48.140.70 'bash -s' <<'REMOTE'
           set -euo pipefail
+          systemctl start ifcm-workbooks-backup.service
           python3 /opt/upo-workbooks/maintenance/offsite.py --restore-check
           install -d -m 755 /etc/systemd/system/ifcm-workbooks-backup.service.d
           printf '[Service]\nExecStartPost=/usr/bin/python3 /opt/upo-workbooks/maintenance/offsite.py\n' > /etc/systemd/system/ifcm-workbooks-backup.service.d/offsite.conf
