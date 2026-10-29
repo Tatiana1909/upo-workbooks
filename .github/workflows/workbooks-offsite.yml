@@ -1,5 +1,5 @@
 name: Configure and verify offsite backup
-# Verify self-contained fresh offsite recovery point and Docker image stream
+# Verify offsite scheduling and full maintenance script completion
 on:
   push:
     branches: [main]
