@@ -1,5 +1,5 @@
 name: Configure and verify offsite backup
-# Verify corrected SSH configuration 20261029
+# Verify transfer stages after successful offsite authorization
 on:
   push:
     branches: [main]
