@@ -44,9 +44,12 @@ def main():
                 p=Path(path)/name
                 if not p.is_symlink():host_size+=p.stat().st_size
         # Allow uncompressed archives, SQLite snapshot, extracted clone and a reserve.
+        STAGE='runtime-image-inspection'
         image_size=json.loads(command(['docker','image','inspect',image]))[0]['Size']
+        STAGE='capacity-check'
         required=4*runtime_size+2*host_size+3*image_size+128*1024**2
         if shutil.disk_usage(ROOT).free<required:
+            print(json.dumps({'backup_capacity_mib':{'required':required//1024**2,'available':shutil.disk_usage(ROOT).free//1024**2,'image':image_size//1024**2,'runtime':runtime_size//1024**2,'server_files':host_size//1024**2}}),flush=True)
             raise RuntimeError('Insufficient space for a verified recovery point')
         STAGE='application-archive'
         script=Path(__file__).with_name('backup_bundle.py')
