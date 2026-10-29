@@ -61,6 +61,21 @@ jobs:
           set -euo pipefail
           if ! systemctl start ifcm-workbooks-backup.service; then
             journalctl -u ifcm-workbooks-backup.service -n 25 -o cat | grep -E 'backup_capacity_mib|local_backup_verified|Error:|Start request|Failed to|code=' || true
+            python3 - <<'PY'
+            import os,json
+            from pathlib import Path
+            paths=['/opt/upo-workbooks/backups','/opt/upo-workbooks/maintenance','/tmp/ifcm-offsite-source','/tmp/ifcm-verified-backup-source','/tmp/upo-review-source']
+            for name in paths:
+                total=0
+                for root,dirs,files in os.walk(name):
+                    for f in files:
+                        p=Path(root)/f
+                        if not p.is_symlink():
+                            try:total+=p.stat().st_size
+                            except OSError:pass
+                print(json.dumps({'project_disk_usage_mib':name,'size':total//1024**2}))
+            PY
+            docker system df --format '{{.Type}} {{.Size}} {{.Reclaimable}}'
             exit 1
           fi
           python3 /opt/upo-workbooks/maintenance/offsite.py --restore-check
