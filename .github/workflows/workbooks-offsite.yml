@@ -34,13 +34,17 @@ jobs:
       - name: Install restricted backup endpoint tools
         run: |
           python -m py_compile tools/offsite/*.py
-          tar -czf /tmp/ifcm-offsite-tools.tgz tools/offsite
+          tar -czf /tmp/ifcm-offsite-tools.tgz tools/offsite tools/recovery server/backup_bundle.py
           scp /tmp/ifcm-offsite-tools.tgz root@194.48.140.70:/tmp/ifcm-offsite-tools.tgz
           ssh root@194.48.140.70 'bash -s' <<'REMOTE'
           set -euo pipefail
           umask 077
           install -d -m 700 /opt/upo-workbooks/maintenance/private /tmp/ifcm-offsite-source
           tar -xzf /tmp/ifcm-offsite-tools.tgz -C /tmp/ifcm-offsite-source
+          for name in backup.py backup_retention.py restore_check.py probe.py; do
+            install -m 600 "/tmp/ifcm-offsite-source/tools/recovery/$name" "/opt/upo-workbooks/maintenance/$name"
+          done
+          install -m 600 /tmp/ifcm-offsite-source/server/backup_bundle.py /opt/upo-workbooks/maintenance/backup_bundle.py
           for name in bootstrap.py receiver.py; do
             install -m 600 "/tmp/ifcm-offsite-source/tools/offsite/$name" "/opt/upo-workbooks/maintenance/private/$name"
           done
