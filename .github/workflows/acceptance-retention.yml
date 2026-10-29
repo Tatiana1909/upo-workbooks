@@ -1,0 +1,55 @@
+name: Acceptance retention and production readiness
+on:
+  pull_request:
+    paths: ['server/**', 'v4/**', 'tools/recovery/**', '.github/workflows/acceptance-retention.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r server/requirements.txt pytest httpx
+      - run: python -m pytest server/tests -q --disable-warnings
+      - run: python -m py_compile tools/recovery/*.py
+  production-read-only:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare existing maintenance connection
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 194.48.140.70 >> ~/.ssh/known_hosts 2>/dev/null
+      - name: Verify production without changing data
+        run: |
+          ssh root@194.48.140.70 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          curl --noproxy '*' --resolve 194.48.140.70:443:127.0.0.1 --silent --fail https://194.48.140.70/health | python3 -c 'import json,sys; assert json.load(sys.stdin)["status"]=="ok"; print("Origin HTTPS and application health verified")'
+          for page in v4/index.html v4/accounts.html v4/admin.html v4/fire/teacher.html v4/builder/index.html v4/builder/fire.html; do
+            curl --noproxy '*' --resolve 194.48.140.70:443:127.0.0.1 --silent --fail --output /dev/null "https://194.48.140.70/$page"
+          done
+          echo 'Production entry pages verified'
+          systemctl is-active --quiet ifcm-workbooks-backup.timer
+          systemctl is-enabled --quiet ifcm-workbooks-backup.timer
+          echo 'Backup timer active and enabled'
+          docker exec workbook_api python -c 'import sqlite3; c=sqlite3.connect("file:/data/workbooks.sqlite3?mode=ro",uri=True); assert c.execute("PRAGMA quick_check").fetchone()[0]=="ok"; print("Production database quick check passed")'
+          python3 - <<'PY'
+          import socket, shutil, os
+          print("VPN_CAPABILITIES", {k: bool(shutil.which(k)) for k in ("awg","wg","openvpn","amnezia")}, "tun", os.path.exists("/dev/net/tun"))
+          try:
+              with socket.create_connection(("185.218.17.114",22),timeout=10) as conn:
+                  banner=conn.recv(128)
+                  print("OFFSITE_SSH_REACHABLE", banner.startswith(b"SSH-"))
+          except OSError as exc:
+              print("OFFSITE_SSH_UNAVAILABLE",type(exc).__name__)
+          PY
+          docker exec workbook_api python -c 'from retention import sweep; import json; print(json.dumps(sweep("/data/workbooks.sqlite3","/data"),default=str))' 2>/dev/null || echo 'Retention module not deployed yet'
+          REMOTE

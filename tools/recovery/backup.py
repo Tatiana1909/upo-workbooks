@@ -1,4 +1,4 @@
-"""Local server-only scheduled recovery points. No pruning or offsite transfers."""
+"""Local server-only scheduled recovery points. Fourteen-day retention; no offsite transfers."""
 import fcntl
 import hashlib
 import json
@@ -9,6 +9,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from restore_check import check
+from backup_retention import prune
 
 APP=Path('/opt/upo-workbooks')
 ROOT=APP/'backups/scheduled'
@@ -71,6 +72,8 @@ def main():
         result=check(directory)
         (directory/'verified.json').write_text(json.dumps(result))
         directory.rename(ROOT/stamp)
+        STAGE='retention'
+        prune(ROOT, apply=True)
         return {'local_backup_verified':True,'isolated_restore_verified':True,'offsite_copy':False}
 
 

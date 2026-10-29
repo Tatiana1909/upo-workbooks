@@ -1,4 +1,5 @@
 """Isolated fire workbook: authoritative scoring and shared teacher records."""
+import retention
 import json
 from contextlib import closing
 from pathlib import Path
@@ -130,6 +131,7 @@ def register_fire(app, db, current_user, current_admin, now_iso, static_dir):
             if not row:
                 raise HTTPException(409, 'Сначала сохраните результаты')
             s = json.loads(row['state_json'])
+            retention.assert_open(s)
             validate_state(s)
             if not s.get('submitted'):
                 if not all(s['read'].get(m['id']) is True for m in DATA['modules']) or not all(q['id'] in s['answers'] for q in tasks()):

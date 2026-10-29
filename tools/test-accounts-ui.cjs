@@ -50,12 +50,14 @@ const assert = require("node:assert/strict");
     .fill("Тестовая группа");
   await dialog.locator("select[name=unit]").selectOption("Игарка");
   await dialog.getByRole("checkbox", { name: /Учебная тетрадь/ }).check();
-  await dialog.getByRole("button", { name: "Создать", exact: true }).click();
-  await page
-    .getByRole("status")
-    .filter({ hasText: "Ссылка регистрации" })
-    .waitFor();
-  const link = (await page.getByRole("status").innerText()).split("\n")[1];
+  const [invitationResponse] = await Promise.all([
+    page.waitForResponse(r => r.url().endsWith("/accounts/invitations/create") && r.request().method() === "POST"),
+    dialog.getByRole("button", { name: "Создать", exact: true }).click(),
+  ]);
+  assert.equal(invitationResponse.status(), 200, invitationResponse.status() === 200 ? "" : await invitationResponse.text());
+  if (errors.length) throw Error(errors.join("\n"));
+  await page.locator("#invitationLink").waitFor();
+  const link = await page.locator("#invitationLink").inputValue();
   assert.match(link, /invite=/);
   await page.screenshot({ path: "/tmp/accounts-desktop.png", fullPage: false });
   const student = await browser.newContext({
@@ -79,11 +81,7 @@ const assert = require("node:assert/strict");
     .getByLabel("Повторите пароль", { exact: true })
     .fill("student-password-123");
   await p.getByRole("button", { name: "Создать аккаунт", exact: true }).click();
-  await p
-    .getByRole("status")
-    .filter({ hasText: "Аккаунт создан. Ваш логин:" })
-    .waitFor();
-  await p.getByRole("heading", { name: "Мой профиль", exact: true }).waitFor();
+  await p.getByRole("heading", { name: "Учебная тетрадь для проверки", exact: true }).waitFor();
   assert.equal(
     await p.evaluate(() => document.documentElement.scrollWidth > innerWidth),
     false,
