@@ -40,6 +40,9 @@ def main():
      with (target/name).open('wb') as f:ssh('get '+p.name+' '+name,stdout=f)
      if sha(target/name)!=sha(p/name):raise RuntimeError('Offsite read-back mismatch')
     print(json.dumps({'offsite_stage':'isolated_readback_restore'}),flush=True)
+    image=json.loads((target/'metadata.json').read_text())['image_id']
+    available=subprocess.run(['docker','image','inspect',image],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+    print(json.dumps({'offsite_restore_image_available':available}),flush=True)
     result=check(target)
     if result.get('isolated_api_restore') is not True:raise RuntimeError()
   result={'offsite_copy_verified':True,'offsite_readback_restore':'--restore-check' in sys.argv,'point':p.name}
@@ -47,4 +50,6 @@ def main():
   print(json.dumps(result))
 if __name__=='__main__':
  try:main()
- except Exception as e:print(json.dumps({'offsite_copy_verified':False,'error_type':type(e).__name__}));sys.exit(1)
+ except Exception as e:
+  module=sys.modules.get('restore_check')
+  print(json.dumps({'offsite_copy_verified':False,'error_type':type(e).__name__,'restore_stage':getattr(module,'STAGE',None)}));sys.exit(1)
