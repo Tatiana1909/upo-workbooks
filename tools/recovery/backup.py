@@ -44,7 +44,8 @@ def main():
                 p=Path(path)/name
                 if not p.is_symlink():host_size+=p.stat().st_size
         # Allow uncompressed archives, SQLite snapshot, extracted clone and a reserve.
-        required=4*runtime_size+2*host_size+128*1024**2
+        image_size=json.loads(command(['docker','image','inspect',image]))[0]['Size']
+        required=4*runtime_size+2*host_size+3*image_size+128*1024**2
         if shutil.disk_usage(ROOT).free<required:
             raise RuntimeError('Insufficient space for a verified recovery point')
         STAGE='application-archive'
@@ -57,9 +58,12 @@ def main():
             command(['docker','cp',container+':/tmp/ifcm-scheduled-data.tgz',str(directory/'data.tgz')])
         finally:
             command(['docker','exec',container,'rm','-f','/tmp/ifcm-scheduled-backup.py','/tmp/ifcm-scheduled-data.tgz'])
+        STAGE='runtime-image'
+        command(['docker','image','save','-o',str(directory/'runtime-image.tar'),image])
         STAGE='server-settings'
-        command(['tar','--exclude=backups','--exclude=.git','--exclude=__pycache__','-czf',str(directory/'server-settings.tgz'),'-C',str(APP),'.'])
-        (directory/'metadata.json').write_text(json.dumps({'created_at':stamp,'image_id':image,'scope':'local_server','https_enabled':(APP/'https/origin').is_file()}))
+        command(['tar','--exclude=backups','--exclude=.git','--exclude=__pycache__','-czf',str(directory/'server-settings.tgz'),'-C',str(APP),'.','-C',str(directory),'runtime-image.tar'])
+        (directory/'runtime-image.tar').unlink()
+        (directory/'metadata.json').write_text(json.dumps({'created_at':stamp,'image_id':image,'scope':'local_server','runtime_image_archived':True,'https_enabled':(APP/'https/origin').is_file()}))
         (directory/'probe.py').write_bytes(Path(__file__).with_name('probe.py').read_bytes())
         sums={}
         for name in ('data.tgz','server-settings.tgz','metadata.json','probe.py'):
