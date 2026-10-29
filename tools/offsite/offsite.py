@@ -12,7 +12,11 @@ def sha(p):
 def ssh(command,**kw):
  args=['ssh','-i',str(BASE/'private/offsite_ed25519'),'-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(BASE/'private/offsite_known_hosts'),'-o','ConnectTimeout=15','root@185.218.17.114',command]
  r=subprocess.run(args,stderr=subprocess.PIPE,**kw)
- if r.returncode:raise RuntimeError('Offsite operation failed')
+ if r.returncode:
+  detail=r.stderr.decode(errors='replace')
+  flags=[x for x in ('Rejected backup operation','Permission denied','No space left','No such file','SyntaxError','Connection closed') if x.lower() in detail.lower()]
+  print(json.dumps({'offsite_command':command.split()[0],'returncode':r.returncode,'diagnostic':flags}),flush=True)
+  raise RuntimeError('Offsite operation failed')
  return r
 
 def main():
@@ -24,7 +28,9 @@ def main():
   p=points[-1]; verified=json.loads((p/'verified.json').read_text())
   if verified.get('isolated_api_restore') is not True:raise RuntimeError()
   for name in NAMES:
+   print(json.dumps({'offsite_stage':'upload','file':name}),flush=True)
    with (p/name).open('rb') as f:ssh('put '+p.name+' '+name+' '+sha(p/name),stdin=f,stdout=subprocess.PIPE)
+  print(json.dumps({'offsite_stage':'commit'}),flush=True)
   ssh('commit '+p.name,stdout=subprocess.PIPE)
   if '--restore-check' in sys.argv:
    from restore_check import check
@@ -33,6 +39,7 @@ def main():
     for name in NAMES:
      with (target/name).open('wb') as f:ssh('get '+p.name+' '+name,stdout=f)
      if sha(target/name)!=sha(p/name):raise RuntimeError('Offsite read-back mismatch')
+    print(json.dumps({'offsite_stage':'isolated_readback_restore'}),flush=True)
     result=check(target)
     if result.get('isolated_api_restore') is not True:raise RuntimeError()
   result={'offsite_copy_verified':True,'offsite_readback_restore':'--restore-check' in sys.argv,'point':p.name}
