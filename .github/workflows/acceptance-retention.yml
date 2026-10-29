@@ -55,10 +55,5 @@ jobs:
               print("OFFSITE_SSH_UNAVAILABLE",type(exc).__name__)
           PY
           docker exec workbook_api python -c 'from retention import sweep; import json; print(json.dumps(sweep("/data/workbooks.sqlite3","/data"),default=str))' 2>/dev/null || echo 'Retention module not deployed yet'
-          umask 077
-          install -d -m 700 /opt/upo-workbooks/maintenance/private
-          envelope=/opt/upo-workbooks/maintenance/private/offsite-envelope.pem
-          if [ ! -f "$envelope" ]; then openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out "$envelope" 2>/dev/null; fi
-          openssl pkey -in "$envelope" -pubout
-          ssh-keyscan -T 10 185.218.17.114 2>/dev/null | ssh-keygen -lf -
+          rm -f /opt/upo-workbooks/maintenance/private/offsite-envelope.pem
           REMOTE
