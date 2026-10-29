@@ -48,7 +48,7 @@ def check(directory):
     if not re.fullmatch(r'sha256:[a-f0-9]{64}', image):raise ValueError('Invalid recovery image identifier')
     # Restore the exact archived image when deployment cleanup removed its cache.
     exists = subprocess.run(['docker','image','inspect',image],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode == 0
-    if not exists:
+    if not exists or metadata.get('runtime_image_archived'):
         STAGE='restore-runtime-image'
         with tarfile.open(directory/'server-settings.tgz','r:gz') as archive:
             member=archive.getmember('runtime-image.tar')
