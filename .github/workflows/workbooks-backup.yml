@@ -38,7 +38,7 @@ jobs:
           install -d -m 700 /tmp/ifcm-verified-backup-source /opt/upo-workbooks/maintenance
           tar -xzf /tmp/ifcm-verified-backup-tools.tgz -C /tmp/ifcm-verified-backup-source
           install -m 600 /tmp/ifcm-verified-backup-source/server/backup_bundle.py /opt/upo-workbooks/maintenance/backup_bundle.py
-          for name in backup.py restore_check.py probe.py; do
+          for name in backup.py backup_retention.py restore_check.py probe.py; do
             install -m 600 "/tmp/ifcm-verified-backup-source/tools/recovery/$name" "/opt/upo-workbooks/maintenance/$name"
           done
           install -m 644 /tmp/ifcm-verified-backup-source/tools/recovery/backup.service /etc/systemd/system/ifcm-workbooks-backup.service

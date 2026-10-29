@@ -8,6 +8,7 @@ import os
 import re
 import secrets
 import sqlite3
+import retention
 import time
 from collections import defaultdict, deque
 from contextlib import closing
@@ -527,10 +528,13 @@ def put_progress(course_id: str, data: ProgressInput, user=Depends(progress_user
     summary_json = json.dumps(summary, ensure_ascii=False)
     timestamp = now_iso()
     with closing(db()) as con:
+        con.execute("BEGIN IMMEDIATE")
         row = con.execute(
-            "SELECT attempt_no, started_at, completed_at FROM progress WHERE user_id = ? AND course_id = ?",
+            "SELECT attempt_no, started_at, completed_at, state_json FROM progress WHERE user_id = ? AND course_id = ?",
             (user["uid"], course_id),
         ).fetchone()
+        if row:
+            retention.assert_open(json.loads(row["state_json"]))
         attempt_no = row["attempt_no"] if row else 1
         if builder_edition(course_id):
             if any(not isinstance(data.state.get(k, {}), dict) for k in ("answers", "checks", "evidence", "notes", "done")):
@@ -975,4 +979,5 @@ async def personal_access(request: Request, call_next):
     except HTTPException as exc:
         return JSONResponse({'detail':exc.detail},status_code=exc.status_code,headers={'Cache-Control':'no-store'})
 
+retention.register(app, DB_PATH)
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="workbooks")

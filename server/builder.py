@@ -5,6 +5,7 @@ import re
 import secrets
 import sqlite3
 import games
+import retention
 from pathlib import Path
 from contextlib import closing
 from urllib.parse import urlsplit
@@ -342,8 +343,10 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
         if not ext: raise HTTPException(422,'Поддерживаются PNG, JPG и WebP')
         iid=secrets.token_hex(16)
         with closing(db()) as con:
-            attempt=con.execute('SELECT attempt_no FROM progress WHERE user_id=? AND course_id=?',(user['uid'],cid)).fetchone()
+            con.execute('BEGIN IMMEDIATE')
+            attempt=con.execute('SELECT attempt_no,state_json FROM progress WHERE user_id=? AND course_id=?',(user['uid'],cid)).fetchone()
             if not attempt:raise HTTPException(409,'Сначала войдите в тетрадь')
+            retention.assert_open(json.loads(attempt['state_json']))
             folder=data_dir/'builder-evidence';folder.mkdir(parents=True,exist_ok=True);(folder/(iid+'.'+ext)).write_bytes(raw)
             con.execute('INSERT INTO builder_evidence VALUES(?,?,?,?,?,?)',(iid,user['uid'],cid,attempt['attempt_no'],bid,ext));con.commit()
         return {'id':iid}
@@ -379,6 +382,7 @@ def register(app, db, admin, student, now, data_dir, static_dir=None):
             con.execute('BEGIN IMMEDIATE')
             a=con.execute('SELECT * FROM course_attempts WHERE user_id=? AND course_id=? AND attempt_no=?',(uid,cid,attempt)).fetchone()
             if not a:raise HTTPException(404,'Попытка не найдена')
+            retention.assert_open(json.loads(a['state_json']))
             if data.get('updated_at')!=a['updated_at']:raise HTTPException(409,'Студент изменил работу. Обновите её перед проверкой')
             state=json.loads(a['state_json']);answer=state.get('answers',{}).get(bid)
             base=10 if block['type'] in ('single','multiple','boolean') and isinstance(answer,list) and all(type(i) is int for i in answer) and sorted(set(answer))==sorted(block['correct']) else 0

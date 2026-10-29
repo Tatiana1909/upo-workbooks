@@ -13,6 +13,7 @@ from fastapi import Depends, HTTPException, Header
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 import fire
+import retention
 
 PREFIX = '/api/v1/fire/builder'
 class Draft(BaseModel):
@@ -211,6 +212,7 @@ def register(app, db, admin, student, now, static, data_dir, backup):
         require(isinstance(payload.get('state'),dict) and len(json.dumps(payload))<=250000,'Неверный формат ответа')
         with closing(db()) as con:
             con.execute('BEGIN IMMEDIATE');c=json.loads(edition(con,cid)['content']);r=latest(con,u['uid'],cid);a=r['attempt'] if r else 1
+            if r:retention.assert_open(json.loads(r['state']))
             old=json.loads(r['state']) if r else {};incoming=copy.deepcopy(payload['state']);incoming['first']={};s=fire.prepare_state(incoming,old,c)
             supplements(con,cid,u['uid'],a,c,s)
             review=json.loads(r['review']) if r else {}
@@ -223,7 +225,7 @@ def register(app, db, admin, student, now, static, data_dir, backup):
         with closing(db()) as con:
             con.execute('BEGIN IMMEDIATE');e=edition(con,cid);c=json.loads(e['content']);r=latest(con,u['uid'],cid)
             if not r:raise HTTPException(409,'Сначала сохраните результаты')
-            s=json.loads(r['state']);fire.validate_state(s,c)
+            s=json.loads(r['state']);retention.assert_open(s);fire.validate_state(s,c)
             if not s.get('submitted'):
                 if not all(s['read'].get(m['id']) is True for m in c['modules']) or not all(q['id'] in s['answers'] for q in fire.tasks(c)) or not supplements(con,cid,u['uid'],r['attempt'],c,s):raise HTTPException(409,'Завершите разделы, тренировку и практику')
                 if not all(q['id'] in s['exam'] for q in c['final']):raise HTTPException(422,'Ответьте на все вопросы')
@@ -255,6 +257,7 @@ def register(app, db, admin, student, now, static, data_dir, backup):
             con.execute('BEGIN IMMEDIATE');edition(con,cid)
             r=con.execute('SELECT * FROM fb_attempts WHERE uid=? AND cid=? AND attempt=?',(p.get('user_id'),cid,p.get('attempt'))).fetchone()
             if not r:raise HTTPException(404,'Попытка не найдена')
+            retention.assert_open(json.loads(r['state']))
             if p.get('updated_at')!=r['updated_at']:raise HTTPException(409,'Участник изменил работу: обновите данные')
             value={k:p.get(k) for k in ('comment','practical','points')};value.update(checked=p.get('checked',True),needs_recheck=False,reviewer=u.get('name'),reviewed_at=now())
             sm=feedback_score(json.loads(r['summary']),value)
@@ -285,6 +288,7 @@ def register(app, db, admin, student, now, static, data_dir, backup):
             if not b:raise HTTPException(404,'Практика не найдена')
             r=latest(con,u['uid'],cid)
             if not r:raise HTTPException(409,'Сначала сохраните работу')
+            retention.assert_open(json.loads(r['state']))
             iid=secrets.token_hex(16);folder=Path(data_dir)/'fire-builder-evidence';folder.mkdir(exist_ok=True)
             (folder/(iid+'.'+ext)).write_bytes(raw)
             con.execute('INSERT INTO fb_evidence VALUES(?,?,?,?,?,?)',(iid,u['uid'],cid,r['attempt'],bid,ext));con.commit()
